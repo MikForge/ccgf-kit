@@ -1,0 +1,253 @@
+{
+  "nested": {
+    "network": {
+      "nested": {
+        "Response": {
+          "fields": {
+            "code": {
+              "type": "int32",
+              "id": 1
+            },
+            "message": {
+              "type": "string",
+              "id": 2
+            },
+            "data": {
+              "type": "bytes",
+              "id": 3
+            }
+          }
+        },
+        "HeartbeatRequest": {
+          "fields": {
+            "timestamp": {
+              "type": "int64",
+              "id": 1
+            }
+          }
+        },
+        "HeartbeatResponse": {
+          "fields": {
+            "serverTime": {
+              "type": "int64",
+              "id": 1
+            }
+          }
+        },
+        "ErrorCode": {
+          "values": {
+            "SUCCESS": 0,
+            "UNKNOWN_ERROR": 1,
+            "INVALID_PARAM": 2,
+            "AUTH_FAILED": 3,
+            "TIMEOUT": 4,
+            "SERVER_ERROR": 5
+          }
+        },
+        "GameData": {
+          "fields": {
+            "level": {
+              "type": "int32",
+              "id": 1
+            },
+            "score": {
+              "type": "int32",
+              "id": 2
+            },
+            "coin": {
+              "type": "int32",
+              "id": 3
+            },
+            "diamond": {
+              "type": "int32",
+              "id": 4
+            },
+            "items": {
+              "rule": "repeated",
+              "type": "int32",
+              "id": 5
+            }
+          }
+        },
+        "EnterGameRequest": {
+          "fields": {
+            "levelId": {
+              "type": "int32",
+              "id": 1
+            }
+          }
+        },
+        "EnterGameResponse": {
+          "fields": {
+            "gameData": {
+              "type": "GameData",
+              "id": 1
+            },
+            "startTime": {
+              "type": "int64",
+              "id": 2
+            }
+          }
+        },
+        "GameResult": {
+          "fields": {
+            "levelId": {
+              "type": "int32",
+              "id": 1
+            },
+            "score": {
+              "type": "int32",
+              "id": 2
+            },
+            "duration": {
+              "type": "int32",
+              "id": 3
+            },
+            "isWin": {
+              "type": "bool",
+              "id": 4
+            },
+            "rewards": {
+              "rule": "repeated",
+              "type": "Reward",
+              "id": 5
+            }
+          }
+        },
+        "Reward": {
+          "fields": {
+            "type": {
+              "type": "int32",
+              "id": 1
+            },
+            "itemId": {
+              "type": "int32",
+              "id": 2
+            },
+            "count": {
+              "type": "int32",
+              "id": 3
+            }
+          }
+        },
+        "SubmitGameResultRequest": {
+          "fields": {
+            "result": {
+              "type": "GameResult",
+              "id": 1
+            },
+            "signature": {
+              "type": "string",
+              "id": 2
+            }
+          }
+        },
+        "SubmitGameResultResponse": {
+          "fields": {
+            "gameData": {
+              "type": "GameData",
+              "id": 1
+            },
+            "rewards": {
+              "rule": "repeated",
+              "type": "Reward",
+              "id": 2
+            }
+          }
+        },
+        "UserInfo": {
+          "fields": {
+            "userId": {
+              "type": "int64",
+              "id": 1
+            },
+            "username": {
+              "type": "string",
+              "id": 2
+            },
+            "nickname": {
+              "type": "string",
+              "id": 3
+            },
+            "level": {
+              "type": "int32",
+              "id": 4
+            },
+            "exp": {
+              "type": "int64",
+              "id": 5
+            },
+            "avatar": {
+              "type": "string",
+              "id": 6
+            },
+            "createdAt": {
+              "type": "int64",
+              "id": 7
+            }
+          }
+        },
+        "LoginRequest": {
+          "fields": {
+            "username": {
+              "type": "string",
+              "id": 1
+            },
+            "password": {
+              "type": "string",
+              "id": 2
+            },
+            "deviceId": {
+              "type": "string",
+              "id": 3
+            }
+          }
+        },
+        "LoginResponse": {
+          "fields": {
+            "token": {
+              "type": "string",
+              "id": 1
+            },
+            "userInfo": {
+              "type": "UserInfo",
+              "id": 2
+            },
+            "expireTime": {
+              "type": "int64",
+              "id": 3
+            }
+          }
+        },
+        "GetUserInfoRequest": {
+          "fields": {
+            "userId": {
+              "type": "int64",
+              "id": 1
+            }
+          }
+        },
+        "GetUserInfoResponse": {
+          "fields": {
+            "userInfo": {
+              "type": "UserInfo",
+              "id": 1
+            }
+          }
+        },
+        "UpdateUserInfoRequest": {
+          "fields": {
+            "nickname": {
+              "type": "string",
+              "id": 1
+            },
+            "avatar": {
+              "type": "string",
+              "id": 2
+            }
+          }
+        }
+      }
+    }
+  }
+}
