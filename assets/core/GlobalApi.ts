@@ -9,6 +9,7 @@ import { LocalStorageMgr } from "db://assets/core/localStorage";
 import { utils } from "db://assets/core/utils";
 import { EventMgr } from "db://assets/core/event";
 import { HotUpdateMgr } from "db://assets/core/cchotupdate";
+import { GameCfgMgr } from 'db://assets/core/game-cfg';
 
 /** Framework version 框架版本号 */
 export const version = '1.0.0.20251126';
@@ -26,6 +27,7 @@ export class M {
     static readonly ls = LocalStorageMgr.getInstance();
     static readonly event: EventMgr = EventMgr.getInstance();
     static readonly hotupdate: HotUpdateMgr = HotUpdateMgr.getInstance();
+    static readonly gameCfgMgr: GameCfgMgr = GameCfgMgr.getInstance();
 }
 
 /**
