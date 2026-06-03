@@ -1,9 +1,9 @@
-interface GameConfig {
+export interface GameConfig {
     type: string;
     config: Record<string, EnvConfig>;
 }
 
-interface EnvConfig {
+export interface EnvConfig {
     httpServer: string;
     webSocketServer: string;
 }
