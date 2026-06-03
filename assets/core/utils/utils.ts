@@ -1,4 +1,4 @@
-import { LayerType } from "db://assets/core/gui";
+import { LayerType } from "db://ccgf-kit/core/gui";
 
 export class utils {
 

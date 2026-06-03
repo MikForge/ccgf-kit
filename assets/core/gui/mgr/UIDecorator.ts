@@ -8,7 +8,7 @@
 import { Component } from "cc";
 import { IUILifecycle, UIViewConfig, UIViewParam } from "../defines/ui-structs";
 import { UIConfigRegistry } from "./UIConfigRegistry";
-import { IMediator } from "db://assets/core/libs/puremvc";
+import { IMediator } from "db://ccgf-kit/core/libs/puremvc";
 
 
 /** View 元数据标记键 */

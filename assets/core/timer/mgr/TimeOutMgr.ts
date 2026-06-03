@@ -1,4 +1,4 @@
-import { Singleton } from "db://assets/core/common";
+import { Singleton } from "db://ccgf-kit/core/common";
 
 /**
  * 计时器管理器

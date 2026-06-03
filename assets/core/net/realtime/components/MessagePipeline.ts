@@ -1,8 +1,8 @@
 import { NetData } from "../defines/net-structs";
 import { IPacketHandler, IResponsePacket } from "../base/IPacketHandler";
 import { InFlightTracker } from "./InFlightTracker";
-import { FrameEventDispatcher } from "db://assets/core/utils";
-import { BoundedQueue, overflowStrategy } from "db://assets/core/utils";
+import { FrameEventDispatcher } from "db://ccgf-kit/core/utils";
+import { BoundedQueue, overflowStrategy } from "db://ccgf-kit/core/utils";
 
 /**
  * 消息处理管道

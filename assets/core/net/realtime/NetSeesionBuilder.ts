@@ -1,4 +1,4 @@
-import { FrameEventOptions } from "db://assets/core/utils";
+import { FrameEventOptions } from "db://ccgf-kit/core/utils";
 
 import { InFlightTracker } from "./components/InFlightTracker";
 import { INetworkTips } from "./defines/net-structs";

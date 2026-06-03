@@ -1,4 +1,4 @@
-import { Singleton } from "db://assets/core/common";
+import { Singleton } from "db://ccgf-kit/core/common";
 import { UIViewConfig, UIConfigMap } from "../defines/ui-structs";
 
 

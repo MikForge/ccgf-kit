@@ -1,10 +1,10 @@
-import { Singleton } from "db://assets/core/common";
-import { CoreEvents } from 'db://assets/core/event';
+import { Singleton } from "db://ccgf-kit/core/common";
+import { CoreEvents } from 'db://ccgf-kit/core/event';
 import { ErrorHandlerInterceptor, HttpLogInterceptor, HttpTokenInterceptor } from "../http/base/http-interceptors";
 import { HttpClient } from "../http/impl/HttpClient";
-import { NetConnectOptions, NetData, RequestObject } from "db://assets/core/net/realtime";
-import { NetSession } from "db://assets/core/net/realtime";
-import { NetChannelType } from 'db://assets/core/net/realtime';
+import { NetConnectOptions, NetData, RequestObject } from "db://ccgf-kit/core/net/realtime";
+import { NetSession } from "db://ccgf-kit/core/net/realtime";
+import { NetChannelType } from 'db://ccgf-kit/core/net/realtime';
 
 /** 网络管理器 */
 export class NetMgr extends Singleton<NetMgr> {

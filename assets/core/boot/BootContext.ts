@@ -1,5 +1,5 @@
 import { BootState } from './defines/boot.enum';
-import type { CoreEventMap } from 'db://assets/core/event';
+import type { CoreEventMap } from 'db://ccgf-kit/core/event';
 import type { BootFSM } from './BootFSM';
 import type { BootErrorInfo } from './defines/boot.structs';
 import type { BootActions } from './base/BootActions';

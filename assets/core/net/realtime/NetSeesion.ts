@@ -1,7 +1,7 @@
 import { INetworkTips, NetConnectOptions, NetData, NetSateCfg, RequestObject } from "./defines/net-structs";
 import { IPacketHandler, IRequestPacket, IResponsePacket } from "./base/IPacketHandler";
 import { error } from "cc";
-import { FrameEventDispatcher, FrameEventOptions } from "db://assets/core/utils";
+import { FrameEventDispatcher, FrameEventOptions } from "db://ccgf-kit/core/utils";
 import { InFlightTracker } from "./components/InFlightTracker";
 import { IHeartbeatStrategy } from "./strategy/IHeartbeatStrategy";
 import { IReconnectStrategy } from "./strategy/IReconnectStrategy";
@@ -12,7 +12,7 @@ import { FixedHeartbeat } from "./strategy/heartbeat/FixedHeartbeat";
 import { ExponentialBackoff, ExponentialBackoffConfig } from "./strategy/reconnect/ExponentialBackoff";
 import { ISocket } from "./base/ISocket";
 import { NetErrorCode, NetSessionEvent, NetSessionState } from "./defines/net.enum";
-import { CoreEvents } from 'db://assets/core/event';
+import { CoreEvents } from 'db://ccgf-kit/core/event';
 
 
 

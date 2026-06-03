@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, director, game, Game } from 'cc';
-import { version } from 'db://assets/core/GlobalApi';
+import { version } from 'db://ccgf-kit/core/GlobalApi';
 const { property } = _decorator;
 
 export abstract class GameBootstrap extends Component {

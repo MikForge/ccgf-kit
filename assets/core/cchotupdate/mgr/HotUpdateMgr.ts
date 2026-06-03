@@ -1,8 +1,8 @@
 
 import { Asset, game, native, sys } from "cc";
 
-import { CoreEvents } from 'db://assets/core/event';
-import { HttpServer } from "db://assets/core/net/http";
+import { CoreEvents } from 'db://ccgf-kit/core/event';
+import { HttpServer } from "db://ccgf-kit/core/net/http";
 import { HotUpdateState } from "../defines/hotupdate.enum";
 
 

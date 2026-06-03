@@ -6,7 +6,7 @@ import { WxMiniSdkPlatform } from '../impl/WxMiniSdkPlatform';
 import { NativeSdkPlatform } from '../impl/NativeSdkPlatform';
 import { WebSdkPlatform } from '../impl/WebSdkPlatform';
 import { Singleton } from '../../common';
-import { CoreEvents } from 'db://assets/core/event';
+import { CoreEvents } from 'db://ccgf-kit/core/event';
 
 export class SdkMgr extends Singleton<SdkMgr> {
 

@@ -1,7 +1,7 @@
 
 import { Component, game } from "cc";
 import { Timer } from "../base/Timer";
-import { StringUtil } from "db://assets/core/utils";
+import { StringUtil } from "db://ccgf-kit/core/utils";
 
 interface ITimer {
     /** 倒计时编号 */

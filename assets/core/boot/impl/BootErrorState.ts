@@ -1,5 +1,5 @@
-import { IState } from 'db://assets/core/utils';
-import { CoreEvents } from 'db://assets/core/event';
+import { IState } from 'db://ccgf-kit/core/utils';
+import { CoreEvents } from 'db://ccgf-kit/core/event';
 import { BootState } from '../defines/boot.enum';
 import { BootContext } from '../BootContext';
 

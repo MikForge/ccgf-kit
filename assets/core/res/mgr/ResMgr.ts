@@ -2,7 +2,7 @@
 
 
 import { __private, Asset, assetManager, AssetManager, Prefab, resources } from "cc";
-import { Singleton } from "db://assets/core/common";
+import { Singleton } from "db://ccgf-kit/core/common";
 import { IResArgs, IResDirArgs } from "../defines/res-structs";
 
 

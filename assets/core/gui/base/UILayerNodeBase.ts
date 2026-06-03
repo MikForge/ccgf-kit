@@ -1,5 +1,5 @@
 import { Node } from "cc";
-import { UIHelper } from "db://assets/core/helper";
+import { UIHelper } from "db://ccgf-kit/core/helper";
 import { UIViewState } from "./UIViewState";
 import { UIComptBase } from "./UIComptBase";
 import { LayerContainerType } from "../defines/ui-layer.enum";

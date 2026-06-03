@@ -1,15 +1,15 @@
 
-import { LogHelper, SortHelper } from "db://assets/core/helper";
-import { UIMgr } from "db://assets/core/gui";
-import { ResMgr } from "db://assets/core/res";
-import { SdkMgr } from "db://assets/core/sdk";
-import { TimerManager, TimeOutMgr } from "db://assets/core/timer";
-import { NetMgr } from "db://assets/core/net";
-import { LocalStorageMgr } from "db://assets/core/localStorage";
-import { utils } from "db://assets/core/utils";
-import { EventMgr } from "db://assets/core/event";
-import { HotUpdateMgr } from "db://assets/core/cchotupdate";
-import { GameCfgMgr } from 'db://assets/core/game-cfg';
+import { LogHelper, SortHelper } from "db://ccgf-kit/core/helper";
+import { UIMgr } from "db://ccgf-kit/core/gui";
+import { ResMgr } from "db://ccgf-kit/core/res";
+import { SdkMgr } from "db://ccgf-kit/core/sdk";
+import { TimerManager, TimeOutMgr } from "db://ccgf-kit/core/timer";
+import { NetMgr } from "db://ccgf-kit/core/net";
+import { LocalStorageMgr } from "db://ccgf-kit/core/localStorage";
+import { utils } from "db://ccgf-kit/core/utils";
+import { EventMgr } from "db://ccgf-kit/core/event";
+import { HotUpdateMgr } from "db://ccgf-kit/core/cchotupdate";
+import { GameCfgMgr } from 'db://ccgf-kit/core/game-cfg';
 
 /** Framework version 框架版本号 */
 export const version = '1.0.0.20251126';

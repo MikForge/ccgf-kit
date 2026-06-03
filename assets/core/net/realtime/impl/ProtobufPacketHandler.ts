@@ -4,7 +4,7 @@ import { EncryptionUtil } from "../../utils/EncryptionUtil";
 import { NetData } from "../defines/net-structs";
 import { IPacketHandler, IRequestPacket, IResponsePacket } from "../base/IPacketHandler";
 
-import * as root from 'db://assets/core/net/proto/bundle.js';
+import * as root from 'db://ccgf-kit/core/net/proto/bundle.js';
 
 /**
  * Protobuf协议包处理器

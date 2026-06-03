@@ -1,4 +1,4 @@
-import { Singleton } from "db://assets/core/common";
+import { Singleton } from "db://ccgf-kit/core/common";
 import { HttpEvent, HttpMethod, HttpReadyState, HttpServer, HttpStatus } from "../defines/http-enum";
 import { HttpRequestCfg, HttpReturn, RetryConfig, HttpRequestInterceptor, HttpResponseInterceptor, HttpCallback } from "../defines/http-structs";
 

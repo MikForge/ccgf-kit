@@ -5,8 +5,8 @@ import { UIGameLayerNode } from "../impl/UIGameLayerNode";
 import { UIViewConfig, UIConfigMap, UIViewParam, IUILifecycle } from "../defines/ui-structs";
 import { UILayerNodeBase } from "../base/UILayerNodeBase";
 import { UIViewState } from "../base/UIViewState";
-import { utils } from "db://assets/core/utils";
-import { Singleton } from "db://assets/core/common";
+import { utils } from "db://ccgf-kit/core/utils";
+import { Singleton } from "db://ccgf-kit/core/common";
 import { UIConfigRegistry } from "./UIConfigRegistry";
 
 

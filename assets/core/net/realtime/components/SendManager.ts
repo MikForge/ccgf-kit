@@ -1,6 +1,6 @@
 import { NetData, RequestObject } from "../defines/net-structs";
 import { InFlightTracker } from "./InFlightTracker";
-import { BoundedQueue, overflowStrategy } from "db://assets/core/utils";
+import { BoundedQueue, overflowStrategy } from "db://ccgf-kit/core/utils";
 import { ISocket } from "../base/ISocket";
 import { NetSessionState } from "../defines/net.enum";
 

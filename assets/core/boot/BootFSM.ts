@@ -1,6 +1,6 @@
-import { FSM } from 'db://assets/core/utils';
-import { CoreEvents } from 'db://assets/core/event';
-import type { CoreEventMap } from 'db://assets/core/event';
+import { FSM } from 'db://ccgf-kit/core/utils';
+import { CoreEvents } from 'db://ccgf-kit/core/event';
+import type { CoreEventMap } from 'db://ccgf-kit/core/event';
 import { BootState } from './defines/boot.enum';
 import { BootContext } from './BootContext';
 import { FrameworkInitState } from './impl/FrameworkInitState';

@@ -1,4 +1,4 @@
-import { Singleton } from 'db://assets/core/common';
+import { Singleton } from 'db://ccgf-kit/core/common';
 import type { GameConfig } from '../defines/game-config.structs';
 
 export class GameCfgMgr extends Singleton<GameCfgMgr> {

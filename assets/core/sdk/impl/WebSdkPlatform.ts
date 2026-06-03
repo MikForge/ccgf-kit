@@ -1,5 +1,5 @@
 import { sys } from "cc";
-import { HttpServer } from "db://assets/core/net/http";
+import { HttpServer } from "db://ccgf-kit/core/net/http";
 import { ISdkPlatform } from "../base/ISdkPlatform";
 import { LoginResult, PayParams, RewardAdResult, RewardAdStatus, SdkPlatformName, TrackEventPayload } from "../defines/SdkTypes";
 

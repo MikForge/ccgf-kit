@@ -1,0 +1,17 @@
+{
+  "package_version": 2,
+  "version": "0.1.0",
+  "name": "ccgf-kit",
+  "description": "ccgf runtime framework extension",
+  "author": "MikForge",
+  "editor": ">=3.8.0",
+  "scripts": {},
+  "contributions": {
+    "asset-db": {
+      "mount": {
+        "path": "./assets",
+        "readonly": true
+      }
+    }
+  }
+}
