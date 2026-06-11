@@ -1,0 +1,12 @@
+# ── 默认忽略全部 ──
+*
+
+# ── 允许提交 ──
+!.gitignore
+!README.md
+!package.json
+!tsconfig.json
+!assets/
+!assets/**
+
+# ── 排除项（在白名单中但不可提交） ──
