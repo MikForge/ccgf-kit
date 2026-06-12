@@ -72,22 +72,22 @@ export function singleton<T extends { new(...args: any[]): {} }>(constructor: T)
  */
 export class Singleton<T> {
 
-    protected static _instance: any = null;
+    protected static _instance: unknown | null = null;
 
     static getInstance<T>(this: new () => T): T {
-        const constructor = this as any;
-        if (!constructor._instance) {
-            constructor._instance = new this();
+        const self = this as unknown as { _instance: unknown | null };
+        if (!self._instance) {
+            self._instance = new this();
         }
-        return constructor._instance;
+        return self._instance as T;
     }
 
     static destroyInstance(): void {
-        (this as any)._instance = null;
+        this._instance = null;
     }
 
     static hasInstance(): boolean {
-        return (this as any)._instance != null;
+        return this._instance != null;
     }
 }
 
