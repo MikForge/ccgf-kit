@@ -46,6 +46,28 @@ import { TimerManager }  from 'db://ccgf-kit/core/timer';
 import { EventMgr }      from 'db://ccgf-kit/core/event';
 ```
 
+## 创建启动场景
+
+通过编辑器菜单一键生成符合 ccgf 框架规范的启动场景骨架，包含 `root` / `game` / `gui` / `UICamera` 四层节点树及内置组件（Canvas、UITransform、Widget、Camera）。
+
+### 操作步骤
+
+1. 点击菜单栏 **扩展 → ccgf-kit → 创建启动场景**
+2. 在保存对话框中选择路径（默认 `assets/main.scene`），点击确认
+3. 场景文件生成后，编辑器弹出提示对话框，列出后续手动操作
+4. 按提示将 `Main.ts` 拖到 `root` 节点上，并绑定 `gameRoot` / `uiRoot` 属性
+
+### 生成节点树
+
+```text
+root
+├── game          （游戏层容器，无内置组件）
+└── gui           （UI 层容器，含 Canvas / UITransform / Widget）
+    └── UICamera  （UI 摄像机，正交投影）
+```
+
+> **提示**：生成的场景 **不挂载 Main 组件**。生成后需手动将 `Main.ts` 挂载到 `root` 节点，并将 `game`、`gui` 子节点分别拖入 Main 组件的 `gameRoot`、`uiRoot` 属性。
+
 ## 环境要求
 
 - Cocos Creator 3.8+
