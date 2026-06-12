@@ -8,5 +8,9 @@
 !tsconfig.json
 !assets/
 !assets/**
+!src/
+!src/**
+!dist/
+!dist/**
 
 # ── 排除项（在白名单中但不可提交） ──

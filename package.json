@@ -5,12 +5,28 @@
   "description": "ccgf runtime framework extension",
   "author": "MikForge",
   "editor": ">=3.8.0",
-  "scripts": {},
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json",
+    "watch": "tsc -w -p ./tsconfig.json"
+  },
   "contributions": {
     "asset-db": {
       "mount": {
         "path": "./assets",
         "readonly": false
+      }
+    },
+    "menu": [
+      {
+        "path": "扩展/ccgf-kit",
+        "label": "创建启动场景",
+        "message": "create-bootstrap-scene"
+      }
+    ],
+    "messages": {
+      "create-bootstrap-scene": {
+        "methods": ["createBootstrapScene"]
       }
     }
   }
