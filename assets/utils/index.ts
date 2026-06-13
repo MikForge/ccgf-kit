@@ -7,4 +7,4 @@ export { BoundedQueue, overflowStrategy } from "./queue/BoundedQueue";
 export { Queue } from "./queue/Queue";
 export { AsyncQueue } from "./queue/AsyncQueue";
 export { FSM } from "./fsm/FSM";
-export type { IState } from "./fsm/IState";
+export type { IState, FSMCfg } from "./fsm/IState";
