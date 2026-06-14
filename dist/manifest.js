@@ -37,6 +37,8 @@ exports.parseManifest = parseManifest;
 exports.readManifest = readManifest;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+/** repo 字段格式校验 */
+const REPO_PATTERN = /^[^\/\s]+\/[^\/\s]+$/;
 /**
  * 将 JSON 字符串解析为 Manifest。
  *
@@ -57,8 +59,23 @@ function parseManifest(json) {
         throw new Error('模版清单解析失败：根元素必须为对象');
     }
     const obj = parsed;
+    // repo 字段校验
+    if (typeof obj.repo !== 'string' || obj.repo.length === 0) {
+        throw new Error('模版清单解析失败：缺少 repo 字段');
+    }
+    if (!REPO_PATTERN.test(obj.repo)) {
+        throw new Error(`模版清单解析失败：repo 格式无效（期望 owner/repo，实际 ${obj.repo}）`);
+    }
+    // ref 字段校验
+    if (typeof obj.ref !== 'string' || obj.ref.length === 0) {
+        throw new Error('模版清单解析失败：缺少 ref 字段');
+    }
+    // entries 数组校验
     if (!Array.isArray(obj.entries)) {
         throw new Error('模版清单解析失败：缺少 entries 数组');
+    }
+    if (obj.entries.length === 0) {
+        throw new Error('模版清单解析失败：entries 数组为空');
     }
     const entries = [];
     for (let i = 0; i < obj.entries.length; i++) {
@@ -67,27 +84,31 @@ function parseManifest(json) {
             throw new Error(`模版清单解析失败：entries[${i}] 必须为对象`);
         }
         const e = entry;
-        if (typeof e.src !== 'string') {
-            throw new Error(`模版清单解析失败：entries[${i}].src 必须为字符串`);
+        if (typeof e.src !== 'string' || e.src.length === 0) {
+            throw new Error(`模版清单解析失败：entries[${i}].src 必须为非空字符串`);
         }
-        if (typeof e.dest !== 'string') {
-            throw new Error(`模版清单解析失败：entries[${i}].dest 必须为字符串`);
+        if (typeof e.dest !== 'string' || e.dest.length === 0) {
+            throw new Error(`模版清单解析失败：entries[${i}].dest 必须为非空字符串`);
+        }
+        // src 必须以 / 结尾（仅支持目录类型）
+        if (!e.src.endsWith('/')) {
+            throw new Error(`模版清单解析失败：entries[${i}].src 必须以 / 结尾（仅支持目录类型），实际 ${e.src}`);
         }
         entries.push({ src: e.src, dest: e.dest });
     }
-    return { entries };
+    return { repo: obj.repo, ref: obj.ref, entries };
 }
 /**
  * 从文件系统读取模版清单文件。
  *
- * @param templatesDir - templates 目录的绝对路径
+ * @param extensionRoot - 扩展根目录的绝对路径（extensions/ccgf-kit/）
  * @returns 解析后的 Manifest 对象
  * @throws 如果文件不存在或解析失败
  */
-function readManifest(templatesDir) {
-    const manifestPath = path.join(templatesDir, 'manifest.json');
+function readManifest(extensionRoot) {
+    const manifestPath = path.join(extensionRoot, 'manifest.json');
     if (!fs.existsSync(manifestPath)) {
-        throw new Error(`模版清单 templates/manifest.json 不存在`);
+        throw new Error(`模版清单 manifest.json 不存在（${manifestPath}）`);
     }
     const content = fs.readFileSync(manifestPath, 'utf-8');
     return parseManifest(content);

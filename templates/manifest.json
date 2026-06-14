@@ -1,7 +1,0 @@
-{
-    "entries": [
-        { "src": "scripts/GlobalApi.ts",  "dest": "assets/scripts/GlobalApi.ts" },
-        { "src": "scripts/Main.ts",       "dest": "assets/scripts/Main.ts" },
-        { "src": "scripts/game/",         "dest": "assets/scripts/game/" }
-    ]
-}

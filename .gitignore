@@ -8,6 +8,7 @@
 !tsconfig.json
 !assets/
 !assets/**
+!manifest.json
 !src/
 !src/**
 !dist/

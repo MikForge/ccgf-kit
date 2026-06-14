@@ -1,0 +1,8 @@
+{
+    "repo": "MikForge/ccgf",
+    "ref": "main",
+    "entries": [
+        { "src": "scripts/ccgf/",      "dest": "assets/scripts/ccgf/" },
+        { "src": "scripts/resources/", "dest": "assets/resources/" }
+    ]
+}

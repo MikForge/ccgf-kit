@@ -1,31 +1,16 @@
 'use strict';
 
-import * as fs from 'fs';
 import * as path from 'path';
 import { ManifestEntry, readManifest } from './manifest';
+import { fetchDirListing, downloadRawFile } from './github-fetcher';
 
 declare const Editor: any;
 
-/** 项目 root 目录的缓存 */
-let _projectRoot: string = '';
-
-/**
- * 获取 Cocos Creator 项目根目录。
- */
-function getProjectRoot(): string {
-    if (!_projectRoot) {
-        // Editor.Project.path 在 Cocos Creator 3.x 中可用
-        _projectRoot = Editor.Project.path || '';
-    }
-    return _projectRoot;
-}
-
 /**
  * 获取扩展所在目录（extensions/ccgf-kit/）。
- * 编译后 main.js 位于 dist/，因此上两级为扩展根目录。
+ * 编译后 main.js 位于 dist/，因此上一级为扩展根目录。
  */
 function getExtensionRoot(): string {
-    // __dirname 指向 dist/，回到上级即扩展根
     return path.resolve(__dirname, '..');
 }
 
@@ -38,118 +23,100 @@ function toDbUrl(relativePath: string): string {
 }
 
 /**
- * 获取目录下所有文件的相对路径列表（递归）。
+ * 执行单条目复制：从远程 GitHub 下载目录并写入项目。
  *
- * @param dirPath 目录绝对路径
- * @param basePath 用于计算相对路径的基准路径
- * @returns 相对路径数组
- */
-function listFilesRecursive(dirPath: string, basePath: string): string[] {
-    const files: string[] = [];
-    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
-
-    for (const entry of entries) {
-        const fullPath = path.join(dirPath, entry.name);
-        const relPath = path.relative(basePath, fullPath);
-
-        if (entry.isDirectory()) {
-            // 递归遍历子目录
-            files.push(...listFilesRecursive(fullPath, basePath));
-        } else if (entry.isFile()) {
-            files.push(relPath);
-        }
-    }
-
-    return files;
-}
-
-/**
- * 执行单条目复制（文件或目录）。
- *
- * @param templatesDir templates 目录的绝对路径
- * @param entry 复制清单条目
+ * @param repo - GitHub 仓库 owner/repo
+ * @param ref - 分支 / tag / commit
+ * @param entry - 复制清单条目（仅目录类型）
  * @returns 创建的文件数
  */
-async function processEntry(templatesDir: string, entry: ManifestEntry): Promise<number> {
+async function processEntry(
+    repo: string,
+    ref: string,
+    entry: ManifestEntry,
+): Promise<number> {
     const { src, dest } = entry;
 
-    // 判断是否为目录类型（src 以 / 结尾）
-    if (src.endsWith('/')) {
-        // 目录条目：递归复制目录下所有文件
-        const srcDir = path.join(templatesDir, src);
-        if (!fs.existsSync(srcDir)) {
-            console.warn(`[ccgf-kit] [warn] 模版目录不存在：${src}`);
-            return 0;
-        }
+    // 1. 从 GitHub Contents API 获取远程文件列表
+    let files;
+    try {
+        files = await fetchDirListing(repo, ref, src);
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.warn(`[ccgf-kit] [warn] 获取远程目录列表失败 ${src}：${message}`);
+        return 0;
+    }
 
-        const files = listFilesRecursive(srcDir, path.join(templatesDir, src));
-        let createdCount = 0;
+    if (files.length === 0) {
+        console.log(`[ccgf-kit] 远程目录为空：${src}`);
+        return 0;
+    }
 
-        for (const relFile of files) {
-            const srcFile = path.join(srcDir, relFile);
-            const destRelPath = path.join(dest, relFile);
-            const destUrl = toDbUrl(destRelPath);
+    let createdCount = 0;
 
-            // 检查目标是否已存在
+    for (const gitFile of files) {
+        // 计算目标路径：src 目录前缀映射到 dest
+        const relativePath = gitFile.path.slice(src.length);
+        const destRelPath = path.join(dest, relativePath);
+        const destUrl = toDbUrl(destRelPath);
+
+        // 2. 检查目标是否已存在
+        try {
             const existing = await Editor.Message.request('asset-db', 'query-asset-info', destUrl);
             if (existing) {
                 console.log(`[ccgf-kit] [skipped] ${destRelPath}`);
                 continue;
             }
+        } catch {
+            // query-asset-info 失败时假定不存在，继续写入
+        }
 
-            const content = fs.readFileSync(srcFile, 'utf-8');
-            // 确保父目录存在（asset-db 的 create-asset 会自动创建父目录）
+        // 3. 下载文件内容
+        let content: string;
+        try {
+            content = await downloadRawFile(repo, ref, gitFile.path);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            console.warn(`[ccgf-kit] [warn] 下载文件失败 ${gitFile.path}：${message}`);
+            continue;
+        }
+
+        // 4. 通过 asset-db 写入项目
+        try {
             await Editor.Message.request('asset-db', 'create-asset', destUrl, content, {});
             console.log(`[ccgf-kit] [created] ${destRelPath}`);
             createdCount++;
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            console.warn(`[ccgf-kit] [warn] 写入文件失败 ${destRelPath}：${message}`);
         }
-
-        return createdCount;
-    } else {
-        // 文件条目：复制单个文件
-        const srcFile = path.join(templatesDir, src);
-        if (!fs.existsSync(srcFile)) {
-            console.warn(`[ccgf-kit] [warn] 模版文件不存在：${src}`);
-            return 0;
-        }
-
-        const destUrl = toDbUrl(dest);
-
-        // 检查目标是否已存在
-        const existing = await Editor.Message.request('asset-db', 'query-asset-info', destUrl);
-        if (existing) {
-            console.log(`[ccgf-kit] [skipped] ${dest}`);
-            return 0;
-        }
-
-        const content = fs.readFileSync(srcFile, 'utf-8');
-        await Editor.Message.request('asset-db', 'create-asset', destUrl, content, {});
-        console.log(`[ccgf-kit] [created] ${dest}`);
-        return 1;
     }
+
+    return createdCount;
 }
 
 /**
- * 初始化项目脚本：将模版文件按清单复制到项目 scripts 目录。
+ * 初始化项目脚本：从远程 GitHub 仓库下载模板文件到项目。
  *
  * 流程：
- * 1. 读取 templates/manifest.json
- * 2. 遍历 entries，逐条执行复制
+ * 1. 读取 manifest.json（位于扩展根目录）
+ * 2. 遍历 entries，逐条从远程下载并写入
  * 3. 输出汇总日志
  */
 export async function initProject(): Promise<void> {
     try {
         const extensionRoot = getExtensionRoot();
-        const templatesDir = path.join(extensionRoot, 'templates');
 
         // 1. 读取清单
-        const manifest = readManifest(templatesDir);
+        const manifest = readManifest(extensionRoot);
 
-        // 2. 检查是否为空
+        // 2. 校验 entries
         if (manifest.entries.length === 0) {
             console.log('[ccgf-kit] 无待复制条目');
             return;
         }
+
+        const { repo, ref } = manifest;
 
         // 3. 逐条处理
         let createdCount = 0;
@@ -157,7 +124,7 @@ export async function initProject(): Promise<void> {
 
         for (const entry of manifest.entries) {
             try {
-                const created = await processEntry(templatesDir, entry);
+                const created = await processEntry(repo, ref, entry);
                 if (created > 0) {
                     createdCount += created;
                 } else {
