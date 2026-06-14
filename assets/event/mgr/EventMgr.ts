@@ -1,7 +1,7 @@
-import { Singleton } from '../../common';
+import { Singleton } from 'db://ccgf-kit/common';
 import { EventTarget } from 'cc';
-import { TimeOutMgr } from '../../timer';
-import { CoreEventMap } from '../defines/CoreEventMap';
+import { TimeOutMgr } from 'db://ccgf-kit/timer';
+import { CoreEventMap } from 'db://ccgf-kit/event/defines/CoreEventMap';
 
 export class EventMgr extends Singleton<EventMgr> {
     private _target: EventTarget;

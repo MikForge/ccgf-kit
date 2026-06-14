@@ -1,7 +1,7 @@
 import { IState } from 'db://ccgf-kit/utils';
 import { CoreEvents } from 'db://ccgf-kit/event';
-import { BootState } from '../defines/boot.enum';
-import { BootContext } from '../BootContext';
+import { BootState } from 'db://ccgf-kit/boot/defines/boot.enum';
+import { BootContext } from 'db://ccgf-kit/boot/BootContext';
 
 export class FrameworkInitState implements IState<BootState, CoreEvents, BootContext> {
     readonly name = BootState.FrameworkInit;

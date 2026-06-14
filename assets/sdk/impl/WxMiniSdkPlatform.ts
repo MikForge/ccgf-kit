@@ -1,6 +1,5 @@
-import { HttpServer } from "db://ccgf-net-kit/net-http";
-import { ISdkPlatform } from "../base/ISdkPlatform";
-import { LoginResult, PayParams, SdkPlatformName,RewardAdResult, TrackEventPayload, RewardAdStatus } from "../defines/SdkTypes";
+import { ISdkPlatform } from "db://ccgf-kit/sdk/base/ISdkPlatform";
+import { LoginResult, PayParams, SdkPlatformName,RewardAdResult, TrackEventPayload, RewardAdStatus } from "db://ccgf-kit/sdk/defines/SdkTypes";
 
 declare const wx: any;
 
@@ -21,7 +20,7 @@ export class WxMiniSdkPlatform implements ISdkPlatform {
 
         // 用 code 换 uid/token（找你自己的 PHP）
         const response = await M.net.http.postAsync(
-            HttpServer.Platform,
+            'Platform',
             '/api/login_wx',
             { code }
         );

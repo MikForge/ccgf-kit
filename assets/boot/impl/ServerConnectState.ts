@@ -1,9 +1,8 @@
 import { IState } from 'db://ccgf-kit/utils';
 import { CoreEvents } from 'db://ccgf-kit/event';
 import type { CoreEventMap } from 'db://ccgf-kit/event';
-import { NetErrorCode } from 'db://ccgf-net-kit/net';
-import { BootState } from '../defines/boot.enum';
-import { BootContext } from '../BootContext';
+import { BootState } from 'db://ccgf-kit/boot/defines/boot.enum';
+import { BootContext } from 'db://ccgf-kit/boot/BootContext';
 
 export class ServerConnectState implements IState<BootState, CoreEvents, BootContext> {
     readonly name = BootState.ServerConnect;
@@ -20,7 +19,7 @@ export class ServerConnectState implements IState<BootState, CoreEvents, BootCon
 
             case CoreEvents.NET_DISCONNECTED: {
                 const data = ctx.lastEventData as CoreEventMap[CoreEvents.NET_DISCONNECTED];
-                if (data.code === NetErrorCode.AUTH_FAILED) {
+                if (data.code === 4002 /* NetErrorCode.AUTH_FAILED */) {
                     ctx.actions.clearCachedToken();
                     return BootState.PlatformLogin;
                 }

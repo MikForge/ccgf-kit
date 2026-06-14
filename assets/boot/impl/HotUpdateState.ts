@@ -1,8 +1,8 @@
 import { IState } from 'db://ccgf-kit/utils';
 import { CoreEvents } from 'db://ccgf-kit/event';
 import type { CoreEventMap } from 'db://ccgf-kit/event';
-import { BootState } from '../defines/boot.enum';
-import { BootContext } from '../BootContext';
+import { BootState } from 'db://ccgf-kit/boot/defines/boot.enum';
+import { BootContext } from 'db://ccgf-kit/boot/BootContext';
 
 export class HotUpdateState implements IState<BootState, CoreEvents, BootContext> {
     readonly name = BootState.HotUpdate;

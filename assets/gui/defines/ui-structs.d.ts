@@ -1,5 +1,5 @@
 import type { Component, Constructor } from "cc";
-import type { BIND_COMPT_TYPE, LayerType } from "./ui-layer.enum";
+import type { BIND_COMPT_TYPE, LayerType } from "db://ccgf-kit/gui/defines/ui-layer.enum";
 import type { IMediator } from "db://ccgf-kit/libs/puremvc";
 
 export type UIConfigMap = { [key: string]: UIViewConfig }

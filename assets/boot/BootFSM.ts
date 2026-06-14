@@ -1,18 +1,18 @@
 import { FSM } from 'db://ccgf-kit/utils';
 import { CoreEvents } from 'db://ccgf-kit/event';
 import type { CoreEventMap } from 'db://ccgf-kit/event';
-import { BootState } from './defines/boot.enum';
-import { BootContext } from './BootContext';
-import { FrameworkInitState } from './impl/FrameworkInitState';
-import { HotUpdateState } from './impl/HotUpdateState';
-import { SDKInitState } from './impl/SDKInitState';
-import { TokenCheckState } from './impl/TokenCheckState';
-import { PlatformLoginState } from './impl/PlatformLoginState';
-import { VerifyTokenState } from './impl/VerifyTokenState';
-import { ServerConnectState } from './impl/ServerConnectState';
-import { PullPlayerDataState } from './impl/PullPlayerDataState';
-import { EnterGameState } from './impl/EnterGameState';
-import { BootErrorState } from './impl/BootErrorState';
+import { BootState } from 'db://ccgf-kit/boot/defines/boot.enum';
+import { BootContext } from 'db://ccgf-kit/boot/BootContext';
+import { FrameworkInitState } from 'db://ccgf-kit/boot/impl/FrameworkInitState';
+import { HotUpdateState } from 'db://ccgf-kit/boot/impl/HotUpdateState';
+import { SDKInitState } from 'db://ccgf-kit/boot/impl/SDKInitState';
+import { TokenCheckState } from 'db://ccgf-kit/boot/impl/TokenCheckState';
+import { PlatformLoginState } from 'db://ccgf-kit/boot/impl/PlatformLoginState';
+import { VerifyTokenState } from 'db://ccgf-kit/boot/impl/VerifyTokenState';
+import { ServerConnectState } from 'db://ccgf-kit/boot/impl/ServerConnectState';
+import { PullPlayerDataState } from 'db://ccgf-kit/boot/impl/PullPlayerDataState';
+import { EnterGameState } from 'db://ccgf-kit/boot/impl/EnterGameState';
+import { BootErrorState } from 'db://ccgf-kit/boot/impl/BootErrorState';
 
 /** BootFSM 需要桥接的 CoreEvents 列表 */
 const BRIDGE_EVENTS: CoreEvents[] = [

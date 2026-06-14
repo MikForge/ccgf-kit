@@ -1,10 +1,10 @@
 // sdk/SdkManager.ts
 import { sys } from 'cc';
-import { ISdkPlatform } from '../base/ISdkPlatform';
-import { PayParams, TrackEventPayload } from '../defines/SdkTypes';
-import { WxMiniSdkPlatform } from '../impl/WxMiniSdkPlatform';
-import { NativeSdkPlatform } from '../impl/NativeSdkPlatform';
-import { WebSdkPlatform } from '../impl/WebSdkPlatform';
+import { ISdkPlatform } from 'db://ccgf-kit/sdk/base/ISdkPlatform';
+import { PayParams, TrackEventPayload } from 'db://ccgf-kit/sdk/defines/SdkTypes';
+import { WxMiniSdkPlatform } from 'db://ccgf-kit/sdk/impl/WxMiniSdkPlatform';
+import { NativeSdkPlatform } from 'db://ccgf-kit/sdk/impl/NativeSdkPlatform';
+import { WebSdkPlatform } from 'db://ccgf-kit/sdk/impl/WebSdkPlatform';
 import { Singleton } from 'db://ccgf-kit/common';
 import { CoreEvents } from 'db://ccgf-kit/event';
 

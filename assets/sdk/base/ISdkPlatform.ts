@@ -6,7 +6,7 @@ import {
     RewardAdResult,
     TrackEventPayload,
     SdkInitOptions,
-} from '../defines/SdkTypes';
+} from 'db://ccgf-kit/sdk/defines/SdkTypes';
 
 export interface ISdkPlatform {
 

@@ -3,11 +3,11 @@
 /**
  * UI 组件装饰器
  * 用于标记 UI 组件类并注册配置
- * 
+ *
  */
 import { Component } from "cc";
-import { IUILifecycle, UIViewConfig, UIViewParam } from "../defines/ui-structs";
-import { UIConfigRegistry } from "./UIConfigRegistry";
+import { IUILifecycle, UIViewConfig, UIViewParam } from "db://ccgf-kit/gui/defines/ui-structs";
+import { UIConfigRegistry } from "db://ccgf-kit/decorators/ui/UIConfigRegistry";
 import { IMediator } from "db://ccgf-kit/libs/puremvc";
 
 

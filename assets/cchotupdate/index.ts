@@ -1,2 +1,2 @@
-export { HotUpdateMgr } from "./mgr/HotUpdateMgr";
-export { HotUpdateState } from "./defines/hotupdate.enum";
+export { HotUpdateMgr } from "db://ccgf-kit/cchotupdate/mgr/HotUpdateMgr";
+export { HotUpdateState } from "db://ccgf-kit/cchotupdate/defines/hotupdate.enum";

@@ -1,7 +1,9 @@
 import { SimpleCommand, INotification } from 'db://ccgf-kit/libs/puremvc';
-import { UIViewConfig, UIConfigRegistry } from 'db://ccgf-kit/gui';
+import { UIViewConfig } from 'db://ccgf-kit/gui';
+import { registerCommand, UIConfigRegistry } from 'db://ccgf-kit/decorators';
+import { CmdManifest } from 'db://ccgf-kit/puremvc';
 
-
+@registerCommand(CmdManifest.View.UI_CLOSE)
 export default class CloseUICommand extends SimpleCommand {
     constructor() {
         super();

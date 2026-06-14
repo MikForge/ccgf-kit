@@ -2,8 +2,7 @@
 import { Asset, game, native, sys } from "cc";
 
 import { CoreEvents } from 'db://ccgf-kit/event';
-import { HttpServer } from "db://ccgf-net-kit/net-http";
-import { HotUpdateState } from "../defines/hotupdate.enum";
+import { HotUpdateState } from "db://ccgf-kit/cchotupdate/defines/hotupdate.enum";
 
 
 export class HotUpdateMgr {
@@ -203,7 +202,7 @@ export class HotUpdateMgr {
         H.log.info("开始获取远程服务器版本信息...");
 
         const response = await M.net.http.getAsync(
-            HttpServer.Platform,
+            'Platform',
             "/versions/latest"
         );
 

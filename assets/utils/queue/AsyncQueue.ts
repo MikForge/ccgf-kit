@@ -1,4 +1,4 @@
-import { Queue } from "./Queue";
+import { Queue } from "db://ccgf-kit/utils/queue/Queue";
 
 /**
  * 异步任务接口

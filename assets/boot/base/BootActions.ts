@@ -1,4 +1,4 @@
-import type { BootErrorInfo } from '../defines/boot.structs';
+import type { BootErrorInfo } from 'db://ccgf-kit/boot/defines/boot.structs';
 
 export interface BootActions {
     /** 启动 PureMVC 框架注册（ModelPrepCmd / ViewPrepCmd / ControllerCmd） */

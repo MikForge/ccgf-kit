@@ -1,4 +1,4 @@
-import { FSMCfg, IState, StateTransitionRecord } from "./IState";
+import { FSMCfg, IState, StateTransitionRecord } from "db://ccgf-kit/utils/fsm/IState";
 
 /**
  * FSM

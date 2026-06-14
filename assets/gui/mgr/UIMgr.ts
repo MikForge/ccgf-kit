@@ -1,13 +1,13 @@
 
 import { Node, Camera, Constructor, Component, instantiate } from "cc";
-import { LayerContainerType, LayerType, UIType } from "../defines/ui-layer.enum";
-import { UIGameLayerNode } from "../impl/UIGameLayerNode";
-import { UIViewConfig, UIConfigMap, UIViewParam, IUILifecycle } from "../defines/ui-structs";
-import { UILayerNodeBase } from "../base/UILayerNodeBase";
-import { UIViewState } from "../base/UIViewState";
+import { LayerContainerType, LayerType, UIType } from "db://ccgf-kit/gui/defines/ui-layer.enum";
+import { UIGameLayerNode } from "db://ccgf-kit/gui/impl/UIGameLayerNode";
+import { UIViewConfig, UIConfigMap, UIViewParam, IUILifecycle } from "db://ccgf-kit/gui/defines/ui-structs";
+import { UILayerNodeBase } from "db://ccgf-kit/gui/base/UILayerNodeBase";
+import { UIViewState } from "db://ccgf-kit/gui/base/UIViewState";
 import { utils } from "db://ccgf-kit/utils";
 import { Singleton } from "db://ccgf-kit/common";
-import { UIConfigRegistry } from "./UIConfigRegistry";
+import { UIConfigRegistry } from "db://ccgf-kit/decorators";
 
 
 const layerMap: Partial<Record<LayerType, LayerContainerType>> = {

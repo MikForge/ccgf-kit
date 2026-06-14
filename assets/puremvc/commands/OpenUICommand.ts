@@ -1,5 +1,7 @@
 import { SimpleCommand, INotification } from 'db://ccgf-kit/libs/puremvc';
-import { UIViewConfig, UIConfigRegistry } from 'db://ccgf-kit/gui';
+import { UIViewConfig } from 'db://ccgf-kit/gui';
+import { registerCommand, UIConfigRegistry } from 'db://ccgf-kit/decorators';
+import { CmdManifest } from 'db://ccgf-kit/puremvc';
 
 interface UIParams {
     viewId: string;
@@ -7,6 +9,7 @@ interface UIParams {
     preload?: boolean;
 }
 
+@registerCommand(CmdManifest.View.UI_OPEN)
 export default class OpenUICommand extends SimpleCommand {
     constructor() {
         super();

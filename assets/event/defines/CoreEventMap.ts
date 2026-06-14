@@ -1,4 +1,4 @@
-import { CoreEvents } from "./CoreEvents";
+import { CoreEvents } from "db://ccgf-kit/event/defines/CoreEvents";
 
 export interface CoreEventMap {
     // 原有

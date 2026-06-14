@@ -1,8 +1,8 @@
 import { Node } from "cc";
 import { UIHelper } from "db://ccgf-kit/helper";
-import { UIViewState } from "./UIViewState";
-import { UIComptBase } from "./UIComptBase";
-import { LayerContainerType } from "../defines/ui-layer.enum";
+import { UIViewState } from "db://ccgf-kit/gui/base/UIViewState";
+import { UIComptBase } from "db://ccgf-kit/gui/base/UIComptBase";
+import { LayerContainerType } from "db://ccgf-kit/gui/defines/ui-layer.enum";
 
 export class UILayerNodeBase extends Node {
 

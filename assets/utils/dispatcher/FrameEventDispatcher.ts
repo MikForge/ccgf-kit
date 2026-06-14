@@ -1,4 +1,4 @@
-import { BoundedQueue, overflowStrategy } from "../queue/BoundedQueue";
+import { BoundedQueue, overflowStrategy } from "db://ccgf-kit/utils/queue/BoundedQueue";
 
 /**
  * 事件调度器选项

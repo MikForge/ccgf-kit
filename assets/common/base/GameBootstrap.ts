@@ -91,7 +91,6 @@ export abstract class GameBootstrap extends Component {
     }
 
     protected update(dt: number): void {
-        M.net.update(dt);
     }
 
 

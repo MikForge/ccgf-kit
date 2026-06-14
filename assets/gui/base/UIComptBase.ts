@@ -1,6 +1,6 @@
 import { _decorator, Component, Node } from 'cc';
-import type { IUILifecycle } from '../defines/ui-structs';
-import { UIContainer } from '../impl/UIContainer';
+import type { IUILifecycle } from 'db://ccgf-kit/gui/defines/ui-structs';
+import { UIContainer } from 'db://ccgf-kit/gui/impl/UIContainer';
 
 const { ccclass } = _decorator;
 

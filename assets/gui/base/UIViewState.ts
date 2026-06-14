@@ -1,4 +1,4 @@
-import type { UIViewConfig, UIViewParam } from '../defines/ui-structs';
+import type { UIViewConfig, UIViewParam } from 'db://ccgf-kit/gui/defines/ui-structs';
 
 /**
  * UI 界面组件状态（纯数据结构）

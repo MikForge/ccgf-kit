@@ -1,5 +1,5 @@
-import { Singleton } from "../../common";
-import { LocalStorageKey } from "../defines/ls.enum";
+import { Singleton } from "db://ccgf-kit/common";
+import { LocalStorageKey } from "db://ccgf-kit/localStorage/defines/ls.enum";
 
 export class LocalStorageMgr extends Singleton<LocalStorageMgr> {
 

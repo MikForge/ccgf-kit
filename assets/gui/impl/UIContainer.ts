@@ -15,8 +15,8 @@ import {
     ToggleContainer,
     UITransform,
 } from "cc";
-import type { BindComptCfg } from "../defines/ui-structs";
-import { BIND_COMPT_TYPE } from "../defines/ui-layer.enum";
+import type { BindComptCfg } from "db://ccgf-kit/gui/defines/ui-structs";
+import { BIND_COMPT_TYPE } from "db://ccgf-kit/gui/defines/ui-layer.enum";
 
 const { ccclass, property } = _decorator;
 

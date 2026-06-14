@@ -1,5 +1,5 @@
 import { log } from "cc";
-import { LogLevel } from "./defines/LogLevel";
+import { LogLevel } from "db://ccgf-kit/helper/defines/LogLevel";
 
 /** 
  * 日志管理 

@@ -1,8 +1,8 @@
-import { BootState } from './defines/boot.enum';
+import { BootState } from 'db://ccgf-kit/boot/defines/boot.enum';
 import type { CoreEventMap } from 'db://ccgf-kit/event';
-import type { BootFSM } from './BootFSM';
-import type { BootErrorInfo } from './defines/boot.structs';
-import type { BootActions } from './base/BootActions';
+import type { BootFSM } from 'db://ccgf-kit/boot/BootFSM';
+import type { BootErrorInfo } from 'db://ccgf-kit/boot/defines/boot.structs';
+import type { BootActions } from 'db://ccgf-kit/boot/base/BootActions';
 
 export class BootContext {
     /** 状态机引用，BootFSM 构造时注入 */

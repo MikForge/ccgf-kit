@@ -1,7 +1,6 @@
 import { sys } from "cc";
-import { HttpServer } from "db://ccgf-net-kit/net-http";
-import { ISdkPlatform } from "../base/ISdkPlatform";
-import { LoginResult, PayParams, RewardAdResult, RewardAdStatus, SdkPlatformName, TrackEventPayload } from "../defines/SdkTypes";
+import { ISdkPlatform } from "db://ccgf-kit/sdk/base/ISdkPlatform";
+import { LoginResult, PayParams, RewardAdResult, RewardAdStatus, SdkPlatformName, TrackEventPayload } from "db://ccgf-kit/sdk/defines/SdkTypes";
 
 declare const WeixinJSBridge: any;  // 在微信 H5 里会有
 
@@ -16,7 +15,7 @@ export class WebSdkPlatform implements ISdkPlatform {
         try {
             // ✅ 正确用法
             const response = await M.net.http.postAsync(
-                HttpServer.Platform,
+                'Platform',
                 '/api/login',
                 {
                     platform: 'web',

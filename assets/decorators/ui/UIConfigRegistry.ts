@@ -1,5 +1,5 @@
 import { Singleton } from "db://ccgf-kit/common";
-import { UIViewConfig, UIConfigMap } from "../defines/ui-structs";
+import { UIViewConfig, UIConfigMap } from "db://ccgf-kit/gui/defines/ui-structs";
 
 
 
@@ -9,7 +9,7 @@ import { UIViewConfig, UIConfigMap } from "../defines/ui-structs";
  */
 export class UIConfigRegistry extends Singleton<UIConfigRegistry> {
 
-    
+
     private configs: Map<string, UIViewConfig> = new Map();
     private locked: boolean = false;
 
