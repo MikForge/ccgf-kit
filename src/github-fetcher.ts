@@ -25,10 +25,15 @@ export interface GitHubDirEntry {
  * @throws 非 2xx 状态码或网络错误
  */
 function httpsGet(url: string, headers: Record<string, string> = {}): Promise<string> {
+    const token = process.env['GITHUB_TOKEN'] || '';
     return new Promise<string>((resolve, reject) => {
+        const baseHeaders: Record<string, string> = { 'User-Agent': 'ccgf-kit' };
+        if (token) {
+            baseHeaders['Authorization'] = `Bearer ${token}`;
+        }
         const req = https.get(
             url,
-            { headers: { 'User-Agent': 'ccgf-kit', ...headers } },
+            { headers: { ...baseHeaders, ...headers } },
             (res) => {
                 const chunks: Buffer[] = [];
 
