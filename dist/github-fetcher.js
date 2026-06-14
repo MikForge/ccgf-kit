@@ -67,58 +67,82 @@ function httpsGet(url, headers = {}) {
     });
 }
 /**
- * 递归获取 GitHub 仓库指定目录下的所有文件列表。
+ * 根据 ref（分支/tag/commit）获取树 SHA。
  *
- * 使用 GitHub Contents API：
- *   GET /repos/{owner}/{repo}/contents/{path}?ref={ref}
+ * GET /repos/{owner}/{repo}/commits/{ref} → commit.tree.sha
+ *
+ * @param repo - 仓库 owner/repo 格式
+ * @param ref - 分支 / tag / commit SHA
+ * @returns 树 SHA 字符串
+ * @throws HTTP 错误或网络错误
+ */
+async function getTreeSha(repo, ref) {
+    const apiUrl = `https://api.github.com/repos/${repo}/commits/${ref}`;
+    const headers = {
+        Accept: 'application/vnd.github.v3+json',
+    };
+    const body = await httpsGet(apiUrl, headers);
+    const data = JSON.parse(body);
+    const sha = data?.commit?.tree?.sha;
+    if (!sha) {
+        throw new Error(`无法获取 ref ${ref} 的树 SHA：${body.substring(0, 200)}`);
+    }
+    return sha;
+}
+/**
+ * 获取 GitHub 仓库指定目录下的所有文件列表。
+ *
+ * 使用 Git Trees API（一次请求获取完整仓库树，然后按前缀过滤）：
+ *   GET /repos/{owner}/{repo}/commits/{ref}     → tree SHA
+ *   GET /repos/{owner}/{repo}/git/trees/{sha}?recursive=1  → 完整文件树
+ *
+ * 每次 initProject 仅 2 次 API 调用，不递归，不耗尽速率限额。
  *
  * @param repo - 仓库 owner/repo 格式
  * @param ref - 分支 / tag / commit SHA
  * @param srcPath - 远程源目录路径（相对于仓库根）
- * @returns 文件条目数组（仅 file 类型，已递归展开子目录）
- * @throws 网络错误时抛出
+ * @returns 文件条目数组（仅 file 类型，已按前缀过滤）
+ * @throws 网络错误或 ref 无效时抛出
  */
 async function fetchDirListing(repo, ref, srcPath) {
-    // 去除末尾 / 用于 API 调用
-    const cleanPath = srcPath.replace(/\/+$/, '');
-    const apiUrl = `https://api.github.com/repos/${repo}/contents/${cleanPath}?ref=${ref}`;
+    // 1. 获取树 SHA
+    const treeSha = await getTreeSha(repo, ref);
+    // 2. 获取完整仓库文件树
+    const treeUrl = `https://api.github.com/repos/${repo}/git/trees/${treeSha}?recursive=1`;
     const headers = {
         Accept: 'application/vnd.github.v3+json',
     };
     let body;
     try {
-        body = await httpsGet(apiUrl, headers);
+        body = await httpsGet(treeUrl, headers);
     }
     catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        // 404 表示目录不存在，返回空数组
         if (msg.includes('404')) {
             return [];
         }
         throw e;
     }
-    let entries;
+    let data;
     try {
-        entries = JSON.parse(body);
+        data = JSON.parse(body);
     }
     catch {
-        throw new Error(`GitHub Contents API 返回非 JSON 数据：${body.substring(0, 200)}`);
+        throw new Error(`Git Trees API 返回非 JSON 数据：${body.substring(0, 200)}`);
     }
-    if (!Array.isArray(entries)) {
+    if (!data.tree || !Array.isArray(data.tree)) {
         return [];
     }
-    const files = [];
-    for (const entry of entries) {
-        if (entry.type === 'file') {
-            files.push(entry);
-        }
-        else if (entry.type === 'dir') {
-            // 递归展开子目录
-            const subFiles = await fetchDirListing(repo, ref, entry.path + '/');
-            files.push(...subFiles);
-        }
-    }
-    return files;
+    // 3. 按 srcPath 前缀过滤，仅保留 blob（文件）类型
+    const prefix = srcPath.replace(/\/+$/, '');
+    return data.tree
+        .filter((item) => item.type === 'blob' && item.path.startsWith(prefix + '/'))
+        .map((item) => ({
+        path: item.path,
+        type: 'file',
+        download_url: null,
+        name: item.path.split('/').pop() || '',
+    }));
 }
 /**
  * 从 raw.githubusercontent.com 下载单个文件内容。
