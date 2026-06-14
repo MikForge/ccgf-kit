@@ -9,6 +9,8 @@ import { utils } from "db://ccgf-kit/utils";
 import { Singleton } from "db://ccgf-kit/common";
 import { UIConfigRegistry } from "db://ccgf-kit/decorators";
 
+import { LogHelper } from 'db://ccgf-kit/helper';
+import { ResMgr } from 'db://ccgf-kit/res';
 
 const layerMap: Partial<Record<LayerType, LayerContainerType>> = {
     [LayerType.UIScene]: LayerContainerType.Multi,
@@ -76,7 +78,7 @@ export class UIMgr extends Singleton<UIMgr> {
             }
 
             const containerTypeName = layerMap[layerType] || 'None';
-            H.log.debug(`[UIMgr] Created layer: ${layerName} (LayerType: ${LayerType[layerType]}, Container: ${containerTypeName})`);
+            LogHelper.debug(`[UIMgr] Created layer: ${layerName} (LayerType: ${LayerType[layerType]}, Container: ${containerTypeName})`);
         }
     }
 
@@ -94,7 +96,7 @@ export class UIMgr extends Singleton<UIMgr> {
         const uiConfig: UIViewConfig | null = UIConfigRegistry.getInstance().getConfigByViewId(viewId);
 
         if (!uiConfig) {
-            H.log.error(`UI 配置未找到: ${viewId}`);
+            LogHelper.error(`UI 配置未找到: ${viewId}`);
             return null;
         }
 
@@ -104,7 +106,7 @@ export class UIMgr extends Singleton<UIMgr> {
         let layerNode = this.uiLayersMap.get(layerName);
 
         if (!layerNode) {
-            H.log.error(`UI 层未找到: ${layerName} for viewId: ${viewId}`);
+            LogHelper.error(`UI 层未找到: ${layerName} for viewId: ${viewId}`);
             return null;
         }
 
@@ -114,7 +116,7 @@ export class UIMgr extends Singleton<UIMgr> {
         let node = await layerNode.addView(uiInfo);
 
         if (!node) {
-            H.log.error(`UI 打开失败: ${viewId} on layer: ${layerName}`);
+            LogHelper.error(`UI 打开失败: ${viewId} on layer: ${layerName}`);
             return Promise.reject(`UI 打开失败: ${viewId} on layer: ${layerName}`);
         }
 
@@ -127,14 +129,14 @@ export class UIMgr extends Singleton<UIMgr> {
         const uiConfig: UIViewConfig | null = UIConfigRegistry.getInstance().getConfigByViewId(viewId);
 
         if (!uiConfig) {
-            H.log.error(`UI 配置未找到: ${viewId}`);
+            LogHelper.error(`UI 配置未找到: ${viewId}`);
             return;
         }
 
         const layerName = LayerType[uiConfig.layer];
         let layerNode = this.uiLayersMap.get(layerName);
         if (!layerNode) {
-            H.log.error(`UI 层未找到: ${layerName} for viewId: ${viewId}`);
+            LogHelper.error(`UI 层未找到: ${layerName} for viewId: ${viewId}`);
             return;
         }
 
@@ -149,7 +151,7 @@ export class UIMgr extends Singleton<UIMgr> {
     public refresh(viewId: string, data: any): void {
         const uiConfig: UIViewConfig | null = UIConfigRegistry.getInstance().getConfigByViewId(viewId);
         if (!uiConfig) {
-            H.log.warn(`UI 配置未找到（refresh）: ${viewId}`);
+            LogHelper.warn(`UI 配置未找到（refresh）: ${viewId}`);
             return;
         }
         const layerName = LayerType[uiConfig.layer];
@@ -174,12 +176,12 @@ export class UIMgr extends Singleton<UIMgr> {
         compCls: Constructor<T>,
         data?: any
     ): Promise<Node | null> {
-        const prefab = await M.res.loadPrefab(key, paths, bundle);
+        const prefab = await ResMgr.getInstance().loadPrefab(key, paths, bundle);
         if (!prefab) return null;
 
         if (!compCls) {
-            H.log.error(`[UIMgr] loadSubNode: compCls 为空，key: ${key}`);
-            M.res.releasePrefab(paths, bundle);
+            LogHelper.error(`[UIMgr] loadSubNode: compCls 为空，key: ${key}`);
+            ResMgr.getInstance().releasePrefab(paths, bundle);
             return null;
         }
 
@@ -192,7 +194,7 @@ export class UIMgr extends Singleton<UIMgr> {
 
         if (!ok) {
             node.destroy();
-            M.res.releasePrefab(paths, bundle);
+            ResMgr.getInstance().releasePrefab(paths, bundle);
             return null;
         }
 
@@ -205,6 +207,6 @@ export class UIMgr extends Singleton<UIMgr> {
      * @param bundle 资源包名
      */
     public releaseSubNode(paths: string, bundle: string): void {
-        M.res.releasePrefab(paths, bundle);
+        ResMgr.getInstance().releasePrefab(paths, bundle);
     }
 }

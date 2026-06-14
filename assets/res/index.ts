@@ -1,2 +1,2 @@
-export { ResMgr } from "db://ccgf-kit/res/mgr/ResMgr";
-export type { IResArgs, IResDirArgs } from "db://ccgf-kit/res/defines/res-structs";
+export { ResMgr } from "./mgr/ResMgr";
+export type { IResArgs, IResDirArgs } from "./defines/res-structs";

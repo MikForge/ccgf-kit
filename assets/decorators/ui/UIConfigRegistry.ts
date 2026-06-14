@@ -1,6 +1,7 @@
 import { Singleton } from "db://ccgf-kit/common";
 import { UIViewConfig, UIConfigMap } from "db://ccgf-kit/gui/defines/ui-structs";
 
+import { LogHelper } from 'db://ccgf-kit/helper';
 
 
 /**
@@ -17,7 +18,7 @@ export class UIConfigRegistry extends Singleton<UIConfigRegistry> {
     /** 批量初始化配置（只执行一次） */
     init(configMap: UIConfigMap): void {
         if (this.locked) {
-            H.log.warn("UIConfigRegistry 已初始化，忽略重复调用");
+            LogHelper.warn("UIConfigRegistry 已初始化，忽略重复调用");
             return;
         }
 

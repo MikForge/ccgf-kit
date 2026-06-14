@@ -1,7 +1,10 @@
-import { Singleton } from 'db://ccgf-kit/common';
+
 import { EventTarget } from 'cc';
-import { TimeOutMgr } from 'db://ccgf-kit/timer';
+
+import { Singleton } from 'db://ccgf-kit/common';
+import { TimerTaskMgr } from 'db://ccgf-kit/timer';
 import { CoreEventMap } from 'db://ccgf-kit/event/defines/CoreEventMap';
+import { LogHelper } from 'db://ccgf-kit/helper';
 
 export class EventMgr extends Singleton<EventMgr> {
     private _target: EventTarget;
@@ -22,7 +25,7 @@ export class EventMgr extends Singleton<EventMgr> {
                 try {
                     cb(...args);
                 } catch (e) {
-                    H.log.error(`[EventMgr] Error in listener for "${type}":`, e);
+                    LogHelper.error(`[EventMgr] Error in listener for "${type}":`, e);
                 }
             };
             this._wrappers.set(cb, wrapped);
@@ -87,7 +90,7 @@ export class EventMgr extends Singleton<EventMgr> {
     emit(type: string | number, data?: any): void;
     emit(type: string | number, data?: any): void {
         if (this._debug) {
-            H.log.debug(`[EventMgr] emit "${type}"`, data);
+            LogHelper.debug(`[EventMgr] emit "${type}"`, data);
         }
         this._target.emit(type, data);
     }
@@ -95,7 +98,7 @@ export class EventMgr extends Singleton<EventMgr> {
     emitWithDelay<K extends keyof CoreEventMap>(type: K, data: CoreEventMap[K], delayMs: number): void;
     emitWithDelay(type: string | number, data: any, delayMs: number): void;
     emitWithDelay(type: string | number, data: any, delayMs: number): void {
-        TimeOutMgr.getInstance().setTimeout(() => this.emit(type, data), delayMs);
+        TimerTaskMgr.getInstance().setTimeout(() => this.emit(type, data), delayMs);
     }
 
     // ---- 调试 ----

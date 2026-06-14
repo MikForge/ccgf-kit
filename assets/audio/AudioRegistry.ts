@@ -1,5 +1,6 @@
 import { Singleton } from 'db://ccgf-kit/common';
 
+import { LogHelper } from 'db://ccgf-kit/helper';
 /**
  * 单个音频条目的输入定义
  */
@@ -44,7 +45,7 @@ export class AudioRegistry extends Singleton<AudioRegistry> {
         for (const category of categories) {
             for (const entry of manifest[category]) {
                 if (this._defs.has(entry.name)) {
-                    H.log.warn(`AudioRegistry: "${entry.name}" 重复注册，将被覆盖`);
+                    LogHelper.warn(`AudioRegistry: "${entry.name}" 重复注册，将被覆盖`);
                 }
                 this._defs.set(entry.name, {
                     name: entry.name,

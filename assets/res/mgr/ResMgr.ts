@@ -5,6 +5,7 @@ import { __private, Asset, assetManager, AssetManager, Prefab, resources } from 
 import { Singleton } from "db://ccgf-kit/common";
 import { IResArgs, IResDirArgs } from "db://ccgf-kit/res/defines/res-structs";
 
+import { LogHelper } from 'db://ccgf-kit/helper';
 
 
 
@@ -36,7 +37,7 @@ export class ResMgr extends Singleton<ResMgr> {
                 (err: Error | null, assets: any) => {
                     if (err) {
                         reject(err);
-                        H.log.error(`ResManager: 资源加载失败 - Bundle: ${bundleName}, Paths: ${JSON.stringify(args.paths)}, Error: ${err.message}`);
+                        LogHelper.error(`ResManager: 资源加载失败 - Bundle: ${bundleName}, Paths: ${JSON.stringify(args.paths)}, Error: ${err.message}`);
                     } else {
                         resolve(assets);
                         args.onComplete?.(null, assets);
@@ -62,7 +63,7 @@ export class ResMgr extends Singleton<ResMgr> {
                 (err: Error | null) => {
                     if (err) {
                         reject(err);
-                        H.log.error(`ResManager: 资源预加载失败 - Bundle: ${bundleName}, Paths: ${JSON.stringify(args.paths)}, Error: ${err.message}`);
+                        LogHelper.error(`ResManager: 资源预加载失败 - Bundle: ${bundleName}, Paths: ${JSON.stringify(args.paths)}, Error: ${err.message}`);
                     } else {
                         resolve();
                         args.onComplete?.(null, null);
@@ -88,7 +89,7 @@ export class ResMgr extends Singleton<ResMgr> {
                 (err: Error | null, assets: T[]) => {
                     if (err) {
                         reject(err);
-                        H.log.error(`ResManager: 目录资源加载失败 - Bundle: ${bundleName}, Dir: ${args.dir}, Error: ${err.message}`);
+                        LogHelper.error(`ResManager: 目录资源加载失败 - Bundle: ${bundleName}, Dir: ${args.dir}, Error: ${err.message}`);
                     } else {
                         resolve(assets);
                         args.onComplete?.(null, assets);
@@ -114,7 +115,7 @@ export class ResMgr extends Singleton<ResMgr> {
                 (err: Error | null) => {
                     if (err) {
                         reject(err);
-                        H.log.error(`ResManager: 目录资源预加载失败 - Bundle: ${bundleName}, Dir: ${args.dir}, Error: ${err.message}`);
+                        LogHelper.error(`ResManager: 目录资源预加载失败 - Bundle: ${bundleName}, Dir: ${args.dir}, Error: ${err.message}`);
                     } else {
                         resolve();
                         args.onComplete?.(null, null);
@@ -134,7 +135,7 @@ export class ResMgr extends Singleton<ResMgr> {
             assetManager.loadBundle(name, options, (err: Error | null, bundle: AssetManager.Bundle) => {
                 if (err) {
                     reject(err);
-                    H.log.error(`ResManager: 资源包加载失败 - Name: ${name}, Error: ${err.message}`);
+                    LogHelper.error(`ResManager: 资源包加载失败 - Name: ${name}, Error: ${err.message}`);
                 } else {
                     resolve(bundle);
                 }
@@ -226,7 +227,7 @@ export class ResMgr extends Singleton<ResMgr> {
      *   const remoteAsset = await resMgr.loadRemoteAsset("https://example.com/asset.png", SpriteFrame);
      *   // 使用 remoteAsset
      * } catch (error) {
-     *   H.log.error("远程资源加载失败:", error);
+     *   LogHelper.error("远程资源加载失败:", error);
      * }    
      */
     public async loadRemoteAsset<T extends Asset>(remoteUrl: string, type: new () => T): Promise<T> {
@@ -234,7 +235,7 @@ export class ResMgr extends Singleton<ResMgr> {
             assetManager.loadRemote(remoteUrl, { type }, (err: Error | null, asset: T) => {
                 if (err) {
                     reject(err);
-                    H.log.error(`ResManager: 远程资源加载失败 - URL: ${remoteUrl}, Error: ${err.message}`);
+                    LogHelper.error(`ResManager: 远程资源加载失败 - URL: ${remoteUrl}, Error: ${err.message}`);
                 } else {
                     resolve(asset);
                 }

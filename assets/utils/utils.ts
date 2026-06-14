@@ -1,3 +1,4 @@
+import { LogHelper } from 'db://ccgf-kit/helper';
 export class utils {
     /**
      * 通用 Promise 包装工具
@@ -12,7 +13,7 @@ export class utils {
         return new Promise((resolve, reject) => {
             fn(...args, (err: Error | null, data: T) => {
                 if (err) {
-                    H.log.error('[utils.promisify]', err);
+                    LogHelper.error('[utils.promisify]', err);
                     reject(err);
                 } else {
                     resolve(data);

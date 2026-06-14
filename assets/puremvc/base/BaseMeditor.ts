@@ -1,6 +1,7 @@
 import { Node, EventTouch } from 'cc';
 import { Mediator } from "db://ccgf-kit/libs/puremvc";
 
+import { LogHelper } from 'db://ccgf-kit/helper';
 /**
  * 事件监听信息
  */
@@ -42,7 +43,7 @@ export class BaseMeditor extends Mediator {
         thisArg?: any,
     ): void {
         if (!target) {
-            H.log.warn(`[BaseMeditor] addEventListenerOn: target is null`);
+            LogHelper.warn(`[BaseMeditor] addEventListenerOn: target is null`);
             return;
         }
 

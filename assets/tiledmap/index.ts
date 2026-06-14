@@ -1,1 +1,1 @@
-export { CustomTiledLayer } from "db://ccgf-kit/tiledmap/impl/CustomTiledLayer";
+export { CustomTiledLayer } from "./impl/CustomTiledLayer";

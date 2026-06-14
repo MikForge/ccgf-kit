@@ -1,5 +1,9 @@
-import { _decorator, Component, Node, director, game, Game } from 'cc';
+import { _decorator, Component, Node, director, game, Game, AudioSource } from 'cc';
 const { property } = _decorator;
+
+import { AudioMgr } from 'db://ccgf-kit/audio';
+import { LogHelper } from 'db://ccgf-kit/helper';
+import { CountdownMgr } from 'db://ccgf-kit/timer';
 
 export abstract class GameBootstrap extends Component {
 
@@ -25,7 +29,7 @@ export abstract class GameBootstrap extends Component {
     }
 
     onLoad(): void {
-        H.log.info(`Framework init`);
+        LogHelper.info(`Framework init`);
         this.enabled = false;
 
         this.initFramework();
@@ -68,7 +72,7 @@ export abstract class GameBootstrap extends Component {
     private initFramework(): void {
         this.persist = new Node("Framework_Persist_Node");
         director.addPersistRootNode(this.persist);
-        // 3.8版本不需要挂载到朱姐点
+        // 3.8版本不需要挂载到主节点
         // this.persist.setParent(this.node);
         this.onFrameworkReady();
     }
@@ -78,15 +82,16 @@ export abstract class GameBootstrap extends Component {
             this.initUISystem();
             await this.onBeforeStartupAsync();
             this.onBeforeStartup();
+            this.onStartup();
             this._isInitialized = true;
             this.registerEvents();
             this.enabled = true;
             this.onStartupComplete();
-            H.log.info("游戏启动完成");
+            LogHelper.info("游戏启动完成");
         } catch (error) {
             this._isInitialized = false;
             this.onStartupFailed(error);
-            H.log.error("游戏启动失败:", error);
+            LogHelper.error("游戏启动失败:", error);
         }
     }
 
@@ -105,7 +110,17 @@ export abstract class GameBootstrap extends Component {
      * 框架准备就绪时调用（persist 节点已创建）
      * 子类可在此初始化管理器、注册命令等
      */
-    protected onFrameworkReady(): void { }
+    protected onFrameworkReady(): void {
+        // 创建并注入 AudioSource 通道
+        const node = this.getPersistNode();
+        AudioMgr.getInstance().init(
+            node.addComponent(AudioSource),   // BGM
+            node.addComponent(AudioSource),   // SFX
+            node.addComponent(AudioSource),   // Voice（v2 启用）
+        );
+        
+        CountdownMgr.getInstance().init(node);
+    }
 
     /**
      * 启动前异步钩子（在 onBeforeStartup 之前执行）
@@ -118,6 +133,11 @@ export abstract class GameBootstrap extends Component {
      * 子类可在此进行最后的初始化工作
      */
     protected onBeforeStartup(): void { }
+
+    /**
+     * 启动逻辑
+     */
+    protected onStartup(): void { }
 
     /**
      * 启动完成时调用

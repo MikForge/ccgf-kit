@@ -1,6 +1,7 @@
 import { _decorator, Node, Constructor } from "cc";
 import { UIComptBase } from "db://ccgf-kit/gui";
 
+import { LogHelper } from 'db://ccgf-kit/helper';
 const { ccclass } = _decorator;
 
 /**
@@ -35,7 +36,7 @@ export class BaseView extends UIComptBase {
     /**
      * 异步加载独立 prefab 并挂载指定 UIComptBase 子组件
      * @param ItemCls     要挂载的组件类（extends UIComptBase）
-     * @param paths       prefab 相对路径（同 M.res.load paths）
+     * @param paths       prefab 相对路径（同 ResMgr.getInstance().load paths）
      * @param bundle      资源包名
      * @param container   挂载目标节点（来自 v_nodes）
      * @param data        传给子组件生命周期的初始数据
@@ -51,16 +52,16 @@ export class BaseView extends UIComptBase {
         autoRelease: boolean = true
     ): Promise<T | null> {
         if (!container || !container.isValid) {
-            H.log.error(`[BaseView] mountSubComp: container 无效`);
+            LogHelper.error(`[BaseView] mountSubComp: container 无效`);
             return null;
         }
 
-        const node = await M.ui.loadSubNode(paths, paths, bundle, ItemCls, data);
+        const node = await UIMgr.getInstance().loadSubNode(paths, paths, bundle, ItemCls, data);
         
         if (!node) return null;
 
         if (!container.isValid) {
-            M.ui.releaseSubNode(paths, bundle);
+            UIMgr.getInstance().releaseSubNode(paths, bundle);
             return null;
         }
 
@@ -115,7 +116,7 @@ export class BaseView extends UIComptBase {
         this.onDestroy_();
         this._subViews.forEach(c => c.ui_on_destroy());
         this._subViews.clear();
-        this._autoReleaseKeys.forEach(({ paths, bundle }) => M.ui.releaseSubNode(paths, bundle));
+        this._autoReleaseKeys.forEach(({ paths, bundle }) => UIMgr.getInstance().releaseSubNode(paths, bundle));
         this._autoReleaseKeys.length = 0;
     }
 

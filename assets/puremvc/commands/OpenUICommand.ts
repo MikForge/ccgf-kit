@@ -1,8 +1,9 @@
 import { SimpleCommand, INotification } from 'db://ccgf-kit/libs/puremvc';
-import { UIViewConfig } from 'db://ccgf-kit/gui';
+import { UIMgr, UIViewConfig } from 'db://ccgf-kit/gui';
 import { registerCommand, UIConfigRegistry } from 'db://ccgf-kit/decorators';
 import { CmdManifest } from 'db://ccgf-kit/puremvc';
 
+import { LogHelper } from 'db://ccgf-kit/helper';
 interface UIParams {
     viewId: string;
     param?: any;
@@ -18,7 +19,7 @@ export default class OpenUICommand extends SimpleCommand {
     public async execute(notification: INotification): Promise<void> {
         const { viewId, param, preload } = notification.body as UIParams;
 
-        let uiNode = await M.ui.open(viewId, {
+        let uiNode = await UIMgr.getInstance().open(viewId, {
             data: param,
             preload: preload
         });
@@ -30,7 +31,7 @@ export default class OpenUICommand extends SimpleCommand {
             const mediator = new MediatorClass(viewId, uiNode, param);
             this.facade.registerMediator(mediator);
         } else {
-            H.log.error(`UI 配置错误或 UI 打开失败: ${viewId}. 配置: ${uiConfig ? JSON.stringify(uiConfig) : 'null'}, UI节点: ${uiNode ? '存在' : '不存在'}`);
+            LogHelper.error(`UI 配置错误或 UI 打开失败: ${viewId}. 配置: ${uiConfig ? JSON.stringify(uiConfig) : 'null'}, UI节点: ${uiNode ? '存在' : '不存在'}`);
         }
     }
 }

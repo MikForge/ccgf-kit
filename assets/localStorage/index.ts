@@ -1,2 +1,2 @@
-export { LocalStorageMgr } from "db://ccgf-kit/localStorage/mgr/LocalStorageMgr";
-export { LocalStorageKey } from "db://ccgf-kit/localStorage/defines/ls.enum";
+export { LocalStorageMgr } from "./mgr/LocalStorageMgr";
+export { LocalStorageKey } from "./defines/ls.enum";
