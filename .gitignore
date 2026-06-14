@@ -12,5 +12,7 @@
 !src/**
 !dist/
 !dist/**
+!templates/
+!templates/**
 
 # ── 排除项（在白名单中但不可提交） ──
