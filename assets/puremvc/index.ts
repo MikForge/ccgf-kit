@@ -1,5 +1,6 @@
 export * from './base/BaseMeditor';
 export * from './base/BaseProxy';
+export * from './base/IMediatorInterface';
 export * from './CmdManifest';
 export * from './GameFacade';
 export { default as OpenUICommand } from './commands/OpenUICommand';
@@ -8,3 +9,4 @@ export { default as StartupCmd } from './commands/StartupCmd';
 export { default as ModelPrepCmd } from './commands/ModelPrepCmd';
 export { default as ViewPrepCmd } from './commands/ViewPrepCmd';
 export { default as ControllerCmd } from './commands/ControllerCmd';
+export type { UIParams } from './commands/IOpenUICommand';

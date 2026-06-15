@@ -1,16 +1,7 @@
 import { Node, EventTouch } from 'cc';
 import { Mediator } from "db://ccgf-kit/libs/puremvc";
-
 import { LogHelper } from 'db://ccgf-kit/helper';
-/**
- * 事件监听信息
- */
-interface EventListenerInfo {
-    target: Node;
-    eventType: string;
-    callback: Function;
-    thisArg?: any;
-}
+import { IMediatorInterface } from 'db://ccgf-kit/puremvc';
 
 /**
  * 基础中介者 - 可添加通用功能
@@ -20,7 +11,7 @@ export class BaseMeditor extends Mediator {
     param: any = null;
 
     /** 事件监听池 */
-    private eventListeners: EventListenerInfo[] = [];
+    private eventListeners: IMediatorInterface[] = [];
 
 
     public constructor(name?: string, viewComponent?: Node, param?: any) {

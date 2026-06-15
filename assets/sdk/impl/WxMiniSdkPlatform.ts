@@ -1,5 +1,7 @@
-import { ISdkPlatform } from "db://ccgf-kit/sdk/base/ISdkPlatform";
-import { LoginResult, PayParams, SdkPlatformName,RewardAdResult, TrackEventPayload, RewardAdStatus } from "db://ccgf-kit/sdk/defines/SdkTypes";
+import { ISdkPlatform } from "db://ccgf-kit/types/ISdkPlatform";
+import { LoginResult, PayParams, SdkPlatformName,RewardAdResult, TrackEventPayload, RewardAdStatus } from "db://ccgf-kit/types/SdkTypes";
+import { LogHelper } from 'db://ccgf-kit/helper';
+import { NetMgr } from 'db://ccgf-net-kit/net';
 
 declare const wx: any;
 
@@ -19,7 +21,7 @@ export class WxMiniSdkPlatform implements ISdkPlatform {
         });
 
         // 用 code 换 uid/token（找你自己的 PHP）
-        const response = await M.net.http.postAsync(
+        const response = await NetMgr.getInstance().http.postAsync(
             'Platform',
             '/api/login_wx',
             { code }
@@ -28,9 +30,9 @@ export class WxMiniSdkPlatform implements ISdkPlatform {
         if (response.code == 200) {
             const data = response.data;
 
-            M.net.setHttpToken(data.token);
+            NetMgr.getInstance().setHttpToken(data.token);
 
-            H.log.info('[登录成功]', data);
+            LogHelper.info('[登录成功]', data);
 
             return {
                 uid: data.uid,

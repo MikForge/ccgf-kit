@@ -6,9 +6,9 @@
  *
  */
 import { Component } from "cc";
-import { IUILifecycle, UIViewConfig, UIViewParam } from "db://ccgf-kit/gui/defines/ui-structs";
-import { UIConfigRegistry } from "db://ccgf-kit/decorators/ui/UIConfigRegistry";
 import { IMediator } from "db://ccgf-kit/libs/puremvc";
+import { UIConfigRegistry } from 'db://ccgf-kit/decorators';
+import { IUILifecycle, UIViewConfig } from 'db://ccgf-kit/gui';
 
 
 /** View 元数据标记键 */

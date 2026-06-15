@@ -1,4 +1,5 @@
 import { LogHelper } from 'db://ccgf-kit/helper';
+
 export class utils {
     /**
      * 通用 Promise 包装工具

@@ -1,5 +1,5 @@
 import { ICommand, IProxy } from 'db://ccgf-kit/libs/puremvc';
-import { MVCInternalRegistry } from 'db://ccgf-kit/decorators/mvc/MVCInternalRegistry';
+import { MVCInternalRegistry } from 'db://ccgf-kit/decorators';
 
 /** Proxy 元数据标记键 */
 export const MVC_PROXY_KEY = "MVC_PROXY_KEY";

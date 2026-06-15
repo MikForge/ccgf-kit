@@ -1,39 +1,7 @@
-import { Queue } from "db://ccgf-kit/utils/queue/Queue";
-
-/**
- * 队列溢出策略
- */
-export enum overflowStrategy {
-    /** 丢弃新元素 */
-    DROP_NEW,
-    /** 丢弃旧元素 */
-    DROP_OLD,
-    /** 阻塞等待 (慎用 可能会导致死锁) */
-    BLOCK,
-    /** 抛出异常 */
-    THROW_ERROR
-}
-
-/**
- * 有界队列参数
- * @author Michael
- * @example
- * const boundedQueue = new BoundedQueue<number>({
- *     maxSize: 3,
- *     overflowStrategy: overflowStrategy.DROP_OLD,
- *     onOverflow: (item) => {
- *         H.log.info("溢出元素:", item);
- *     }
- * })
- */
-export interface IBoundedQueueOptions<T> {
-    /** 队列最大容量 */
-    maxSize: number;
-    /** 溢出策略 */
-    overflowStrategy?: overflowStrategy;
-    /** 溢出处理回调 */
-    onOverflow?: (item: T) => void;
-}
+import { Queue } from "db://ccgf-kit/utils";
+import type { IBoundedQueueOptions } from 'db://ccgf-kit/utils';
+// eslint-disable-next-line no-restricted-imports -- same-directory enum import avoids circular barrel dep
+import { overflowStrategy } from "db://ccgf-kit/utils/queue/BoundedQueue.enum";
 
 /**
  * 有界队列

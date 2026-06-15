@@ -1,7 +1,7 @@
 import { _decorator, Node, Constructor } from "cc";
-import { UIComptBase } from "db://ccgf-kit/gui";
-
+import { UIComptBase, UIMgr } from "db://ccgf-kit/gui";
 import { LogHelper } from 'db://ccgf-kit/helper';
+
 const { ccclass } = _decorator;
 
 /**

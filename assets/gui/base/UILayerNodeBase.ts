@@ -1,8 +1,7 @@
 import { Node } from "cc";
-import { UIHelper } from "db://ccgf-kit/helper";
-import { UIViewState } from "db://ccgf-kit/gui/base/UIViewState";
-import { UIComptBase } from "db://ccgf-kit/gui/base/UIComptBase";
-import { LayerContainerType } from "db://ccgf-kit/gui/defines/ui-layer.enum";
+import { LogHelper, UIHelper } from "db://ccgf-kit/helper";
+import { UIViewState, UIComptBase } from "db://ccgf-kit/gui";
+import { LayerContainerType } from "db://ccgf-kit/types/ui-layer.enum";
 
 import { UIMgr } from 'db://ccgf-kit/gui';
 import { ResMgr } from 'db://ccgf-kit/res';

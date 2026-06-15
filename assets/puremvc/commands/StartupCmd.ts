@@ -1,7 +1,5 @@
 import { INotification, MacroCommand } from 'db://ccgf-kit/libs/puremvc';
-import ModelPrepCmd from 'db://ccgf-kit/puremvc/commands/ModelPrepCmd';
-import ViewPrepCmd from 'db://ccgf-kit/puremvc/commands/ViewPrepCmd';
-import ControllerCmd from 'db://ccgf-kit/puremvc/commands/ControllerCmd';
+import { ModelPrepCmd, ViewPrepCmd, ControllerCmd } from 'db://ccgf-kit/puremvc';
 
 export default class StartupCmd extends MacroCommand {
     constructor() {

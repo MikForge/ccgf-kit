@@ -1,7 +1,7 @@
 import { AudioSource, AudioClip } from 'cc';
 import { Singleton } from 'db://ccgf-kit/common';
 import { AudioRegistry } from 'db://ccgf-kit/audio';
-import { ResMgr } from 'db://ccgf-kit/res/mgr/ResMgr';
+import { ResMgr } from 'db://ccgf-kit/res/ResMgr';
 import { LogHelper } from 'db://ccgf-kit/helper';
 
 /**

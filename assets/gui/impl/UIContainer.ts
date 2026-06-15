@@ -15,8 +15,9 @@ import {
     ToggleContainer,
     UITransform,
 } from "cc";
-import type { BindComptCfg } from "db://ccgf-kit/gui/defines/ui-structs";
-import { BIND_COMPT_TYPE } from "db://ccgf-kit/gui/defines/ui-layer.enum";
+import type { BindComptCfg } from "db://ccgf-kit/types/ui-structs";
+import { BIND_COMPT_TYPE } from "db://ccgf-kit/types/ui-layer.enum";
+import type { UIContainerComptItem } from 'db://ccgf-kit/gui';
 
 const { ccclass, property } = _decorator;
 
@@ -27,15 +28,6 @@ export class UIContainerItem {
 
     @property({ type: Node })
     public node: Node | null = null;
-}
-
-export interface UIContainerComptItem {
-    key: string;
-    comptKey: string;
-    type: BIND_COMPT_TYPE;
-    suffix: string;
-    node: Node;
-    compt: Component;
 }
 
 @ccclass('UIContainer')

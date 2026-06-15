@@ -1,4 +1,6 @@
-export { UIMgr } from "./mgr/UIMgr";
+
+
+export { UIMgr } from "./UIMgr";
 export { BaseView } from "./base/BaseView";
 export { BaseItem } from "./base/BaseItem";
 export { UIComptBase } from "./base/UIComptBase";
@@ -6,5 +8,6 @@ export { UILayerNodeBase } from "./base/UILayerNodeBase";
 export { UIViewState } from "./base/UIViewState";
 export { UIGameLayerNode } from "./impl/UIGameLayerNode";
 export { UIContainer } from "./impl/UIContainer";
-export { LayerType, UIType, LayerContainerType, BIND_COMPT_TYPE } from "./defines/ui-layer.enum";
-export type { UIViewConfig, UIConfigMap, UIViewParam, IUILifecycle, BindComptInfo, BindComptCfg } from "./defines/ui-structs";
+export { LayerType, UIType, LayerContainerType, BIND_COMPT_TYPE } from "./UILayer.enum"
+export type { UIViewConfig, UIConfigMap, UIViewParam, IUILifecycle, BindComptInfo, BindComptCfg } from "./IUiStructs";
+export type { UIContainerComptItem } from "./impl/IUIContainer";

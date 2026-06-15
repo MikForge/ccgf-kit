@@ -1,2 +1,2 @@
-export { LocalStorageMgr } from "./mgr/LocalStorageMgr";
-export { LocalStorageKey } from "./defines/ls.enum";
+export { LocalStorageMgr } from "./LocalStorageMgr";
+export { LocalStorageKey } from "./Ls.enum"

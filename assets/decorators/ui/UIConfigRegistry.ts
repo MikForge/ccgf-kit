@@ -1,7 +1,6 @@
 import { Singleton } from "db://ccgf-kit/common";
-import { UIViewConfig, UIConfigMap } from "db://ccgf-kit/gui/defines/ui-structs";
-
 import { LogHelper } from 'db://ccgf-kit/helper';
+import { UIConfigMap, UIViewConfig } from 'db://ccgf-kit/gui';
 
 
 /**

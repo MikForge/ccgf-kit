@@ -1,2 +1,3 @@
-export { ResMgr } from "./mgr/ResMgr";
-export type { IResArgs, IResDirArgs } from "./defines/res-structs";
+export { ResMgr } from "./ResMgr";
+export { LoadResType } from "./Res.enum";
+export type { IResArgs, IResDirArgs, AssetType, Paths, ProgressCallback, CompleteCallback, LoadResRecord } from "./IResStructs";

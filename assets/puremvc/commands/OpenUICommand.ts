@@ -4,11 +4,7 @@ import { registerCommand, UIConfigRegistry } from 'db://ccgf-kit/decorators';
 import { CmdManifest } from 'db://ccgf-kit/puremvc';
 
 import { LogHelper } from 'db://ccgf-kit/helper';
-interface UIParams {
-    viewId: string;
-    param?: any;
-    preload?: boolean;
-}
+import type { UIParams } from 'db://ccgf-kit/puremvc';
 
 @registerCommand(CmdManifest.View.UI_OPEN)
 export default class OpenUICommand extends SimpleCommand {

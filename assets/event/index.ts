@@ -1,3 +1,3 @@
-export { EventMgr } from "./mgr/EventMgr";
-export { CoreEvents } from "./defines/CoreEvents";
-export type { CoreEventMap } from "./defines/CoreEventMap";
+export { EventMgr } from "./EventMgr";
+export { CoreEvents } from "./CoreEvents.enum";
+export type { CoreEventMap } from "./ICoreEventMap";

@@ -1,33 +1,14 @@
-import { game, Node, Component } from "cc";
+import { game, Component } from "cc";
 import { StringUtil } from "db://ccgf-kit/utils";
 import { Singleton } from "db://ccgf-kit/common";
 import { LogHelper } from "db://ccgf-kit/helper";
-
-interface ITimer {
-    /** 倒计时编号 */
-    id: string;
-    /** 累计耗时（秒） */
-    elapsed: number;
-    /** 触发间隔（秒） */
-    step: number;
-    /** 数据对象 */
-    object: any;
-    /** 修改数据对象的字段 */
-    field: string;
-    /** 事件侦听器的目标和被叫方 */
-    target: any;
-    /** 开始时间 */
-    startTime: number;
-    /** 每秒触发事件 */
-    onSeconds: Function[];
-    /** 时间完成事件 */
-    onCompletes: Function[];
-}
+import type { ITimer } from 'db://ccgf-kit/timer';
 
 /**
- * TimerDriver — 内部 Component，挂载在 persistNode 上驱动 tick
+ * TimerDriver — 驱动 CountdownMgr.tick() 的 Component，挂载到 persistNode 上
+ * 由 GameBootstrap 创建后注入 CountdownMgr.init()
  */
-class TimerDriver extends Component {
+export class TimerDriver extends Component {
     update(dt: number): void {
         CountdownMgr.getInstance().tick(dt);
     }
@@ -47,27 +28,17 @@ export class CountdownMgr extends Singleton<CountdownMgr> {
     private date_c: Date = new Date();
     /** 初始化标志 */
     private _initialized: boolean = false;
-    /** TimerDriver 组件引用 */
-    private _driver: TimerDriver | null = null;
-    /** persistNode 引用 */
-    private _persistNode: Node | null = null;
 
     /**
-     * 初始化 CountdownMgr，创建 TimerDriver 并挂载到 persistNode
-     * @param persistNode 常驻节点
+     * 初始化 CountdownMgr，接收由调用方预先创建的 TimerDriver 组件
+     * @param driver 已挂载到 persistNode 的 TimerDriver 组件
      */
-    public init(persistNode: Node): void {
+    public init(_driver: TimerDriver): void {
         if (this._initialized) {
-            LogHelper.warn("CountdownMgr: init() 重复调用，覆盖 persistNode 引用");
-            this._persistNode = persistNode;
-            if (!this._driver) {
-                this._driver = persistNode.addComponent(TimerDriver);
-            }
+            LogHelper.warn("CountdownMgr: init() 重复调用，已忽略");
             return;
         }
 
-        this._persistNode = persistNode;
-        this._driver = persistNode.addComponent(TimerDriver);
         this._initialized = true;
     }
 

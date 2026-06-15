@@ -1,2 +1,2 @@
-export { Singleton, singleton } from "./base/Singleton";
- export { GameBootstrap } from "./base/GameBootstrap";
+export { Singleton } from './Singleton';
+export { GameBootstrap } from './GameBootstrap';
