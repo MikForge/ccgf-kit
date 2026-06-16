@@ -1,4 +1,4 @@
-import type { UIViewConfig, UIViewParam } from 'db://ccgf-kit/types/ui-structs';
+import type { UIViewConfig, UIOpenParams } from 'db://ccgf-kit/gui/IUiStructs';
 
 /**
  * UI 界面组件状态（纯数据结构）
@@ -9,7 +9,7 @@ export class UIViewState {
     /** 界面配置 */
     config: UIViewConfig = null!;
     /** 窗口事件 */
-    params: UIViewParam = null!;
+    params: UIOpenParams = null!;
     /** 是否在使用状态 */
     valid: boolean = true;
 
@@ -23,11 +23,11 @@ export class UIViewState {
     public init(
         viewId: string,
         config: UIViewConfig,
-        params?: UIViewParam
+        params?: UIOpenParams
     ): this {
         this.viewId = viewId;
         this.config = config;
-        this.params = params || {};
+        this.params = params || null!;
         this.valid = true;
         return this;
     }

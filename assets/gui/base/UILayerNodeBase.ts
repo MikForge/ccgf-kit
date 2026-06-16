@@ -1,10 +1,12 @@
 import { Node } from "cc";
-import { LogHelper, UIHelper } from "db://ccgf-kit/helper";
-import { UIViewState, UIComptBase } from "db://ccgf-kit/gui";
-import { LayerContainerType } from "db://ccgf-kit/types/ui-layer.enum";
+import { LogHelper } from "db://ccgf-kit/helper/LogHelper";
+import { UIHelper } from "db://ccgf-kit/gui/UIHelper";
+import { UIViewState } from "db://ccgf-kit/gui/base/UIViewState";
+import { UIComptBase } from "db://ccgf-kit/gui/base/UIComptBase";
+import { LayerContainerType } from "db://ccgf-kit/gui/UILayer.enum";
 
-import { UIMgr } from 'db://ccgf-kit/gui';
-import { ResMgr } from 'db://ccgf-kit/res';
+import { UIMgr } from 'db://ccgf-kit/gui/UIMgr';
+import { ResMgr } from 'db://ccgf-kit/res/ResMgr';
 export class UILayerNodeBase extends Node {
 
     onOpenFailure: Function = null!;

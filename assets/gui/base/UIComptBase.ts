@@ -1,6 +1,8 @@
-import { _decorator, Component, Node } from 'cc';
-import type { IUILifecycle } from 'db://ccgf-kit/types/ui-structs';
-import { UIContainer } from 'db://ccgf-kit/gui';
+import { _decorator, Component, Node, EventTouch } from 'cc';
+import type { IUILifecycle } from 'db://ccgf-kit/gui/IUiStructs';
+import { UIContainer } from 'db://ccgf-kit/gui/impl/UIContainer';
+import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
+import { AudioMgr } from 'db://ccgf-kit/audio/AudioMgr';
 
 const { ccclass } = _decorator;
 
@@ -35,6 +37,17 @@ export class UIComptBase extends Component implements IUILifecycle {
         return this._v_compts as UIComptsOf<this>;
     }
 
+    /** 事件监听池（自动清理） */
+    private _eventListeners: Array<{
+        target: Node;
+        eventType: string;
+        callback: Function;
+        thisArg?: any;
+    }> = [];
+
+    /** 按钮连击冷却记录 */
+    private _lastClickTime: Map<Node, number> = new Map();
+
     // ── IUILifecycle 默认空实现 ──
 
     ui_on_preload(): void {}
@@ -52,7 +65,81 @@ export class UIComptBase extends Component implements IUILifecycle {
 
     ui_before_destroy(): void {}
 
-    ui_on_destroy(): void {}
+    ui_on_destroy(): void {
+        this._clearAllEventListeners();
+    }
+
+    // ── 事件绑定 ──
+
+    /**
+     * 绑定事件到目标节点（自动管理生命周期，ui_on_destroy 时清理）
+     * @param target 目标节点
+     * @param eventType 事件类型
+     * @param callback 回调函数
+     * @param thisArg this 指向
+     */
+    public bindEvent(
+        target: Node,
+        eventType: string,
+        callback: Function,
+        thisArg?: any,
+    ): void {
+        if (!target) {
+            LogHelper.warn(`[UIComptBase] bindEvent: target is null`);
+            return;
+        }
+
+        target.on(eventType, callback, thisArg);
+        this._eventListeners.push({ target, eventType, callback, thisArg });
+    }
+
+    /**
+     * 绑定按钮点击事件（TOUCH_END），自动防连击 + 点击音效
+     * @param node 按钮节点
+     * @param callback 点击回调
+     * @param opts.sound 音效：true/不传=默认"ui_button"，string=指定音效名，false=关闭
+     * @param opts.cooldown 冷却时间(ms)：默认 500，传 0 关闭防连击
+     * @param thisArg this 指向
+     */
+    public bindButton(
+        node: Node,
+        callback: () => void,
+        opts?: { sound?: boolean | string; cooldown?: number },
+        thisArg?: any,
+    ): void {
+        const cooldown = opts?.cooldown ?? 500;
+
+        const wrapped = () => {
+            // 防连击
+            if (cooldown > 0) {
+                const now = Date.now();
+                const last = this._lastClickTime.get(node) || 0;
+                if (now - last < cooldown) return;
+                this._lastClickTime.set(node, now);
+            }
+            // 音效
+            const sound = opts?.sound;
+            if (sound !== false) {
+                const sfxName = typeof sound === 'string' ? sound : 'ui_button';
+                AudioMgr.getInstance().playSFX(sfxName);
+            }
+            callback.call(thisArg);
+        };
+
+        this.bindEvent(node, Node.EventType.TOUCH_END, wrapped, thisArg);
+    }
+
+    /**
+     * 清理所有事件监听
+     */
+    private _clearAllEventListeners(): void {
+        for (const listener of this._eventListeners) {
+            if (listener.target && listener.target.isValid) {
+                listener.target.off(listener.eventType, listener.callback, listener.thisArg);
+            }
+        }
+        this._eventListeners = [];
+    }
 
     // ── 内部绑定 ──
 

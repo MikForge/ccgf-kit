@@ -1,8 +1,7 @@
 import { _decorator, Node, Constructor } from "cc";
-import { UIComptBase, UIMgr } from "db://ccgf-kit/gui";
-import { LogHelper } from 'db://ccgf-kit/helper';
-
-const { ccclass } = _decorator;
+import { UIComptBase } from "db://ccgf-kit/gui/base/UIComptBase";
+import { UIMgr } from "db://ccgf-kit/gui/UIMgr";
+import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 
 /**
  * 根视图基类（Template Method 模式）
@@ -13,7 +12,6 @@ const { ccclass } = _decorator;
  *   - 子类在 onInit() 内调用 registerSubView()，此时 v_nodes 已就绪
  *   - 级联深度为一层：BaseView → [child1, child2, ...]
  */
-@ccclass('BaseView')
 export class BaseView extends UIComptBase {
 
     /** Node → UIComptBase 映射；保证去重，O(1) 注销 */

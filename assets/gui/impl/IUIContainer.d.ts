@@ -1,4 +1,4 @@
-import type { BIND_COMPT_TYPE } from "db://ccgf-kit/types/ui-layer.enum";
+import type { BIND_COMPT_TYPE } from "db://ccgf-kit/gui/UILayer.enum";
 import type { Node, Component } from "cc";
 
 export interface UIContainerComptItem {

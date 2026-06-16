@@ -1,4 +1,4 @@
-import type { CoreEvents } from "db://ccgf-kit/event";
+import type { CoreEvents } from "db://ccgf-kit/event/CoreEvents.enum";
 
 export interface CoreEventMap {
     // 原有

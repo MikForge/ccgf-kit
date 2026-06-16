@@ -1,5 +1,5 @@
-import { Queue } from "db://ccgf-kit/utils";
-import type { IBoundedQueueOptions } from 'db://ccgf-kit/utils';
+import { Queue } from "db://ccgf-kit/utils/queue/Queue";
+import type { IBoundedQueueOptions } from 'db://ccgf-kit/utils/queue/IBoundedQueue';
 // eslint-disable-next-line no-restricted-imports -- same-directory enum import avoids circular barrel dep
 import { overflowStrategy } from "db://ccgf-kit/utils/queue/BoundedQueue.enum";
 

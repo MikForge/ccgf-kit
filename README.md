@@ -17,27 +17,6 @@ ccgf-kit 是 ccgf 运行时框架的 **Cocos Creator Extension v2** 封装，提
 
 业务代码通过 `db://ccgf-kit/core/...` 引用，利用 Cocos Creator 的 AssetDB mount 机制实现零拷贝同步。
 
-## 快速开始
-
-在 **你的 Cocos Creator 项目根目录** 执行以下命令：
-
-```bash
-# 1. 下载同步脚本和锁文件
-curl -O https://raw.githubusercontent.com/MikForge/ccgf/main/update-ccgf-kit.sh
-curl -O https://raw.githubusercontent.com/MikForge/ccgf/main/ccgf-kit.lock
-
-# 2. 执行同步（克隆/更新 ccgf-kit 到 extensions/）
-bash update-ccgf-kit.sh
-```
-
-同步完成后，Cocos Creator 的 AssetDB 中会出现 `ccgf-kit` 挂载点。
-
-## 切换版本
-
-```bash
-bash update-ccgf-kit.sh --set-ref <git-tag-or-commit>
-```
-
 ## 使用示例
 
 ```ts
@@ -53,8 +32,8 @@ import { EventMgr }      from 'db://ccgf-kit/core/event';
 ### 操作步骤
 
 1. 点击菜单栏 **扩展 → ccgf-kit → 创建启动场景**
-2. 在保存对话框中选择路径（默认 `assets/main.scene`），点击确认
-3. 场景文件生成后，编辑器弹出提示对话框，列出后续手动操作
+2. 场景文件自动生成到 `assets/main.scene`（若已存在则自动编号为 `main-1.scene`、`main-2.scene` ...）
+3. 控制台输出创建结果和后续手动操作指引
 4. 按提示将 `Main.ts` 拖到 `root` 节点上，并绑定 `gameRoot` / `uiRoot` 属性
 
 ### 生成节点树
@@ -72,7 +51,6 @@ root
 
 - Cocos Creator 3.8+
 - Node.js 18+
-- Git
 
 ## 目录结构
 

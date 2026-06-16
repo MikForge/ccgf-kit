@@ -1,14 +1,15 @@
 // sdk/SdkManager.ts
 import { sys } from 'cc';
-import { ISdkPlatform } from 'db://ccgf-kit/types/ISdkPlatform';
-import { PayParams, TrackEventPayload } from 'db://ccgf-kit/types/SdkTypes';
-import { WxMiniSdkPlatform } from 'db://ccgf-kit/sdk';
-import { NativeSdkPlatform } from 'db://ccgf-kit/sdk';
-import { WebSdkPlatform } from 'db://ccgf-kit/sdk';
-import { Singleton } from 'db://ccgf-kit/common';
-import { CoreEvents, EventMgr } from 'db://ccgf-kit/event';
+import { ISdkPlatform } from 'db://ccgf-kit/sdk/ISdkPlatform';
+import { PayParams, TrackEventPayload } from 'db://ccgf-kit/sdk/ISdk';
+import { WxMiniSdkPlatform } from 'db://ccgf-kit/sdk/impl/WxMiniSdkPlatform';
+import { NativeSdkPlatform } from 'db://ccgf-kit/sdk/impl/NativeSdkPlatform';
+import { WebSdkPlatform } from 'db://ccgf-kit/sdk/impl/WebSdkPlatform';
+import { Singleton } from 'db://ccgf-kit/common/Singleton';
+import { EventMgr } from 'db://ccgf-kit/event/EventMgr';
+import { CoreEvents } from 'db://ccgf-kit/event/CoreEvents.enum';
 
-import { LogHelper } from 'db://ccgf-kit/helper';
+import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 export class SdkMgr extends Singleton<SdkMgr> {
 
     private _platform!: ISdkPlatform;

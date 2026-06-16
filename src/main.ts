@@ -1,7 +1,6 @@
 'use strict';
 
 import { buildSceneJson } from './scene-builder';
-import { initProject } from './project-init';
 
 declare const Editor: any;
 
@@ -87,5 +86,4 @@ export function unload(): void {
 
 export const methods = {
     createBootstrapScene,
-    initProject,
 };

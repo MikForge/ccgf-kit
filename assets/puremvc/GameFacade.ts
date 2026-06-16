@@ -1,5 +1,7 @@
-import { Facade, IFacade } from "db://ccgf-kit/libs/puremvc";
-import { CmdManifest } from "db://ccgf-kit/puremvc/CmdManifest";
+import { Facade, ICommand, IFacade } from 'db://ccgf-kit/libs/puremvc/index';
+import StartupCmd from 'db://ccgf-kit/puremvc/cmds/StartupCmd';
+import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
+import { CmdEnum } from 'db://ccgf-kit/puremvc/cmds/cmd.enum';
 
 export class GameFacade extends Facade implements IFacade {
     constructor() {
@@ -10,24 +12,31 @@ export class GameFacade extends Facade implements IFacade {
         if (!this.instance) this.instance = new GameFacade();
         return <GameFacade>this.instance;
     }
-    public startup(): void {
-        this.sendNotification(CmdManifest.Base.STARTUP);
-        this.removeCommand(CmdManifest.Base.STARTUP);
+
+
+    protected initializeFacade(): void {
+        super.initializeFacade();
+        this.registerCommand(CmdEnum.STARTUP, () => new StartupCmd());
+
     }
 
-    /**
-     * 全局打开界面接口
-     * @param viewId 界面ID
-     * @param param 传递给界面的参数
-     * @example
-     * // 打开主界面
-     * GameFacade.getInstance().openView(ViewId.MainUI);
-     * 
-     * // 打开带参数的界面
-     * GameFacade.getInstance().openView(ViewId.PlayerInfo, { playerId: 12345 });
-     */
-    public openView(viewId: string, param?: any, preload: boolean = false): void {
-        this.sendNotification(CmdManifest.View.UI_OPEN, { viewId: viewId, param: param, preload: preload });
+    public registerCommand(notificationName: string, factory: () => ICommand): void {
+        super.registerCommand(notificationName, factory);
+        LogHelper.debug(`Registered command: ${notificationName}`);
+    }
+
+    public sendNotification(notificationName: string, body?: any, type?: string): void {
+        if (this.hasCommand(notificationName) == false) {
+            LogHelper.error(`No command registered for notification: ${notificationName}`);
+        }
+        super.sendNotification(notificationName, body, type);
+        LogHelper.debug(`Sent notification: ${notificationName} with body: ${JSON.stringify(body)} and type: ${type}`);
+    }
+
+
+    public startup(): void {
+        this.sendNotification(CmdEnum.STARTUP);
+
     }
 
 }

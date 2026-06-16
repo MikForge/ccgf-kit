@@ -1,5 +1,5 @@
 import { _decorator } from 'cc';
-import { UIComptBase } from 'db://ccgf-kit/gui';
+import { UIComptBase } from 'db://ccgf-kit/gui/base/UIComptBase';
 
 const { ccclass } = _decorator;
 

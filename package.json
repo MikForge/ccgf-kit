@@ -22,19 +22,11 @@
         "path": "扩展/ccgf-kit",
         "label": "创建启动场景",
         "message": "create-bootstrap-scene"
-      },
-      {
-        "path": "扩展/ccgf-kit",
-        "label": "初始化项目脚本",
-        "message": "init-project"
       }
     ],
     "messages": {
       "create-bootstrap-scene": {
         "methods": ["createBootstrapScene"]
-      },
-      "init-project": {
-        "methods": ["initProject"]
       }
     }
   }

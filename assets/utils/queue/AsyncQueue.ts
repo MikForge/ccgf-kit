@@ -1,5 +1,5 @@
-import { Queue } from "db://ccgf-kit/utils";
-import type { IAsyncTask, IAsyncQueueOptions } from 'db://ccgf-kit/utils';
+import { Queue } from "db://ccgf-kit/utils/queue/Queue";
+import type { IAsyncTask, IAsyncQueueOptions } from 'db://ccgf-kit/utils/queue/IAsyncQueue';
 
 /**
  * 异步队列

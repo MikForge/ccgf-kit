@@ -2,10 +2,10 @@
 
 
 import { __private, Asset, assetManager, AssetManager, Prefab, resources } from "cc";
-import { Singleton } from "db://ccgf-kit/common";
-import { IResArgs, IResDirArgs } from "db://ccgf-kit/types/res-structs";
+import { Singleton } from "db://ccgf-kit/common/Singleton";
+import { IResArgs, IResDirArgs } from "db://ccgf-kit/res/IResStructs";
 
-import { LogHelper } from 'db://ccgf-kit/helper';
+import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 
 
 

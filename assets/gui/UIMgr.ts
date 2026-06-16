@@ -1,14 +1,18 @@
 
 import { Node, Camera, Constructor, Component, instantiate } from "cc";
 // import { LayerContainerType, LayerType, UIType } from "db://ccgf-kit/types/ui-layer.enum";
-import { UIConfigMap, UIGameLayerNode,UIViewConfig, UIViewParam, IUILifecycle, UILayerNodeBase, LayerType, LayerContainerType  } from "db://ccgf-kit/gui";
-import { UIViewState } from "db://ccgf-kit/gui";
-import { utils } from "db://ccgf-kit/utils";
-import { Singleton } from "db://ccgf-kit/common";
-import { UIConfigRegistry } from "db://ccgf-kit/decorators";
+import type { UIConfigMap, UIViewConfig, UIOpenParams, IUILifecycle } from 'db://ccgf-kit/gui/IUiStructs';
+import { UIGameLayerNode } from 'db://ccgf-kit/gui/impl/UIGameLayerNode';
+import { UILayerNodeBase } from 'db://ccgf-kit/gui/base/UILayerNodeBase';
+import { LayerType, LayerContainerType } from 'db://ccgf-kit/gui/UILayer.enum';
+import { UIViewState } from 'db://ccgf-kit/gui/base/UIViewState';
+import { utils } from 'db://ccgf-kit/utils/utils';
+import { Singleton } from 'db://ccgf-kit/common/Singleton';
+import { UIRegistry } from "db://ccgf-kit/decorators/UIRegistry";
 
-import { LogHelper, UIHelper } from 'db://ccgf-kit/helper';
-import { ResMgr } from 'db://ccgf-kit/res';
+import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
+import { UIHelper } from 'db://ccgf-kit/gui/UIHelper';
+import { ResMgr } from 'db://ccgf-kit/res/ResMgr';
 
 
 
@@ -80,12 +84,12 @@ export class UIMgr extends Singleton<UIMgr> {
      * @param configMap UI 组件配置映射表
      */
     public registerUIComponents(configMap: UIConfigMap): void {
-        UIConfigRegistry.getInstance().init(configMap);
+        UIRegistry.getInstance().init(configMap);
     }
 
 
-    public async open(viewId: string, param?: UIViewParam): Promise<Node | null> {
-        const uiConfig: UIViewConfig | null = UIConfigRegistry.getInstance().getConfigByViewId(viewId);
+    public async open(viewId: string, params?: UIOpenParams): Promise<Node | null> {
+        const uiConfig: UIViewConfig | null = UIRegistry.getInstance().getConfigByViewId(viewId);
 
         if (!uiConfig) {
             LogHelper.error(`UI 配置未找到: ${viewId}`);
@@ -103,7 +107,7 @@ export class UIMgr extends Singleton<UIMgr> {
         }
 
         // 创建 UIViewState 实例
-        let uiInfo = new UIViewState().init(viewId, uiConfig, param);
+        let uiInfo = new UIViewState().init(viewId, uiConfig, params);
 
         let node = await layerNode.addView(uiInfo);
 
@@ -118,7 +122,7 @@ export class UIMgr extends Singleton<UIMgr> {
 
     public close(viewId: string): void {
         
-        const uiConfig: UIViewConfig | null = UIConfigRegistry.getInstance().getConfigByViewId(viewId);
+        const uiConfig: UIViewConfig | null = UIRegistry.getInstance().getConfigByViewId(viewId);
 
         if (!uiConfig) {
             LogHelper.error(`UI 配置未找到: ${viewId}`);
@@ -141,7 +145,7 @@ export class UIMgr extends Singleton<UIMgr> {
      * @param data 新数据
      */
     public refresh(viewId: string, data: any): void {
-        const uiConfig: UIViewConfig | null = UIConfigRegistry.getInstance().getConfigByViewId(viewId);
+        const uiConfig: UIViewConfig | null = UIRegistry.getInstance().getConfigByViewId(viewId);
         if (!uiConfig) {
             LogHelper.warn(`UI 配置未找到（refresh）: ${viewId}`);
             return;

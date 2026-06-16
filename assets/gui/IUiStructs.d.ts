@@ -1,6 +1,6 @@
 import type { Component, Constructor } from "cc";
-import type { BIND_COMPT_TYPE, LayerType } from "db://ccgf-kit/gui";
-import type { IMediator } from "db://ccgf-kit/libs/puremvc";
+import type { BIND_COMPT_TYPE, LayerType } from 'db://ccgf-kit/gui/UILayer.enum';
+import type { IMediator } from 'db://ccgf-kit/libs/puremvc/index';
 
 export type UIConfigMap = { [key: string]: UIViewConfig }
 
@@ -33,12 +33,12 @@ export interface IUILifecycle {
 
 export interface UIViewConfig {
 
-    meditorCls?: new (name: string, viewComponent: any, param?: UIViewParam) => IMediator;
+    meditorCls?: new (name: string, viewComponent: any, params?: UIOpenParams) => IMediator;
     viewCls?: new (...args: any[]) => (Component & IUILifecycle);
-   
+
     /** 窗口层级 */
     layer: LayerType;
-   
+
     /** 预制资源相对路径 */
     prefab: string;
     /**
@@ -59,7 +59,9 @@ export interface UIViewConfig {
     siblingIndex?: number;
 }
 
-export interface UIViewParam {
+export interface UIOpenParams {
+    /** 界面唯一标识 */
+    viewId: string;
     /** 自定义传递参数 */
     data?: any;
     /** 是否开启预加载（默认不开启） */

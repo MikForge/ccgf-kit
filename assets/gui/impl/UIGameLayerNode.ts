@@ -1,5 +1,5 @@
 import { Node } from "cc";
-import { UIHelper } from "db://ccgf-kit/helper";
+import { UIHelper } from "db://ccgf-kit/gui/UIHelper";
 
 export class UIGameLayerNode extends Node {
 

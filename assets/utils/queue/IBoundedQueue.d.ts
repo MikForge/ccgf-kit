@@ -1,4 +1,4 @@
-import type { overflowStrategy } from "db://ccgf-kit/utils";
+import type { overflowStrategy } from "db://ccgf-kit/utils/queue/BoundedQueue.enum";
 
 /**
  * 有界队列参数

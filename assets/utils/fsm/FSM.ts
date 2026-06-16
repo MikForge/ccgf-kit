@@ -1,6 +1,6 @@
-import { FSMCfg, IState, StateTransitionRecord } from "db://ccgf-kit/types/IState";
+import { FSMCfg, IState, StateTransitionRecord } from "db://ccgf-kit/utils/fsm/IState";
 
-import { LogHelper } from 'db://ccgf-kit/helper';
+import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 /**
  * FSM
  * @author Michael

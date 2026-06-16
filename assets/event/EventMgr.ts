@@ -1,10 +1,10 @@
 
 import { EventTarget } from 'cc';
 
-import { Singleton } from 'db://ccgf-kit/common';
-import { TimerTaskMgr } from 'db://ccgf-kit/timer';
-import { CoreEventMap } from 'db://ccgf-kit/types/CoreEventMap';
-import { LogHelper } from 'db://ccgf-kit/helper';
+import { Singleton } from 'db://ccgf-kit/common/Singleton';
+import { TimerTaskMgr } from 'db://ccgf-kit/timer/TimerTaskMgr';
+import { CoreEventMap } from 'db://ccgf-kit/event/ICoreEventMap';
+import { LogHelper } from "db://ccgf-kit/helper/LogHelper";
 
 export class EventMgr extends Singleton<EventMgr> {
     private _target: EventTarget;

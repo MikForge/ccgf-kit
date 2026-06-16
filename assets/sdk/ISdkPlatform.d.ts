@@ -1,12 +1,15 @@
 
 import {
     SdkPlatformName,
+} from "db://ccgf-kit/sdk/Sdk.enum";
+
+import type {
     LoginResult,
     PayParams,
     RewardAdResult,
     TrackEventPayload,
     SdkInitOptions,
-} from "db://ccgf-kit/sdk";
+} from "db://ccgf-kit/sdk/ISdk";
 
 export interface ISdkPlatform {
 

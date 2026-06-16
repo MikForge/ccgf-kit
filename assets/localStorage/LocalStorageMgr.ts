@@ -1,7 +1,7 @@
 
-import { LocalStorageKey } from "db://ccgf-kit/types/ls.enum";
-import { LogHelper } from 'db://ccgf-kit/helper';
-import { Singleton } from  "db://ccgf-kit/common";
+import { LocalStorageKey } from "db://ccgf-kit/localStorage/Ls.enum";
+import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
+import { Singleton } from "db://ccgf-kit/common/Singleton";
 
 export class LocalStorageMgr extends Singleton<LocalStorageMgr> {
 

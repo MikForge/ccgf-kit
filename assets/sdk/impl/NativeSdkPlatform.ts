@@ -1,7 +1,8 @@
 
 import { sys,native } from 'cc';
-import { ISdkPlatform } from 'db://ccgf-kit/types/ISdkPlatform';
-import { LoginResult, PayParams, RewardAdResult, RewardAdStatus, SdkPlatformName, TrackEventPayload } from 'db://ccgf-kit/types/SdkTypes';
+import type { ISdkPlatform } from 'db://ccgf-kit/sdk/ISdkPlatform';
+import { SdkPlatformName, RewardAdStatus } from 'db://ccgf-kit/sdk/Sdk.enum';
+import type { LoginResult, PayParams, RewardAdResult, TrackEventPayload } from 'db://ccgf-kit/sdk/ISdk';
 
 
 export class NativeSdkPlatform implements ISdkPlatform {

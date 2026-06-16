@@ -1,4 +1,4 @@
-import type { overflowStrategy } from "db://ccgf-kit/utils";
+import type { overflowStrategy } from "db://ccgf-kit/utils/queue/BoundedQueue.enum";
 
 /**
  * 事件调度器选项

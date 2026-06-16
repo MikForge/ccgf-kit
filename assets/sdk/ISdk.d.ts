@@ -1,4 +1,4 @@
-import type { RewardAdStatus, ShareChannel } from "db://ccgf-kit/sdk";
+import type { RewardAdStatus, ShareChannel } from "db://ccgf-kit/sdk/Sdk.enum";
 
 /** 登录结果：SDK 帮你搞完渠道登录后，返回给游戏的统一结构 */
 export interface LoginResult {

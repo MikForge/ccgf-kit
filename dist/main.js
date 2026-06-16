@@ -4,7 +4,6 @@ exports.methods = void 0;
 exports.load = load;
 exports.unload = unload;
 const scene_builder_1 = require("./scene-builder");
-const project_init_1 = require("./project-init");
 /**
  * 菜单处理：创建启动场景
  *
@@ -77,5 +76,4 @@ function unload() {
 }
 exports.methods = {
     createBootstrapScene,
-    initProject: project_init_1.initProject,
 };

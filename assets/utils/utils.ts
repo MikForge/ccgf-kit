@@ -1,4 +1,4 @@
-import { LogHelper } from 'db://ccgf-kit/helper';
+import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 
 export class utils {
     /**

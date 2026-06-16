@@ -1,5 +1,6 @@
-import { BoundedQueue, overflowStrategy } from "db://ccgf-kit/utils";
-import type { FrameEventOptions } from 'db://ccgf-kit/utils';
+import { BoundedQueue } from "db://ccgf-kit/utils/queue/BoundedQueue";
+import { overflowStrategy } from "db://ccgf-kit/utils/queue/BoundedQueue.enum";
+import type { FrameEventOptions } from 'db://ccgf-kit/utils/dispatcher/IFrameEventDispatcher';
 
 /**
  * 分帧事件调度器
