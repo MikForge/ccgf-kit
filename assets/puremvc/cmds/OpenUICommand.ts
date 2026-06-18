@@ -19,14 +19,14 @@ export default class OpenUICommand extends SimpleCommand {
         let uiNode = await UIMgr.getInstance().open(viewId, { viewId, data, preload });
 
         const uiConfig: UIViewConfig | null = UIRegistry.getInstance().getConfigByViewId(viewId);
+        const mediatorCtor = UIRegistry.getInstance().getMediatorClass(viewId);
 
-        if (uiConfig && uiConfig.meditorCls && uiNode) {
-            if(this.facade.hasMediator(uiConfig.meditorCls.name)) {
-                LogHelper.error(`Mediator ${uiConfig.meditorCls.name} 已经注册，可能存在重复打开同一界面的问题。`);
+        if (mediatorCtor && uiNode) {
+            if(this.facade.hasMediator(mediatorCtor.name)) {
+                LogHelper.error(`Mediator ${mediatorCtor.name} 已经注册，可能存在重复打开同一界面的问题。`);
                 return;
             }
-            const MediatorClass = uiConfig.meditorCls;
-            const mediator = new MediatorClass(viewId, uiNode, data);
+            const mediator = new mediatorCtor(viewId, uiNode, data);
             this.facade.registerMediator(mediator);
         } else {
             LogHelper.error(`UI 配置错误或 UI 打开失败: ${viewId}. 配置: ${uiConfig ? JSON.stringify(uiConfig) : 'null'}, UI节点: ${uiNode ? '存在' : '不存在'}`);

@@ -11,6 +11,12 @@ export type BindComptInfo = {
 
 export type BindComptCfg = Partial<Record<BIND_COMPT_TYPE, BindComptInfo>>
 
+/** View 组件构造器 */
+export type ViewClassCtor = new (...args: any[]) => (Component & IUILifecycle);
+
+/** Mediator 构造器 */
+export type MediatorClassCtor = new (name: string, viewComponent: any, param?: any) => IMediator;
+
 /**
  * UI 生命周期接口（工业级，对齐 Android Activity / React 模式）
  */
@@ -33,18 +39,11 @@ export interface IUILifecycle {
 
 export interface UIViewConfig {
 
-    meditorCls?: new (name: string, viewComponent: any, params?: UIOpenParams) => IMediator;
-    viewCls?: new (...args: any[]) => (Component & IUILifecycle);
-
     /** 窗口层级 */
     layer: LayerType;
 
     /** 预制资源相对路径 */
     prefab: string;
-    /**
-     * 动态挂载的根视图类（强烈建议提供，缺失时界面无生命周期回调）
-     * 用 Component & IUILifecycle 而非 BaseView，避免子类 v_nodes 泛型导致的结构类型不兼容
-     */
     /** 远程包名 */
     bundle?: string;
     /** 是否自动释放（默认自动释放） */

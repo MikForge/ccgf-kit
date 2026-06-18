@@ -1,20 +1,18 @@
-import { Component } from "cc";
-import { IMediator } from 'db://ccgf-kit/libs/puremvc/index';
 import { Singleton } from 'db://ccgf-kit/common/Singleton';
 import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
-import type { UIConfigMap, UIViewConfig, IUILifecycle } from 'db://ccgf-kit/gui/IUiStructs';
+import type { UIConfigMap, UIViewConfig, ViewClassCtor, MediatorClassCtor } from 'db://ccgf-kit/gui/IUiStructs';
 
 /* ─────────------ 独立装饰器 ────── */
 
 export function registerView(key: string, config: Omit<UIViewConfig, "viewCls" | "meditorCls">) {
-    return function (viewCls: new (...args: any[]) => (Component & IUILifecycle)) {
-        UIRegistry.getInstance().register(key, { ...config, viewCls: viewCls });
+    return function (viewCls: ViewClassCtor) {
+        UIRegistry.getInstance().registerViewClass(key, config as UIViewConfig, viewCls);
     };
 }
 
 export function registerMediator(key: string, config?: Omit<UIViewConfig, "viewCls" | "meditorCls">) {
-    return function (meditorCls: new (name: string, viewComponent: any, param?: any) => IMediator) {
-        UIRegistry.getInstance().register(key, { ...config, meditorCls: meditorCls } as UIViewConfig);
+    return function (meditorCls: MediatorClassCtor) {
+        UIRegistry.getInstance().registerMediatorClass(key, config as UIViewConfig | undefined, meditorCls);
     };
 }
 
@@ -26,7 +24,9 @@ export class UIRegistry extends Singleton<UIRegistry> {
     // UI 注册区（实例方法）
     // ═══════════════════════════════════════════
 
-    private configs: Map<string, UIViewConfig> = new Map();
+    private viewConfigs: Map<string, UIViewConfig> = new Map();
+    private viewClasses: Map<string, ViewClassCtor> = new Map();
+    private mediatorClasses: Map<string, MediatorClassCtor> = new Map();
     private locked: boolean = false;
 
     /**
@@ -41,38 +41,59 @@ export class UIRegistry extends Singleton<UIRegistry> {
 
         for (const key in configMap) {
             if (!configMap.hasOwnProperty(key)) continue;
-            this.configs.set(key, configMap[key]);
+            this.viewConfigs.set(key, configMap[key]);
         }
 
         this.locked = true;
     }
 
     /**
-     * 注册单个 UI 配置（同 key 多次注册合并，已有字段不覆盖）
-     * 由 registerView / registerMediator 装饰器内部调用
+     * 注册 View 类 — 写 viewConfigs + viewClasses，独立覆盖
+     * 由 registerView 装饰器内部调用
      */
-    register(key: string, config: UIViewConfig): void {
-        if (this.configs.has(key)) {
-            // 合并：新字段补充，已有字段优先
-            this.configs.set(key, { ...config, ...this.configs.get(key) });
-        } else {
-            this.configs.set(key, config);
+    registerViewClass(key: string, config: UIViewConfig, viewCtor: ViewClassCtor): void {
+        this.viewConfigs.set(key, config);
+        this.viewClasses.set(key, viewCtor);
+    }
+
+    /**
+     * 注册 Mediator 类 — 补 viewConfigs（config 非空时）+ 写 mediatorClasses
+     * 由 registerMediator 装饰器内部调用
+     */
+    registerMediatorClass(key: string, config?: UIViewConfig, mediatorCtor?: MediatorClassCtor): void {
+        if (config) {
+            this.viewConfigs.set(key, config);
+        }
+        if (mediatorCtor) {
+            this.mediatorClasses.set(key, mediatorCtor);
         }
     }
 
     /** 按 viewId 获取 UI 配置 */
     getConfigByViewId(key: string): UIViewConfig | null {
-        return this.configs.get(key) || null;
+        return this.viewConfigs.get(key) || null;
+    }
+
+    /** 按 viewId 获取 View 构造器 */
+    getViewClass(key: string): ViewClassCtor | null {
+        return this.viewClasses.get(key) || null;
+    }
+
+    /** 按 viewId 获取 Mediator 构造器 */
+    getMediatorClass(key: string): MediatorClassCtor | null {
+        return this.mediatorClasses.get(key) || null;
     }
 
     /** 检查 UI 配置是否存在 */
     hasConfigByViewId(key: string): boolean {
-        return this.configs.has(key);
+        return this.viewConfigs.has(key);
     }
 
     /** 清空所有注册数据（测试用） */
     clear(): void {
-        this.configs.clear();
+        this.viewConfigs.clear();
+        this.viewClasses.clear();
+        this.mediatorClasses.clear();
         this.locked = false;
     }
 }

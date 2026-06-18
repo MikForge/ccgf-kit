@@ -17,10 +17,11 @@ export default class CloseUICommand extends SimpleCommand {
         const uiName = notification.body as string;
 
         const uiConfig: UIViewConfig | null = UIRegistry.getInstance().getConfigByViewId(uiName);
+        const mediatorCtor = UIRegistry.getInstance().getMediatorClass(uiName);
 
         // 移除mediator
-        if (uiConfig && uiConfig.meditorCls) {
-            const mediatorName = uiConfig.meditorCls.name;
+        if (mediatorCtor) {
+            const mediatorName = mediatorCtor.name;
             if (this.facade.hasMediator(mediatorName)) {
                 this.facade.removeMediator(mediatorName);
             } else {

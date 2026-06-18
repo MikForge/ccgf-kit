@@ -6,6 +6,7 @@ import { UIComptBase } from "db://ccgf-kit/gui/base/UIComptBase";
 import { LayerContainerType } from "db://ccgf-kit/gui/UILayer.enum";
 
 import { UIMgr } from 'db://ccgf-kit/gui/UIMgr';
+import { UIRegistry } from 'db://ccgf-kit/decorators/UIRegistry';
 import { ResMgr } from 'db://ccgf-kit/res/ResMgr';
 export class UILayerNodeBase extends Node {
 
@@ -126,11 +127,13 @@ export class UILayerNodeBase extends Node {
     protected async load(uiInfo: UIViewState): Promise<Node> {
         let timerId = setTimeout(this.onLoadingTimeoutGui, 1000);
 
+        const viewCtor = UIRegistry.getInstance().getViewClass(uiInfo.viewId);
+
         const node = await UIMgr.getInstance().loadSubNode(
             uiInfo.viewId,
             uiInfo.config.prefab,
             uiInfo.config.bundle,
-            uiInfo.config.viewCls,
+            viewCtor,
             uiInfo.params.data,
         );
 
@@ -142,6 +145,9 @@ export class UILayerNodeBase extends Node {
 
         clearTimeout(timerId);
         uiInfo.valid = true;
+
+        // 注入纯 config 到节点（供 BaseView/BasePopUp 读取）
+        (node as any).__uiConfig = uiInfo.config;
 
         if (!uiInfo.params.preload) {
             node.parent = this;
