@@ -1,8 +1,8 @@
 import { Node } from "cc";
 import { LogHelper } from "db://ccgf-kit/helper/LogHelper";
 import { UIHelper } from "db://ccgf-kit/gui/UIHelper";
+import { BaseView } from "db://ccgf-kit/gui/base/BaseView";
 import { UIViewState } from "db://ccgf-kit/gui/base/UIViewState";
-import { UIComptBase } from "db://ccgf-kit/gui/base/UIComptBase";
 import { LayerContainerType } from "db://ccgf-kit/gui/UILayer.enum";
 
 import { UIMgr } from 'db://ccgf-kit/gui/UIMgr';
@@ -99,7 +99,7 @@ export class UILayerNodeBase extends Node {
 
         // 隐藏池里的视图强制走释放路径（已在池里再 close = 彻底销毁）
         const needRelease = uiInfo.config.destroy || isHidden;
-        const view = node.getComponent(UIComptBase);
+        const view = node.getComponent(BaseView);
 
         view?.ui_before_destroy();
 
@@ -120,7 +120,7 @@ export class UILayerNodeBase extends Node {
     /** 向已显示的界面推送新数据（不关闭重开） */
     public refreshView(viewId: string, data: any): void {
         const node = this.nodeMap.get(viewId);
-        const view = node?.getComponent(UIComptBase);
+        const view = node?.getComponent(BaseView);
         view?.ui_on_refresh(data);
     }
 
@@ -129,7 +129,7 @@ export class UILayerNodeBase extends Node {
 
         const viewCtor = UIRegistry.getInstance().getViewClass(uiInfo.viewId);
 
-        const node = await UIMgr.getInstance().loadSubNode(
+        const node = await UIMgr.getInstance().loadView(
             uiInfo.viewId,
             uiInfo.config.prefab,
             uiInfo.config.bundle,
@@ -146,12 +146,9 @@ export class UILayerNodeBase extends Node {
         clearTimeout(timerId);
         uiInfo.valid = true;
 
-        // 注入纯 config 到节点（供 BaseView/BasePopUp 读取）
-        (node as any).__uiConfig = uiInfo.config;
-
         if (!uiInfo.params.preload) {
             node.parent = this;
-            const view = node.getComponent(UIComptBase);
+            const view = node.getComponent(BaseView);
             view?.ui_on_show(uiInfo.params.data);
         }
 
@@ -175,7 +172,7 @@ export class UILayerNodeBase extends Node {
         const node = this.nodeMap.get(viewId);
         if (!node) return;
 
-        const view = node.getComponent(UIComptBase);
+        const view = node.getComponent(BaseView);
         view?.ui_on_hide();
 
         this.nodeMap.delete(viewId);
@@ -207,7 +204,7 @@ export class UILayerNodeBase extends Node {
         node.parent = this;
         node.active = true;
 
-        const view = node.getComponent(UIComptBase);
+        const view = node.getComponent(BaseView);
         view?.ui_on_show();
 
         const uiInfo = this.ui_nodes.get(viewId);
@@ -292,7 +289,7 @@ export class UILayerNodeBase extends Node {
 
         this.hiddenNodes.forEach((node) => {
             if (node) {
-                const view = node.getComponent(UIComptBase);
+                const view = node.getComponent(BaseView);
                 view?.ui_before_destroy();
                 view?.ui_on_destroy();
                 node.destroy();
@@ -302,7 +299,7 @@ export class UILayerNodeBase extends Node {
 
         this.nodeMap.forEach((node) => {
             if (node) {
-                const view = node.getComponent(UIComptBase);
+                const view = node.getComponent(BaseView);
                 view?.ui_before_destroy();
                 view?.ui_on_destroy();
                 node.destroy();

@@ -1,9 +1,10 @@
-
-import { Node, Camera, Constructor, Component, instantiate } from "cc";
+import { Node, Camera, Constructor, instantiate } from "cc";
 // import { LayerContainerType, LayerType, UIType } from "db://ccgf-kit/types/ui-layer.enum";
-import type { UIConfigMap, UIViewConfig, UIOpenParams, IUILifecycle } from 'db://ccgf-kit/gui/IUiStructs';
+import type { UIConfigMap, UIViewConfig, UIOpenParams } from 'db://ccgf-kit/gui/IUiStructs';
 import { UIGameLayerNode } from 'db://ccgf-kit/gui/impl/UIGameLayerNode';
 import { UILayerNodeBase } from 'db://ccgf-kit/gui/base/UILayerNodeBase';
+import { BaseView } from 'db://ccgf-kit/gui/base/BaseView';
+import { UIComptBase } from 'db://ccgf-kit/gui/base/UIComptBase';
 import { LayerType, LayerContainerType } from 'db://ccgf-kit/gui/UILayer.enum';
 import { UIViewState } from 'db://ccgf-kit/gui/base/UIViewState';
 import { utils } from 'db://ccgf-kit/utils/utils';
@@ -156,6 +157,39 @@ export class UIMgr extends Singleton<UIMgr> {
         layerNode.refreshView(viewId, data);
     }
 
+    public async loadView<T extends UIComptBase & BaseView>(
+        key: string,
+        paths: string,
+        bundle: string,
+        viewCtor: Constructor<T>,
+        data?: any
+    ): Promise<Node | null> {
+        const prefab = await ResMgr.getInstance().loadPrefab(key, paths, bundle);
+        if (!prefab) return null;
+
+        if (!viewCtor) {
+            LogHelper.error(`[UIMgr] loadView: viewCtor 为空，key: ${key}`);
+            ResMgr.getInstance().releasePrefab(paths, bundle);
+            return null;
+        }
+
+        const node = instantiate(prefab);
+        let item = node.getComponent(viewCtor) as T | null;
+        if (!item) item = node.addComponent(viewCtor);
+
+        item.ui_on_preload();
+        item.viewId = key;
+        const ok = await item.ui_on_init(data);
+
+        if (!ok) {
+            node.destroy();
+            ResMgr.getInstance().releasePrefab(paths, bundle);
+            return null;
+        }
+
+        return node;
+    }
+
     /**
      * 加载子组件节点（内置 instantiate + lifecycle）
      * @param key    竞态防护标识
@@ -165,7 +199,7 @@ export class UIMgr extends Singleton<UIMgr> {
      * @param data   初始数据
      * @returns      节点实例，失败返回 null
      */
-    public async loadSubNode<T extends Component & IUILifecycle>(
+    public async loadSubComp<T extends UIComptBase>(
         key: string,
         paths: string,
         bundle: string,
@@ -176,7 +210,7 @@ export class UIMgr extends Singleton<UIMgr> {
         if (!prefab) return null;
 
         if (!compCls) {
-            LogHelper.error(`[UIMgr] loadSubNode: compCls 为空，key: ${key}`);
+            LogHelper.error(`[UIMgr] loadSubComp: compCls 为空，key: ${key}`);
             ResMgr.getInstance().releasePrefab(paths, bundle);
             return null;
         }

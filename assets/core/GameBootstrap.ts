@@ -74,8 +74,8 @@ export abstract class GameBootstrap extends Component {
     private initFramework(): void {
         this.persist = new Node("Framework_Persist_Node");
         director.addPersistRootNode(this.persist);
-        // 3.8版本不需要挂载到主节点
         // this.persist.setParent(this.node);
+        this.beforFrameworkInit();
         this.onFrameworkReady();
     }
 
@@ -100,6 +100,17 @@ export abstract class GameBootstrap extends Component {
     protected update(dt: number): void {
     }
 
+    private beforFrameworkInit(): void {
+
+        AudioMgr.getInstance().init(
+            this.persist.addComponent(AudioSource),   // BGM
+            this.persist.addComponent(AudioSource),   // SFX
+            this.persist.addComponent(AudioSource),   // Voice（v2 启用）
+        );
+
+        CountdownMgr.getInstance().init(this.persist.addComponent(TimerDriver));
+    }
+
 
 
     // ==================== 可选方法（空实现，子类可重写） ====================
@@ -113,15 +124,7 @@ export abstract class GameBootstrap extends Component {
      * 子类可在此初始化管理器、注册命令等
      */
     protected onFrameworkReady(): void {
-        // 创建并注入 AudioSource 通道
-        const node = this.getPersistNode();
-        AudioMgr.getInstance().init(
-            node.addComponent(AudioSource),   // BGM
-            node.addComponent(AudioSource),   // SFX
-            node.addComponent(AudioSource),   // Voice（v2 启用）
-        );
 
-        CountdownMgr.getInstance().init(node.addComponent(TimerDriver));
     }
 
     /**

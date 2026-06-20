@@ -1,5 +1,6 @@
 import type { Component, Constructor } from "cc";
 import type { BIND_COMPT_TYPE, LayerType } from 'db://ccgf-kit/gui/UILayer.enum';
+import type { BaseView } from 'db://ccgf-kit/gui/base/BaseView';
 import type { IMediator } from 'db://ccgf-kit/libs/puremvc/index';
 
 export type UIConfigMap = { [key: string]: UIViewConfig }
@@ -12,7 +13,7 @@ export type BindComptInfo = {
 export type BindComptCfg = Partial<Record<BIND_COMPT_TYPE, BindComptInfo>>
 
 /** View 组件构造器 */
-export type ViewClassCtor = new (...args: any[]) => (Component & IUILifecycle);
+export type ViewClassCtor = Constructor<BaseView>;
 
 /** Mediator 构造器 */
 export type MediatorClassCtor = new (name: string, viewComponent: any, param?: any) => IMediator;

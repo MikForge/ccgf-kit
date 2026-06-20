@@ -32,7 +32,7 @@ interface SceneComponent {
 
 /** 生成唯一占位 ID（基于场景名 + 标识符） */
 function makeId(sceneName: string, tag: string): string {
-    return `${sceneName}-${tag}-${Date.now()}`;
+    return `${sceneName}-${tag}`;
 }
 
 /** 创建默认 Vec3 值 */

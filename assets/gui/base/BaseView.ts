@@ -1,7 +1,9 @@
-import { _decorator, Node, Constructor } from "cc";
+import { _decorator, Node, Constructor, BlockInputEvents } from "cc";
 import { UIComptBase } from "db://ccgf-kit/gui/base/UIComptBase";
 import { UIMgr } from "db://ccgf-kit/gui/UIMgr";
 import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
+import { UIRegistry } from 'db://ccgf-kit/decorators/UIRegistry';
+import type { UIViewConfig } from 'db://ccgf-kit/gui/IUiStructs';
 
 /**
  * 根视图基类（Template Method 模式）
@@ -13,6 +15,13 @@ import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
  *   - 级联深度为一层：BaseView → [child1, child2, ...]
  */
 export class BaseView extends UIComptBase {
+
+    public viewId: string = '';
+
+    /** 通过 UIRegistry 获取当前视图的注册配置 */
+    protected get viewConfig(): UIViewConfig | null {
+        return UIRegistry.getInstance().getConfigByViewId(this.viewId);
+    }
 
     /** Node → UIComptBase 映射；保证去重，O(1) 注销 */
     private _subViews: Map<Node, UIComptBase> = new Map();
@@ -54,7 +63,7 @@ export class BaseView extends UIComptBase {
             return null;
         }
 
-        const node = await UIMgr.getInstance().loadSubNode(paths, paths, bundle, ItemCls, data);
+        const node = await UIMgr.getInstance().loadSubComp(paths, paths, bundle, ItemCls, data);
         
         if (!node) return null;
 
@@ -82,7 +91,8 @@ export class BaseView extends UIComptBase {
     }
 
     override async ui_on_init(data: any): Promise<boolean> {
-        if (!await super.ui_on_init(data)) return false;  // UIContainer 绑定
+        if (!await super.ui_on_init(data)) return false;  // UIContainer 绑定 → v_nodes 就绪
+        this._setupContentBlock();
         if (!await this.onInit(data)) return false;        // 子类初始化 + 注册子视图
         for (const c of this._subViews.values()) {
             if (!await c.ui_on_init(data)) return false;
@@ -127,4 +137,17 @@ export class BaseView extends UIComptBase {
     protected onRefresh(data: any): void { }
     protected onBeforeDestroy(): void { }
     protected onDestroy_(): void { }  // 避免与 Cocos Component.onDestroy 冲突
+
+    // ── 内部 ──
+
+    /**
+     * 若 v_nodes 中存在 panelContent 节点，挂 BlockInputEvents
+     * 阻止内容区域触摸事件下漏到同一触发点命中的其他节点（如 BasePopUp 的 mask）
+     */
+    private _setupContentBlock(): void {
+        const panel = this.node.getChildByName('panelContent');
+        if (panel) {
+            panel.addComponent(BlockInputEvents);
+        }
+    }
 }

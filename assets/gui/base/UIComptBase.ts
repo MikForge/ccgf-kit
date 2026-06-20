@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, EventTouch } from 'cc';
-import type { IUILifecycle } from 'db://ccgf-kit/gui/IUiStructs';
+import type { IUILifecycle, UIOpenParams } from 'db://ccgf-kit/gui/IUiStructs';
 import { UIContainer } from 'db://ccgf-kit/gui/impl/UIContainer';
 import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 import { AudioMgr } from 'db://ccgf-kit/audio/AudioMgr';
@@ -8,12 +8,12 @@ const { ccclass } = _decorator;
 
 type UIComptsOf<T> =
     T extends { readonly __ui_compts_type?: infer TCompts }
-    ? TCompts
+    ? TCompts & Record<string, Component>
     : Record<string, Component>;
 
 type UINodesOf<T> =
     T extends { readonly __ui_nodes_type?: infer TNodes }
-    ? TNodes
+    ? TNodes & Record<string, Node>
     : Record<string, Node>;
 
 /**
@@ -81,7 +81,7 @@ export class UIComptBase extends Component implements IUILifecycle {
     public bindEvent(
         target: Node,
         eventType: string,
-        callback: Function,
+        callback: (event?: any) => void,
         thisArg?: any,
     ): void {
         if (!target) {
@@ -103,13 +103,13 @@ export class UIComptBase extends Component implements IUILifecycle {
      */
     public bindButton(
         node: Node,
-        callback: () => void,
+        callback: (event?: EventTouch) => void,
         opts?: { sound?: boolean | string; cooldown?: number },
         thisArg?: any,
     ): void {
         const cooldown = opts?.cooldown ?? 500;
 
-        const wrapped = () => {
+        const wrapped = (event: EventTouch) => {
             // 防连击
             if (cooldown > 0) {
                 const now = Date.now();
@@ -123,7 +123,7 @@ export class UIComptBase extends Component implements IUILifecycle {
                 const sfxName = typeof sound === 'string' ? sound : 'ui_button';
                 AudioMgr.getInstance().playSFX(sfxName);
             }
-            callback.call(thisArg);
+            callback.call(thisArg, event);
         };
 
         this.bindEvent(node, Node.EventType.TOUCH_END, wrapped, thisArg);
