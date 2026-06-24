@@ -2,7 +2,7 @@ import type { ISdkPlatform } from "db://ccgf-kit/sdk/ISdkPlatform";
 import { SdkPlatformName, RewardAdStatus } from "db://ccgf-kit/sdk/Sdk.enum";
 import type { LoginResult, PayParams, RewardAdResult, TrackEventPayload } from "db://ccgf-kit/sdk/ISdk";
 import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
-import { NetMgr } from 'db://ccgf-net-kit/net/mgr/NetMgr';
+import { NetMgr } from 'db://ccgf-kit/net/mgr/NetMgr';
 
 declare const wx: any;
 
