@@ -35,8 +35,8 @@ export class UILayerNodeBase extends Node {
         this.on(Node.EventType.CHILD_REMOVED, this.onChildRemoved, this);
     }
 
-    protected onChildAdded(child: Node): void {}
-    protected onChildRemoved(child: Node): void {}
+    protected onChildAdded(child: Node): void { }
+    protected onChildRemoved(child: Node): void { }
 
     public async addView(uiInfo: UIViewState): Promise<Node> {
         const viewId = uiInfo.viewId;
@@ -81,7 +81,7 @@ export class UILayerNodeBase extends Node {
         if (!node) return null!;
 
         this.ui_nodes.set(viewId, uiInfo);
-        
+
         this.nodeMap.set(viewId, node);
 
         if (this.enableStack) this.pushToStack(viewId);
@@ -97,8 +97,9 @@ export class UILayerNodeBase extends Node {
 
         if (this.enableStack) this.popFromStack(viewId);
 
-        // 隐藏池里的视图强制走释放路径（已在池里再 close = 彻底销毁）
-        const needRelease = uiInfo.config.destroy || isHidden;
+        let needRelease: boolean = !uiInfo.config.destroy
+        needRelease = needRelease || isHidden;
+
         const view = node.getComponent(BaseView);
 
         view?.ui_before_destroy();
@@ -130,11 +131,11 @@ export class UILayerNodeBase extends Node {
         const viewCtor = UIRegistry.getInstance().getViewClass(uiInfo.viewId);
 
         const node = await UIMgr.getInstance().loadView(
-            uiInfo.viewId,
-            uiInfo.config.prefab,
+            uiInfo.config.prefabKey,
             uiInfo.config.bundle,
             viewCtor,
             uiInfo.params.data,
+            uiInfo.viewId,
         );
 
         if (!node) {
@@ -155,7 +156,7 @@ export class UILayerNodeBase extends Node {
         return node;
     }
 
-    private onLoadingTimeoutGui(): void {}
+    private onLoadingTimeoutGui(): void { }
 
     protected failure(uiInfo: UIViewState): void {
         this._releaseRes(uiInfo);
@@ -163,8 +164,8 @@ export class UILayerNodeBase extends Node {
     }
 
     private _releaseRes(uiInfo: UIViewState): void {
-        ResMgr.getInstance().releasePrefab(uiInfo.config.prefab, uiInfo.config.bundle);
-        LogHelper.info(`【界面管理】释放【${uiInfo.config.prefab}】界面资源`);
+        ResMgr.getInstance().releasePrefabByKey(uiInfo.config.prefabKey, uiInfo.config.bundle);
+        LogHelper.info(`【界面管理】释放【${uiInfo.config.prefabKey}】界面资源`);
     }
 
     protected hideView(viewId: string): void {

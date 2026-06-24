@@ -27,7 +27,7 @@ export class BaseView extends UIComptBase {
     private _subViews: Map<Node, UIComptBase> = new Map();
 
     /** 需要自动释放的子组件缓存 key */
-    private _autoReleaseKeys: Array<{ paths: string; bundle: string }> = [];
+    private _autoReleaseKeys: Array<{ prefabKey: string; bundle: string }> = [];
 
     // ── 子视图注册（仅 BaseView 子类可调用）──
 
@@ -43,8 +43,8 @@ export class BaseView extends UIComptBase {
     /**
      * 异步加载独立 prefab 并挂载指定 UIComptBase 子组件
      * @param ItemCls     要挂载的组件类（extends UIComptBase）
-     * @param paths       prefab 相对路径（同 ResMgr.getInstance().load paths）
      * @param bundle      资源包名
+     * @param prefabKey   resource-map.json 中的 prefab key（对应 PrefabNames 枚举值）
      * @param container   挂载目标节点（来自 v_nodes）
      * @param data        传给子组件生命周期的初始数据
      * @param autoRelease 是否在 View 销毁时自动释放缓存（默认 true）
@@ -52,8 +52,8 @@ export class BaseView extends UIComptBase {
      */
     public async mountSubComp<T extends UIComptBase>(
         ItemCls: Constructor<T>,
-        paths: string,
         bundle: string,
+        prefabKey: string,
         container: Node,
         data?: any,
         autoRelease: boolean = true
@@ -63,12 +63,12 @@ export class BaseView extends UIComptBase {
             return null;
         }
 
-        const node = await UIMgr.getInstance().loadSubComp(paths, paths, bundle, ItemCls, data);
-        
+        const node = await UIMgr.getInstance().loadSubComp(prefabKey, bundle, ItemCls, data);
+
         if (!node) return null;
 
         if (!container.isValid) {
-            UIMgr.getInstance().releaseSubNode(paths, bundle);
+            UIMgr.getInstance().releaseSubNode(prefabKey, bundle);
             return null;
         }
 
@@ -77,7 +77,7 @@ export class BaseView extends UIComptBase {
         this.registerSubView(node, item);
 
         if (autoRelease) {
-            this._autoReleaseKeys.push({ paths, bundle });
+            this._autoReleaseKeys.push({ prefabKey, bundle });
         }
 
         item.ui_on_show(data);
@@ -124,7 +124,7 @@ export class BaseView extends UIComptBase {
         this.onDestroy_();
         this._subViews.forEach(c => c.ui_on_destroy());
         this._subViews.clear();
-        this._autoReleaseKeys.forEach(({ paths, bundle }) => UIMgr.getInstance().releaseSubNode(paths, bundle));
+        this._autoReleaseKeys.forEach(({ prefabKey, bundle }) => UIMgr.getInstance().releaseSubNode(prefabKey, bundle));
         this._autoReleaseKeys.length = 0;
     }
 

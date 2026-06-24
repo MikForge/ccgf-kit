@@ -33,11 +33,7 @@ export class BasePopUp extends BaseView {
 
         let maskPrefab: Prefab | null = null;
         try {
-            maskPrefab = await ResMgr.getInstance().loadPrefab(
-                'ComMask',
-                'common/prefab/ComMask',
-                'resources',
-            );
+            maskPrefab = await ResMgr.getInstance().loadPrefab('ComMask', 'resources');
         } catch {
             maskPrefab = null;
         }

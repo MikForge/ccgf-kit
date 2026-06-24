@@ -159,17 +159,17 @@ export class UIMgr extends Singleton<UIMgr> {
 
     public async loadView<T extends UIComptBase & BaseView>(
         key: string,
-        paths: string,
         bundle: string,
         viewCtor: Constructor<T>,
-        data?: any
+        data?: any,
+        viewId?: string,
     ): Promise<Node | null> {
-        const prefab = await ResMgr.getInstance().loadPrefab(key, paths, bundle);
+        const prefab = await ResMgr.getInstance().loadPrefab(key, bundle);
         if (!prefab) return null;
 
         if (!viewCtor) {
             LogHelper.error(`[UIMgr] loadView: viewCtor 为空，key: ${key}`);
-            ResMgr.getInstance().releasePrefab(paths, bundle);
+            ResMgr.getInstance().releasePrefabByKey(key, bundle);
             return null;
         }
 
@@ -178,12 +178,12 @@ export class UIMgr extends Singleton<UIMgr> {
         if (!item) item = node.addComponent(viewCtor);
 
         item.ui_on_preload();
-        item.viewId = key;
+        item.viewId = viewId ?? key;
         const ok = await item.ui_on_init(data);
 
         if (!ok) {
             node.destroy();
-            ResMgr.getInstance().releasePrefab(paths, bundle);
+            ResMgr.getInstance().releasePrefabByKey(key, bundle);
             return null;
         }
 
@@ -192,26 +192,24 @@ export class UIMgr extends Singleton<UIMgr> {
 
     /**
      * 加载子组件节点（内置 instantiate + lifecycle）
-     * @param key    竞态防护标识
-     * @param paths  prefab 路径
-     * @param bundle 资源包名
+     * @param key     resource-map.json 中的 prefab key
+     * @param bundle  资源包名
      * @param compCls 组件类
-     * @param data   初始数据
-     * @returns      节点实例，失败返回 null
+     * @param data    初始数据
+     * @returns       节点实例，失败返回 null
      */
     public async loadSubComp<T extends UIComptBase>(
         key: string,
-        paths: string,
         bundle: string,
         compCls: Constructor<T>,
         data?: any
     ): Promise<Node | null> {
-        const prefab = await ResMgr.getInstance().loadPrefab(key, paths, bundle);
+        const prefab = await ResMgr.getInstance().loadPrefab(key, bundle);
         if (!prefab) return null;
 
         if (!compCls) {
             LogHelper.error(`[UIMgr] loadSubComp: compCls 为空，key: ${key}`);
-            ResMgr.getInstance().releasePrefab(paths, bundle);
+            ResMgr.getInstance().releasePrefabByKey(key, bundle);
             return null;
         }
 
@@ -224,7 +222,7 @@ export class UIMgr extends Singleton<UIMgr> {
 
         if (!ok) {
             node.destroy();
-            ResMgr.getInstance().releasePrefab(paths, bundle);
+            ResMgr.getInstance().releasePrefabByKey(key, bundle);
             return null;
         }
 
@@ -236,7 +234,7 @@ export class UIMgr extends Singleton<UIMgr> {
      * @param paths  prefab 路径
      * @param bundle 资源包名
      */
-    public releaseSubNode(paths: string, bundle: string): void {
-        ResMgr.getInstance().releasePrefab(paths, bundle);
+    public releaseSubNode(key: string, bundle: string): void {
+        ResMgr.getInstance().releasePrefabByKey(key, bundle);
     }
 }

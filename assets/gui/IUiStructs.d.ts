@@ -43,8 +43,8 @@ export interface UIViewConfig {
     /** 窗口层级 */
     layer: LayerType;
 
-    /** 预制资源相对路径 */
-    prefab: string;
+    /** resource-map.json 中的 prefab key（对应 PrefabNames 枚举值） */
+    prefabKey: string;
     /** 远程包名 */
     bundle?: string;
     /** 是否自动释放（默认自动释放） */
