@@ -1,11 +1,11 @@
 
 
 
-import { __private, Asset, assetManager, AssetManager, Prefab, resources } from "cc";
+import { __private, Asset, assetManager, AssetManager, JsonAsset, Prefab } from "cc";
 import { Singleton } from "db://ccgf-kit/common/Singleton";
-import { IResArgs, IResDirArgs } from "db://ccgf-kit/res/IResStructs";
-
+import { IResArgs, IResDirArgs, IResKeyArgs, IResDirKeyArgs, AssetType } from "db://ccgf-kit/res/IResStructs";
 import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
+import { ResourceCategory } from 'db://ccgf-kit/res/Res.enum';
 
 
 
@@ -20,6 +20,110 @@ export class ResMgr extends Singleton<ResMgr> {
 
     private _prefabPendingSet: Set<string> = new Set();
 
+    /** resource-map.json 映射表缓存：{ bundle名 → { 类型名 → { key → 路径 } } } */
+    private _resourceMap: Record<string, Record<string, Record<string, string>>> = {};
+
+
+    /**
+     * 加载 resource-map.json 并缓存到 _resourceMap
+     * public — GameBootstrap 启动阶段显式调用预热，后续 *ByKey 调用直接查表
+     */
+    public async initResourceMap(bundle?: string): Promise<void> {
+        const bundleName = bundle || this.defaultBundleName;
+        if (this._resourceMap[bundleName]) return;
+
+        let asset: JsonAsset = null
+
+        try {
+            asset = await this.load({ paths: "resource-map", type: JsonAsset, bundle: bundleName }) as JsonAsset;
+        } catch (err: any) {
+            LogHelper.error(`ResManager: resource-map.json 加载失败 - Bundle: ${bundleName}, Error: ${err.message}`);
+            return;
+        }
+        this._resourceMap[bundleName] = asset.json as Record<string, Record<string, string>>;
+    }
+
+    /**
+     * 从 type 推导 category 并在 _resourceMap 中查表，返回资源路径
+     * @returns 资源路径；未命中返回 null
+     */
+    private _resolvePath<T extends Asset>(type: AssetType<T>, key: string, bundle?: string): string | null {
+        const bundleName = bundle || this.defaultBundleName;
+        if (!this._resourceMap[bundleName]) return null;
+        const category = ResourceCategory[(type as any).name as keyof typeof ResourceCategory];
+        if (!category) return null;
+        return this._resourceMap[bundleName]?.[category]?.[key] ?? null;
+    }
+
+    /**
+     * key-based 加载资源（替代 load 的 paths 参数）
+     */
+    async loadByKey<T extends Asset>(args: IResKeyArgs<T>): Promise<T | null> {
+        await this.initResourceMap(args.bundle);
+
+        const path = this._resolvePath(args.type, args.key, args.bundle);
+        if (!path) {
+            LogHelper.warn(`ResManager: key "${args.key}" 未在 resource-map.json 中找到对应路径`);
+            return null;
+        }
+
+        return this.load({
+            paths: path,
+            type: args.type,
+            bundle: args.bundle,
+            onProgress: args.onProgress,
+            onComplete: args.onComplete,
+        }) as Promise<T | null>;
+    }
+
+    /**
+     * key-based 加载目录资源
+     */
+    async loadDirByKey<T extends Asset>(args: IResDirKeyArgs<T>): Promise<T[] | null> {
+        await this.initResourceMap(args.bundle);
+
+        const dir = this._resolvePath(args.type, args.key);
+        if (!dir) return null;
+
+        return this.loadDir({
+            dir,
+            type: args.type,
+            bundle: args.bundle,
+            onProgress: args.onProgress,
+            onComplete: args.onComplete,
+        });
+    }
+
+    /**
+     * key-based 预加载资源（可用于启动阶段预热 resource-map.json）
+     */
+    async preloadByKey<T extends Asset>(args: IResKeyArgs<T>): Promise<void> {
+        await this.initResourceMap(args.bundle);
+
+        const path = this._resolvePath(args.type, args.key, args.bundle);
+        if (!path) return;
+
+        await this.preload({
+            paths: path,
+            type: args.type,
+            bundle: args.bundle,
+            onProgress: args.onProgress,
+            onComplete: args.onComplete,
+        });
+    }
+
+    /**
+     * key-based 同步取出已缓存资源（与 getAsset 保持位置参数风格）
+     */
+    getAssetByKey<T extends Asset>(key: string, type: AssetType<T>, bundle?: string): T | null {
+        const bundleName = bundle || this.defaultBundleName;
+        if (!this._resourceMap[bundleName]) return null;
+
+        const path = this._resolvePath(type, key, bundle);
+        if (!path) return null;
+
+        return this.getAsset(path, type as any, bundle);
+    }
 
     /**
      * 加载资源
@@ -245,17 +349,26 @@ export class ResMgr extends Singleton<ResMgr> {
 
     /**
      * 加载 Prefab（带竞态防护）
-     * 依赖 Cocos Bundle 原生 refCount 管理资源生命周期，不自定义计数
-     * @param key    竞态防护标识
-     * @param paths  prefab 路径
-     * @param bundle 资源包名
+     * 统一走 key 查表，不再接受裸路径
+     * @param key    竞态防护标识（同时也是 resource-map.json 中的资源 key）
+     * @param bundle 资源包名，默认 "resources"
      */
-    async loadPrefab(key: string, paths: string, bundle: string): Promise<Prefab | null> {
+    async loadPrefab(key: string, bundle?: string): Promise<Prefab | null> {
         if (this._prefabPendingSet.has(key)) return null;
 
         this._prefabPendingSet.add(key);
         try {
-            return await this.load({ paths, bundle, type: Prefab }) as Prefab;
+            await this.initResourceMap(bundle);
+            const mappedPath = this._resourceMap?.[bundle ?? this.defaultBundleName]?.["prefab"]?.[key];
+            if (!mappedPath) {
+                LogHelper.warn(`loadPrefab: key "${key}" 未在 resource-map.json 中找到对应路径`);
+                return null;
+            }
+            return await this.load({
+                paths: mappedPath,
+                bundle: bundle ?? this.defaultBundleName,
+                type: Prefab,
+            }) as Prefab;
         } catch {
             return null;
         } finally {
@@ -270,6 +383,18 @@ export class ResMgr extends Singleton<ResMgr> {
      */
     releasePrefab(paths: string, bundle: string): void {
         this.release({ paths, bundle, type: Prefab });
+    }
+
+    /**
+     * key-based 释放 Prefab
+     * 依赖已缓存的 _resourceMap 做同步查表，调用前需确保 resource-map 已加载
+     * @param key    resource-map.json 中的 prefab key
+     * @param bundle 资源包名
+     */
+    releasePrefabByKey(key: string, bundle?: string): void {
+        const path = this._resourceMap?.[bundle ?? this.defaultBundleName]?.["prefab"]?.[key];
+        if (!path) return;
+        this.release({ paths: path, bundle: bundle ?? this.defaultBundleName, type: Prefab });
     }
 
 }

@@ -47,3 +47,31 @@ export interface IResDirArgs<T extends Asset> {
     /** 资源加载完成 */
     onComplete?: CompleteCallback;
 }
+
+/** key-based 加载资源参数（key 替代 paths） */
+export interface IResKeyArgs<T extends Asset> {
+    /** 资源包名 */
+    bundle?: string;
+    /** 资源名称（resource-map.json 第二层 key，即文件名无扩展名） */
+    key: string;
+    /** 资源类型 */
+    type: AssetType<T>;
+    /** 资源加载进度 */
+    onProgress?: ProgressCallback;
+    /** 资源加载完成 */
+    onComplete?: CompleteCallback;
+}
+
+/** key-based 加载目录资源参数（key 替代 dir） */
+export interface IResDirKeyArgs<T extends Asset> {
+    /** 资源包名 */
+    bundle?: string;
+    /** 目录名称（resource-map.json 第二层 key，指向目录路径） */
+    key: string;
+    /** 资源类型 */
+    type: AssetType<T>;
+    /** 资源加载进度 */
+    onProgress?: ProgressCallback;
+    /** 资源加载完成 */
+    onComplete?: CompleteCallback;
+}
