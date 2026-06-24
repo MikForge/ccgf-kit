@@ -23,6 +23,31 @@ export class ResMgr extends Singleton<ResMgr> {
     /** resource-map.json 映射表缓存：{ bundle名 → { 类型名 → { key → 路径 } } } */
     private _resourceMap: Record<string, Record<string, Record<string, string>>> = {};
 
+    /** init() 完成标志 */
+    private _initialized: boolean = false;
+    /** 并发调用保护 */
+    private _initPromise: Promise<void> | null = null;
+
+
+    /**
+     * 初始化资源管理器，预加载指定 bundle 的 resource-map.json
+     * @param bundles 要预热的 bundle 名列表，默认 ["resources"]
+     */
+    public async init(bundles: string[] = ["resources"]): Promise<void> {
+        if (this._initialized) return;
+        if (this._initPromise) return this._initPromise;
+
+        this._initPromise = Promise.all(
+            bundles.map(b => this.initResourceMap(b))
+        ).then(() => {
+            this._initialized = true;
+            this._initPromise = null;
+        }, () => {
+            this._initPromise = null;
+        });
+
+        return this._initPromise;
+    }
 
     /**
      * 加载 resource-map.json 并缓存到 _resourceMap
