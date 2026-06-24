@@ -10,9 +10,9 @@ export function registerView(key: string, config: Omit<UIViewConfig, "viewCls" |
     };
 }
 
-export function registerMediator(key: string, config?: Omit<UIViewConfig, "viewCls" | "meditorCls">) {
+export function registerMediator(key: string) {
     return function (meditorCls: MediatorClassCtor) {
-        UIRegistry.getInstance().registerMediatorClass(key, config as UIViewConfig | undefined, meditorCls);
+        UIRegistry.getInstance().registerMediatorClass(key, meditorCls);
     };
 }
 
@@ -57,16 +57,11 @@ export class UIRegistry extends Singleton<UIRegistry> {
     }
 
     /**
-     * 注册 Mediator 类 — 补 viewConfigs（config 非空时）+ 写 mediatorClasses
+     * 注册 Mediator 类 — 写 mediatorClasses
      * 由 registerMediator 装饰器内部调用
      */
-    registerMediatorClass(key: string, config?: UIViewConfig, mediatorCtor?: MediatorClassCtor): void {
-        if (config) {
-            this.viewConfigs.set(key, config);
-        }
-        if (mediatorCtor) {
-            this.mediatorClasses.set(key, mediatorCtor);
-        }
+    registerMediatorClass(key: string, mediatorCtor: MediatorClassCtor): void {
+        this.mediatorClasses.set(key, mediatorCtor);
     }
 
     /** 按 viewId 获取 UI 配置 */
