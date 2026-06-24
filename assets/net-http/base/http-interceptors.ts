@@ -1,0 +1,77 @@
+import { LogHelper } from "db://ccgf-kit/helper/LogHelper";
+import { HttpRequestCfg, HttpRequestInterceptor, HttpResponseInterceptor } from "../defines/IHttpStructs";
+import { HttpReturn } from "../defines/http-structs";
+
+
+
+/**
+ * 日志拦截器
+ */
+export class HttpLogInterceptor implements HttpRequestInterceptor, HttpResponseInterceptor {
+
+    onRequest(cfg: HttpRequestCfg): HttpRequestCfg {
+        LogHelper.debug(`[HttpLogInterceptor] Request: ${cfg.method} ${cfg.url}`);
+        // 日志脱敏：隐藏 Authorization
+        const safeCfg = {
+            ...cfg,
+            headers: cfg.headers
+                ? { ...cfg.headers, Authorization: cfg.headers.Authorization ? 'Bearer ***' : undefined }
+                : undefined,
+        };
+        LogHelper.debug("Request Config:" + JSON.stringify(safeCfg));
+        return cfg;
+    }
+
+    onError(err: HttpReturn): HttpReturn {
+        LogHelper.error(`[HttpLogInterceptor] Error from: ${err}`);
+        return err;
+    }
+
+    onResponse(ret: HttpReturn): HttpReturn {
+        LogHelper.debug(`[HttpLogInterceptor] Response from: ${ret}`);
+        return ret;
+    }
+}
+
+/**
+ * token拦截器
+ */
+export class HttpTokenInterceptor implements HttpRequestInterceptor {
+
+    private token: string = "";
+
+
+    public setToken(token: string) {
+        this.token = token;
+    }
+
+    onRequest(cfg: HttpRequestCfg): HttpRequestCfg {
+        if (!cfg.headers) {
+            cfg.headers = {};
+        }
+        cfg.headers["Authorization"] = `Bearer ${this.token}`;
+        return cfg;
+    }
+}
+
+
+/**
+ * 错误处理拦截器
+ */
+export class ErrorHandlerInterceptor implements HttpResponseInterceptor {
+
+    onResponse(ret: HttpReturn): HttpReturn {
+        return ret;
+    }
+
+    onError(error: HttpReturn): HttpReturn {
+        // 统一错误提示
+        if (error.data?.status === 401) {
+            LogHelper.warn('Token过期，请重新登录');
+            // 跳转登录页面
+        } else if (error.data?.status === 500) {
+            LogHelper.error('服务器错误');
+        }
+        return error;
+    }
+}
