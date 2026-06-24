@@ -22,11 +22,19 @@
         "path": "扩展/ccgf-kit",
         "label": "创建启动场景",
         "message": "create-bootstrap-scene"
+      },
+      {
+        "path": "扩展/ccgf-kit",
+        "label": "生成资源映射表",
+        "message": "generate-resource-map"
       }
     ],
     "messages": {
       "create-bootstrap-scene": {
         "methods": ["createBootstrapScene"]
+      },
+      "generate-resource-map": {
+        "methods": ["generateResourceMap"]
       }
     }
   }
