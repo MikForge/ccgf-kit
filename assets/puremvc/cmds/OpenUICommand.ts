@@ -26,7 +26,7 @@ export default class OpenUICommand extends SimpleCommand {
                 LogHelper.error(`Mediator ${mediatorCtor.name} 已经注册，可能存在重复打开同一界面的问题。`);
                 return;
             }
-            const mediator = new mediatorCtor(viewId, uiNode, data);
+            const mediator = new mediatorCtor(mediatorCtor.name, uiNode, data);
             this.facade.registerMediator(mediator);
         } else {
             LogHelper.error(`UI 配置错误或 UI 打开失败: ${viewId}. 配置: ${uiConfig ? JSON.stringify(uiConfig) : 'null'}, UI节点: ${uiNode ? '存在' : '不存在'}`);
