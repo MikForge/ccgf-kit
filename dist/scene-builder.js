@@ -4,7 +4,7 @@ exports.BOOTSTRAP_PROMPT_TEXT = void 0;
 exports.buildSceneJson = buildSceneJson;
 /** 生成唯一占位 ID（基于场景名 + 标识符） */
 function makeId(sceneName, tag) {
-    return `${sceneName}-${tag}-${Date.now()}`;
+    return `${sceneName}-${tag}`;
 }
 /** 创建默认 Vec3 值 */
 function vec3(x, y, z) {

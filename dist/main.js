@@ -4,6 +4,7 @@ exports.methods = void 0;
 exports.load = load;
 exports.unload = unload;
 const scene_builder_1 = require("./scene-builder");
+const index_1 = require("./resource-map-gen/index");
 /**
  * 菜单处理：创建启动场景
  *
@@ -74,6 +75,25 @@ function load() {
 function unload() {
     console.log('[ccgf-kit] 扩展已卸载');
 }
+/**
+ * 菜单处理：生成资源映射表
+ *
+ * 流程：
+ * 1. 扫描 assets/resources/ 目录
+ * 2. 生成 resource-map.json + error 退出
+ * 3. 生成按资源类型拆分的 const enum 文件
+ * 4. 控制台输出统计摘要
+ */
+function generateResourceMap() {
+    try {
+        (0, index_1.generateResourceMapAll)();
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`[ccgf-kit] 生成资源映射表失败：${message}`);
+    }
+}
 exports.methods = {
     createBootstrapScene,
+    generateResourceMap,
 };

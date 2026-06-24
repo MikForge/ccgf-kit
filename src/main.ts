@@ -1,6 +1,7 @@
 'use strict';
 
 import { buildSceneJson } from './scene-builder';
+import { generateResourceMapAll } from './resource-map-gen/index';
 
 declare const Editor: any;
 
@@ -84,6 +85,25 @@ export function unload(): void {
     console.log('[ccgf-kit] 扩展已卸载');
 }
 
+/**
+ * 菜单处理：生成资源映射表
+ *
+ * 流程：
+ * 1. 扫描 assets/resources/ 目录
+ * 2. 生成 resource-map.json + error 退出
+ * 3. 生成按资源类型拆分的 const enum 文件
+ * 4. 控制台输出统计摘要
+ */
+function generateResourceMap(): void {
+    try {
+        generateResourceMapAll();
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`[ccgf-kit] 生成资源映射表失败：${message}`);
+    }
+}
+
 export const methods = {
     createBootstrapScene,
+    generateResourceMap,
 };
