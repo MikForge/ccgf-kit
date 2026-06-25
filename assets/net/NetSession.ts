@@ -13,11 +13,7 @@ import { FixedHeartbeat } from "db://ccgf-kit/net/strategy/FixedHeartbeat";
 import { ExponentialBackoff, ExponentialBackoffConfig } from "db://ccgf-kit/net/strategy/ExponentialBackoff";
 import type { ISocket } from 'db://ccgf-kit/net/base/ISocket';
 import { NetErrorCode, NetSessionEvent, NetSessionState } from "db://ccgf-kit/net/defines/net.enum";
-import { EventMgr } from 'db://ccgf-kit/event/EventMgr';
 import { CoreEvents } from 'db://ccgf-kit/event/CoreEvents.enum';
-
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
-import { TimerTaskMgr } from 'db://ccgf-kit/timer/TimerTaskMgr';
 
 
 const ErrMap: Partial<Record<NetErrorCode, string>> = {
@@ -93,10 +89,10 @@ export class NetSession {
                 this.stopHeartbeat();
                 // 清理接收超时定时器
                 if (this.resetReceiveTimerId !== null) {
-                    TimerTaskMgr.getInstance().clearTimeout(this.resetReceiveTimerId);
+                    M.timeOut.clearTimeout(this.resetReceiveTimerId);
                     this.resetReceiveTimerId = null!;
                 }
-                LogHelper.info("NetSession: 进入 CLOSED 状态");
+                H.log.info("NetSession: 进入 CLOSED 状态");
                 if (this.checkNeedAutoReconnect()) {
                     this.triggerReconnect();
                 }
@@ -115,14 +111,14 @@ export class NetSession {
                 // 如果没有鉴权回调，直接连接成功也可以发送
                 this.flushBuffer();
                 this.getNetworkTips()?.connectTips?.(true);
-                LogHelper.info("NetSession: 进入 WORKING 状态，连接就绪");
+                H.log.info("NetSession: 进入 WORKING 状态，连接就绪");
             },
             onExit: () => { },
             on: {}
         },
         [NetSessionState.CHECKING]: {
             onEnter: () => {
-                LogHelper.info("NetSession: 进入 CHECKING 状态，开始鉴权");
+                H.log.info("NetSession: 进入 CHECKING 状态，开始鉴权");
                 this._authCallback?.();
             },
             onExit: () => { },
@@ -131,7 +127,7 @@ export class NetSession {
         [NetSessionState.CONNECTING]: {
             onEnter: () => {
                 this.getNetworkTips()?.connectTips?.(false);
-                LogHelper.info("NetSession: 进入 CONNECTING 状态");
+                H.log.info("NetSession: 进入 CONNECTING 状态");
             },
             onExit: () => { },
             on: {}
@@ -140,12 +136,12 @@ export class NetSession {
 
     private handleStateTransition(nextState: NetSessionState) {
         if (this._netState === nextState) {
-            LogHelper.warn(`NetSession: 状态转换被忽略，已处于 ${nextState} 状态`);
+            H.log.warn(`NetSession: 状态转换被忽略，已处于 ${nextState} 状态`);
             return;
         }
 
         const prevState = this._netState;
-        LogHelper.info(`NetSession: 状态转换: ${prevState} -> ${nextState}`);
+        H.log.info(`NetSession: 状态转换: ${prevState} -> ${nextState}`);
 
         // 退出当前状态
         const currentStateCfg = this.NetFsm[this._netState];
@@ -161,14 +157,14 @@ export class NetSession {
         const handler = this.NetFsm[this._netState].on[event];
 
         if (!handler) {
-            LogHelper.warn("NetSession: handleFsmEvent", `状态 ${this._netState} 不处理事件 ${event}`);
+            H.log.warn("NetSession: handleFsmEvent", `状态 ${this._netState} 不处理事件 ${event}`);
             return;
         }
 
         try {
             handler(...args);
         } catch (err) {
-            LogHelper.error("NetSession: handleFsmEvent error", err);
+            H.log.error("NetSession: handleFsmEvent error", err);
         }
     }
 
@@ -220,7 +216,7 @@ export class NetSession {
         this.heartbeatStrategy = new FixedHeartbeat(this.HEARTBEAT_INTERVAL, () => {
             const heartbeatPacket: NetData = this._packeter.getHeartbeatPacket();
             this.sendManager.send(heartbeatPacket);
-            LogHelper.info("NetSession: 发送心跳包");
+            H.log.info("NetSession: 发送心跳包");
         });
 
         // 重连策略将在 connect 时初始化
@@ -233,7 +229,7 @@ export class NetSession {
     public connect(options: NetConnectOptions): boolean {
 
         if (this.getCurState() !== NetSessionState.CLOSED) {
-            LogHelper.warn("NetSession: 已有连接存在，无法重复连接");
+            H.log.warn("NetSession: 已有连接存在，无法重复连接");
             return false;
         }
 
@@ -245,12 +241,12 @@ export class NetSession {
 
         this.initReconnectStrategy();
 
-        LogHelper.info("NetSession: 开始连接服务器", options);
+        H.log.info("NetSession: 开始连接服务器", options);
 
         this.handleStateTransition(NetSessionState.CONNECTING);
 
         if (!this._net) {
-            LogHelper.error("NetSession: _net is null");
+            H.log.error("NetSession: _net is null");
             this.handleStateTransition(NetSessionState.CLOSED);
             return false;
         }
@@ -258,7 +254,7 @@ export class NetSession {
         const ret = this._net.connect(this.options);
 
         if (!ret) {
-            LogHelper.error("NetSession: connect failed");
+            H.log.error("NetSession: connect failed");
             this.handleStateTransition(NetSessionState.CLOSED);
             return ret;
         }
@@ -272,14 +268,14 @@ export class NetSession {
     public close(code?: number, reason?: string) {
         reason = getErrorReason(code, reason);
 
-        LogHelper.info("NetSession: closing connection", { code, reason });
+        H.log.info("NetSession: closing connection", { code, reason });
 
         // 停止心跳
         this.stopHeartbeat();
 
         // 清理接收超时定时器
         if (this.resetReceiveTimerId !== null) {
-            TimerTaskMgr.getInstance().clearTimeout(this.resetReceiveTimerId);
+            M.timeOut.clearTimeout(this.resetReceiveTimerId);
             this.resetReceiveTimerId = null!;
         }
 
@@ -295,7 +291,7 @@ export class NetSession {
         this.handleStateTransition(NetSessionState.CLOSED);
 
         // 发送断开连接事件
-        EventMgr.getInstance().emit(CoreEvents.NET_DISCONNECTED, { reason, code });
+        M.event.emit(CoreEvents.NET_DISCONNECTED, { reason, code });
     }
 
     /** 
@@ -326,13 +322,13 @@ export class NetSession {
             this.handleStateTransition(NetSessionState.CHECKING);
         } else {
             this.handleStateTransition(NetSessionState.WORKING);
-            EventMgr.getInstance().emit(CoreEvents.NET_CONNECTED);
+            M.event.emit(CoreEvents.NET_CONNECTED);
         }
     }
 
     protected onMessage(data: NetData) {
 
-        LogHelper.info("NetSession: 收到数据包");
+        H.log.info("NetSession: 收到数据包");
 
         // 重置接收超时计时器（长期静默检测）
         this.resetReceiveTimeoutTimer();
@@ -345,12 +341,12 @@ export class NetSession {
     }
 
     protected onError(ev: Event) {
-        LogHelper.error("NetSession: socket error", ev);
+        H.log.error("NetSession: socket error", ev);
         this.close(NetErrorCode.SOCKET_ERROR);
     }
 
     protected onClose(ev: CloseEvent) {
-        LogHelper.info("NetSession: socket closed", ev);
+        H.log.info("NetSession: socket closed", ev);
         this.close(NetErrorCode.SOCKET_CLOSED);
     }
 
@@ -421,12 +417,12 @@ export class NetSession {
      */
     protected resetReceiveTimeoutTimer(): void {
         if (this.resetReceiveTimerId !== null) {
-            TimerTaskMgr.getInstance().clearTimeout(this.resetReceiveTimerId);
+            M.timeOut.clearTimeout(this.resetReceiveTimerId);
             this.resetReceiveTimerId = null;
         }
 
-        this.resetReceiveTimerId = TimerTaskMgr.getInstance().setTimeout(() => {
-            LogHelper.warn("NetSession: 接收超时，长期无服务器消息");
+        this.resetReceiveTimerId = M.timeOut.setTimeout(() => {
+            H.log.warn("NetSession: 接收超时，长期无服务器消息");
             this.close(NetErrorCode.HEARTBEAT_TIMEOUT);
             this.resetReceiveTimerId = null;
         }, this.RESET_RECEIVE_TIMEOUT, this);
@@ -458,7 +454,7 @@ export class NetSession {
 
     public hanledAuthSuccess(): void {
         this.handleStateTransition(NetSessionState.WORKING);
-        EventMgr.getInstance().emit(CoreEvents.NET_CONNECTED);
+        M.event.emit(CoreEvents.NET_CONNECTED);
     }
 
     public hanledAuthFailed(): void {
@@ -468,16 +464,16 @@ export class NetSession {
 
     public onReconnectCallBack(): void {
         if (!this.checkNeedAutoReconnect()) {
-            LogHelper.info("NetSession: 不需要自动重连，取消重连");
+            H.log.info("NetSession: 不需要自动重连，取消重连");
             return;
         }
 
         if (!this.options) {
-            LogHelper.error("NetSession: 重连失败，连接参数缺失");
+            H.log.error("NetSession: 重连失败，连接参数缺失");
             return;
         }
 
-        LogHelper.info("NetSession: 尝试重连...");
+        H.log.info("NetSession: 尝试重连...");
 
         this.connect(this.options);
     }

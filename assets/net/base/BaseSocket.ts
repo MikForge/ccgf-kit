@@ -2,7 +2,6 @@
 import type { NetConnectOptions, NetData } from 'db://ccgf-kit/net/defines/net-structs';
 import type { ISocket, SocketEventHandler, SocketEventMap } from 'db://ccgf-kit/net/base/ISocket';
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 
 export abstract class BaseSocket implements ISocket {
 
@@ -102,7 +101,7 @@ export abstract class BaseSocket implements ISocket {
                     handler.listener(data);
                 }
             } catch (error) {
-                LogHelper.error(`[BaseAppProtocolAdapter] Error in event handler for "${String(event)}":`, error);
+                H.log.error(`[BaseAppProtocolAdapter] Error in event handler for "${String(event)}":`, error);
             }
         });
 

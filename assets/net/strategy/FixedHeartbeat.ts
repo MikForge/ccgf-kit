@@ -1,7 +1,6 @@
 import type { IHeartbeatStrategy } from 'db://ccgf-kit/net/strategy/IHeartbeatStrategy';
 import type { NetData } from 'db://ccgf-kit/net/defines/net-structs';
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 /**
  * 固定间隔心跳策略
  * 按固定时间间隔发送心跳包
@@ -30,7 +29,7 @@ export class FixedHeartbeat implements IHeartbeatStrategy {
         }
         this.isRunning = true;
         this.timer = 0;
-        LogHelper.info(`FixedHeartbeat: 启动心跳，间隔 ${this.interval} 秒`);
+        H.log.info(`FixedHeartbeat: 启动心跳，间隔 ${this.interval} 秒`);
     }
 
     /**
@@ -42,7 +41,7 @@ export class FixedHeartbeat implements IHeartbeatStrategy {
         }
         this.isRunning = false;
         this.timer = 0;
-        LogHelper.info("FixedHeartbeat: 停止心跳");
+        H.log.info("FixedHeartbeat: 停止心跳");
     }
 
     /**
@@ -66,7 +65,7 @@ export class FixedHeartbeat implements IHeartbeatStrategy {
         if (this.timer >= this.interval) {
             this.timer = 0;
             this.sendHeartbeat?.();
-            LogHelper.info("FixedHeartbeat: 发送心跳包");
+            H.log.info("FixedHeartbeat: 发送心跳包");
         }
     }
 }

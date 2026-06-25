@@ -1,7 +1,5 @@
 import { AudioSource, AudioClip } from 'cc';
 import { Singleton } from 'db://ccgf-kit/common/Singleton';
-import { ResMgr } from 'db://ccgf-kit/res/ResMgr';
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 
 /**
  * 音频管理器（Singleton）
@@ -57,7 +55,7 @@ export class AudioMgr extends Singleton<AudioMgr> {
     /** 检查是否已初始化，未初始化时输出 warn 并返回 false */
     private _checkInit(): boolean {
         if (!this._initialized) {
-            LogHelper.warn('AudioMgr: 未初始化，请先调用 init()');
+            H.log.warn('AudioMgr: 未初始化，请先调用 init()');
             return false;
         }
         return true;
@@ -72,18 +70,18 @@ export class AudioMgr extends Singleton<AudioMgr> {
     private async _loadClip(name: string): Promise<AudioClip | null> {
         const def = this._registry.get(name);
         if (!def) {
-            LogHelper.warn(`AudioMgr: "${name}" 未注册`);
+            H.log.warn(`AudioMgr: "${name}" 未注册`);
             return null;
         }
 
         try {
-            const clip = await ResMgr.getInstance().load<AudioClip>({
+            const clip = await M.res.load<AudioClip>({
                 paths: def.path,
                 type: AudioClip,
             });
             return clip as AudioClip;
         } catch (err) {
-            LogHelper.warn(`AudioMgr: "${name}" 加载失败`, err);
+            H.log.warn(`AudioMgr: "${name}" 加载失败`, err);
             return null;
         }
     }
@@ -100,7 +98,7 @@ export class AudioMgr extends Singleton<AudioMgr> {
 
         const def = this._registry.get(name);
         if (!def) {
-            LogHelper.warn(`AudioMgr: BGM "${name}" 未注册`);
+            H.log.warn(`AudioMgr: BGM "${name}" 未注册`);
             return;
         }
 
@@ -152,7 +150,7 @@ export class AudioMgr extends Singleton<AudioMgr> {
 
         const def = this._registry.get(name);
         if (!def) {
-            LogHelper.warn(`AudioMgr: SFX "${name}" 未注册`);
+            H.log.warn(`AudioMgr: SFX "${name}" 未注册`);
             return;
         }
 
@@ -201,7 +199,7 @@ class AudioRegistry extends Singleton<AudioRegistry> {
         for (const category of categories) {
             for (const entry of manifest[category]) {
                 if (this._defs.has(entry.name)) {
-                    LogHelper.warn(`AudioRegistry: "${entry.name}" 重复注册，将被覆盖`);
+                    H.log.warn(`AudioRegistry: "${entry.name}" 重复注册，将被覆盖`);
                 }
                 this._defs.set(entry.name, {
                     name: entry.name,

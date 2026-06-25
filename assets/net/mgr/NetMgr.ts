@@ -1,13 +1,10 @@
 import { Singleton } from 'db://ccgf-kit/common/Singleton';
-import { EventMgr } from 'db://ccgf-kit/event/EventMgr';
 import { CoreEvents } from 'db://ccgf-kit/event/CoreEvents.enum';
 import { ErrorHandlerInterceptor, HttpLogInterceptor, HttpTokenInterceptor } from 'db://ccgf-kit/net-http/base/http-interceptors';
 import { HttpClient } from 'db://ccgf-kit/net-http/impl/HttpClient';
 import type { NetConnectOptions, NetData, RequestObject } from 'db://ccgf-kit/net/defines/net-structs';
 import { NetSession } from 'db://ccgf-kit/net/NetSession';
 import { NetChannelType } from 'db://ccgf-kit/net/defines/net.enum';
-
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 
 /** 网络管理器 */
 export class NetMgr extends Singleton<NetMgr> {
@@ -50,7 +47,7 @@ export class NetMgr extends Singleton<NetMgr> {
     public connectNetSession(channelId: number, options: NetConnectOptions): boolean {
 
         if (!this._channels.has(channelId)) {
-            LogHelper.error(`NetMgr: No NetSession found for channelId ${channelId}`);
+            H.log.error(`NetMgr: No NetSession found for channelId ${channelId}`);
             return false;
         }
 
@@ -64,8 +61,8 @@ export class NetMgr extends Singleton<NetMgr> {
     public connect(channelId: number = NetChannelType.DEFAULT): void {
         const session = this._channels.get(channelId);
         if (!session) {
-            LogHelper.error(`NetMgr: No NetSession found for channelId ${channelId}`);
-            EventMgr.getInstance().emit(CoreEvents.NET_DISCONNECTED, {
+            H.log.error(`NetMgr: No NetSession found for channelId ${channelId}`);
+            M.event.emit(CoreEvents.NET_DISCONNECTED, {
                 reason: 'Session not configured',
                 code: -2,
             });
@@ -74,8 +71,8 @@ export class NetMgr extends Singleton<NetMgr> {
 
         const options = session.getConnectOptions();
         if (!options) {
-            LogHelper.error(`NetMgr: No connect options for channelId ${channelId}`);
-            EventMgr.getInstance().emit(CoreEvents.NET_DISCONNECTED, {
+            H.log.error(`NetMgr: No connect options for channelId ${channelId}`);
+            M.event.emit(CoreEvents.NET_DISCONNECTED, {
                 reason: 'Session not configured',
                 code: -2,
             });

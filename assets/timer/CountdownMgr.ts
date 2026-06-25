@@ -1,7 +1,6 @@
 import { game, Component } from "cc";
 import { StringUtil } from "db://ccgf-kit/utils/text/StringUtil";
 import { Singleton } from "db://ccgf-kit/common/Singleton";
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 
 /**
  * TimerDriver — 驱动 CountdownMgr.tick() 的 Component，挂载到 persistNode 上
@@ -9,7 +8,7 @@ import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
  */
 export class TimerDriver extends Component {
     update(dt: number): void {
-        CountdownMgr.getInstance().tick(dt);
+        M.timer.tick(dt);
     }
 }
 
@@ -34,7 +33,7 @@ export class CountdownMgr extends Singleton<CountdownMgr> {
      */
     public init(_driver: TimerDriver): void {
         if (this._initialized) {
-            LogHelper.warn("CountdownMgr: init() 重复调用，已忽略");
+            H.log.warn("CountdownMgr: init() 重复调用，已忽略");
             return;
         }
 
@@ -84,7 +83,7 @@ export class CountdownMgr extends Singleton<CountdownMgr> {
      */
     register(object: any, field: string, target: object, onSecond?: Function, onComplete?: Function): string {
         if (!this._initialized) {
-            LogHelper.warn("CountdownMgr: register() 在 init() 之前调用，倒计时不会 tick");
+            H.log.warn("CountdownMgr: register() 在 init() 之前调用，倒计时不会 tick");
         }
 
         let data: ITimer = {

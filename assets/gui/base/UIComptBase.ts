@@ -1,8 +1,6 @@
 import { _decorator, Component, Node, EventTouch } from 'cc';
 import type { IUILifecycle, UIOpenParams } from 'db://ccgf-kit/gui/IUiStructs';
 import { UIContainer } from 'db://ccgf-kit/gui/impl/UIContainer';
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
-import { AudioMgr } from 'db://ccgf-kit/audio/AudioMgr';
 
 const { ccclass } = _decorator;
 
@@ -85,7 +83,7 @@ export class UIComptBase extends Component implements IUILifecycle {
         thisArg?: any,
     ): void {
         if (!target) {
-            LogHelper.warn(`[UIComptBase] bindEvent: target is null`);
+            H.log.warn(`[UIComptBase] bindEvent: target is null`);
             return;
         }
 
@@ -121,7 +119,7 @@ export class UIComptBase extends Component implements IUILifecycle {
             const sound = opts?.sound;
             if (sound !== false) {
                 const sfxName = typeof sound === 'string' ? sound : 'ui_button';
-                AudioMgr.getInstance().playSFX(sfxName);
+                M.audio.playSFX(sfxName);
             }
             callback.call(thisArg, event);
         };

@@ -1,6 +1,5 @@
 import { FSMCfg, IState, StateTransitionRecord } from "db://ccgf-kit/utils/fsm/IState";
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 /**
  * FSM
  * @author Michael
@@ -68,12 +67,12 @@ export class FSM<TState, TEvent, TContext> {
     public start(): this {
         const initialState = this.states.get(this.config.initialState);
         if (!initialState) {
-            LogHelper.error("FSM", `Initial state ${this.config.initialState} not found`);
+            H.log.error("FSM", `Initial state ${this.config.initialState} not found`);
             return this;
         }
         this.currentState = initialState;
 
-        LogHelper.info("FSM", `Starting FSM with initial state: ${this.currentState.name}`);
+        H.log.info("FSM", `Starting FSM with initial state: ${this.currentState.name}`);
 
         this.currentState.onEnter?.(this.context, null);
 
@@ -138,13 +137,13 @@ export class FSM<TState, TEvent, TContext> {
     public transitionTo(targetState: TState, event?: TEvent): boolean {
 
         if (!this.getCurrentState()) {
-            LogHelper.error("FSM", "Current state is null, please start the FSM first.");
+            H.log.error("FSM", "Current state is null, please start the FSM first.");
             return false;
         }
 
         const target = this.states.get(targetState);
         if (!target) {
-            LogHelper.error("FSM", `Target state ${targetState} not found`);
+            H.log.error("FSM", `Target state ${targetState} not found`);
             return false
         }
 
@@ -179,7 +178,7 @@ export class FSM<TState, TEvent, TContext> {
      */
     public handleEvent(event: TEvent): boolean {
         if (!this.getCurrentState()) {
-            LogHelper.error("FSM", "Current state is null, please start the FSM first.");
+            H.log.error("FSM", "Current state is null, please start the FSM first.");
             return false;
         }
 
@@ -187,7 +186,7 @@ export class FSM<TState, TEvent, TContext> {
         if (nextState && this.canTransitionTo(nextState)) {
             return this.transitionTo(nextState, event);
         } else {
-            LogHelper.warn("FSM", `No valid transition for event ${event} in state ${this.currentState.name}`);
+            H.log.warn("FSM", `No valid transition for event ${event} in state ${this.currentState.name}`);
             return false;
         }
     }
@@ -226,7 +225,7 @@ export class FSM<TState, TEvent, TContext> {
             try {
                 listener(from, to, event);
             } catch (error) {
-                LogHelper.error("状态转换监听器执行错误:", error);
+                H.log.error("状态转换监听器执行错误:", error);
             }
         });
     }
@@ -313,7 +312,7 @@ export class FSM<TState, TEvent, TContext> {
 
         this.currentState = null;
 
-        LogHelper.info("FSM", "State machine stopped");
+        H.log.info("FSM", "State machine stopped");
 
         return this;
     }
@@ -383,16 +382,16 @@ export class FSM<TState, TEvent, TContext> {
 
             switch (level) {
                 case 'debug':
-                    LogHelper.debug("FSM", message, ...args);
+                    H.log.debug("FSM", message, ...args);
                     break;
                 case 'info':
-                    LogHelper.info("FSM", message, ...args);
+                    H.log.info("FSM", message, ...args);
                     break;
                 case 'warn':
-                    LogHelper.warn("FSM", message, ...args);
+                    H.log.warn("FSM", message, ...args);
                     break;
                 case 'error':
-                    LogHelper.error("FSM", message, ...args);
+                    H.log.error("FSM", message, ...args);
                     break;
             }
         }

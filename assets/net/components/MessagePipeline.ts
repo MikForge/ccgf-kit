@@ -5,7 +5,6 @@ import { FrameEventDispatcher } from 'db://ccgf-kit/utils/dispatcher/FrameEventD
 import { BoundedQueue } from 'db://ccgf-kit/utils/queue/BoundedQueue';
 import { overflowStrategy } from 'db://ccgf-kit/utils/queue/BoundedQueue.enum';
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 /**
  * 消息处理管道
  * 职责：接收原始数据 → 解密/解压/反序列化 → 请求匹配 → 分发
@@ -25,7 +24,7 @@ export class MessagePipeline {
             maxSize: 2000,
             overflowStrategy: overflowStrategy.DROP_NEW,
             onOverflow: (item: NetData) => {
-                LogHelper.warn("MessagePipeline: inBoxQueue overflow, dropped item:", item);
+                H.log.warn("MessagePipeline: inBoxQueue overflow, dropped item:", item);
             }
         });
         this.packeter = packeter;
@@ -40,7 +39,7 @@ export class MessagePipeline {
     public processRawData(data: NetData): void {
         // 快进：加入队列
         if (!this.inBoxQueue.enqueue(data)) {
-            LogHelper.warn("MessagePipeline: 接收队列已满，丢弃数据包");
+            H.log.warn("MessagePipeline: 接收队列已满，丢弃数据包");
             return;
         }
 
@@ -69,12 +68,12 @@ export class MessagePipeline {
                 const packet: IResponsePacket = this.packeter.decodeResponse(rawPacket);
 
                 if (!packet) {
-                    LogHelper.error("MessagePipeline: 数据包解析失败");
+                    H.log.error("MessagePipeline: 数据包解析失败");
                     continue;
                 }
 
                 if (!packet.cmd) {
-                    LogHelper.error("MessagePipeline: 数据包缺少命令编号 cmd");
+                    H.log.error("MessagePipeline: 数据包缺少命令编号 cmd");
                     continue;
                 }
                 const request = this.inFlightTracker.getRequest(packet.cmd);
@@ -89,7 +88,7 @@ export class MessagePipeline {
 
 
             } catch (error) {
-                LogHelper.error("MessagePipeline: 处理数据包异常", error);
+                H.log.error("MessagePipeline: 处理数据包异常", error);
             }
         }
     }

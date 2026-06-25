@@ -5,7 +5,6 @@ import { overflowStrategy } from 'db://ccgf-kit/utils/queue/BoundedQueue.enum';
 import type { ISocket } from 'db://ccgf-kit/net/base/ISocket';
 import { NetSessionState } from 'db://ccgf-kit/net/defines/net.enum';
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 /**
  * 发送管理器
  * 职责：统一处理发送逻辑（状态检查 + 缓存 + 请求跟踪）
@@ -32,7 +31,7 @@ export class SendManager {
             maxSize: bufferSize,
             overflowStrategy: overflowStrategy.DROP_NEW,
             onOverflow: (item: RequestObject) => {
-                LogHelper.warn("SendManager: sendBuffer overflow, dropped item:", item);
+                H.log.warn("SendManager: sendBuffer overflow, dropped item:", item);
             }
         });
     }
@@ -57,12 +56,12 @@ export class SendManager {
                 return this.net.send(data);
 
             case NetSessionState.CLOSED:
-                LogHelper.error("SendManager", "send failed, connection is closed.");
+                H.log.error("SendManager", "send failed, connection is closed.");
                 return false;
             case NetSessionState.CHECKING:
             case NetSessionState.CONNECTING:
                 //不缓存消息
-                LogHelper.info("SendManager", "connection not ready, message buffered.");
+                H.log.info("SendManager", "connection not ready, message buffered.");
             default:
                 return false;
         }
@@ -100,12 +99,12 @@ export class SendManager {
             case NetSessionState.CHECKING:
             case NetSessionState.CONNECTING:
                 // 缓存请求
-                LogHelper.info("SendManager", "连接未就绪，请求已缓存");
+                H.log.info("SendManager", "连接未就绪，请求已缓存");
                 this.sendBuffer.enqueue(requestInfo);
                 break;
 
             case NetSessionState.CLOSED:
-                LogHelper.error("SendManager", "request failed, connection is closed.");
+                H.log.error("SendManager", "request failed, connection is closed.");
                 break;
         }
     }
@@ -125,24 +124,24 @@ export class SendManager {
     public requestUnique(requestInfo: RequestObject): boolean {
 
         if (!requestInfo.rspCmd) {
-            LogHelper.error("SendManager", "requestUnique failed, rspCmd is required for uniqueness check.");
+            H.log.error("SendManager", "requestUnique failed, rspCmd is required for uniqueness check.");
             return false;
         }
 
         if (this.inFlightTracker.hasRequest(requestInfo.rspCmd)) {
-            LogHelper.warn("SendManager", `请求 ${requestInfo.rspCmd} 已在发送中，忽略重复请求`);
+            H.log.warn("SendManager", `请求 ${requestInfo.rspCmd} 已在发送中，忽略重复请求`);
             return false;
         }
 
         if (this.sendBuffer.find(item => item.rspCmd === requestInfo.rspCmd)) {
-            LogHelper.warn("SendManager", `请求 ${requestInfo.rspCmd} 已在发送缓冲区中，忽略重复请求`);
+            H.log.warn("SendManager", `请求 ${requestInfo.rspCmd} 已在发送缓冲区中，忽略重复请求`);
             return false;
         }
        
         const currentState = this.getState();
 
         if (currentState === NetSessionState.CLOSED) {
-            LogHelper.error("SendManager", "requestUnique failed, connection is closed.");
+            H.log.error("SendManager", "requestUnique failed, connection is closed.");
             return false;
         }
 
@@ -162,7 +161,7 @@ export class SendManager {
             return;
         }
 
-        LogHelper.info("SendManager", `刷新发送缓冲区，待发送 ${count} 条消息`);
+        H.log.info("SendManager", `刷新发送缓冲区，待发送 ${count} 条消息`);
 
         // 逐个发送缓存的数据
         while (!this.sendBuffer.isEmpty()) {

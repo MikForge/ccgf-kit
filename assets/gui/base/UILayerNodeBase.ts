@@ -1,13 +1,10 @@
-import { Node } from "cc";
-import { LogHelper } from "db://ccgf-kit/helper/LogHelper";
+import { Node, Prefab } from "cc";
 import { UIHelper } from "db://ccgf-kit/gui/UIHelper";
 import { BaseView } from "db://ccgf-kit/gui/base/BaseView";
 import { UIViewState } from "db://ccgf-kit/gui/base/UIViewState";
 import { LayerContainerType } from "db://ccgf-kit/gui/UILayer.enum";
 
-import { UIMgr } from 'db://ccgf-kit/gui/UIMgr';
 import { UIRegistry } from 'db://ccgf-kit/decorators/UIRegistry';
-import { ResMgr } from 'db://ccgf-kit/res/ResMgr';
 export class UILayerNodeBase extends Node {
 
     onOpenFailure: Function = null!;
@@ -43,18 +40,18 @@ export class UILayerNodeBase extends Node {
 
         // B1: 竞态防护——prefab 加载期间拦截重复请求
         if (this._pendingSet.has(viewId)) {
-            LogHelper.debug(`界面正在加载中，忽略重复请求: ${viewId}`);
+            H.log.debug(`界面正在加载中，忽略重复请求: ${viewId}`);
             return null!;
         }
 
         if (this.hiddenNodes.has(viewId)) {
-            LogHelper.debug(`从隐藏池恢复界面: ${viewId}`);
+            H.log.debug(`从隐藏池恢复界面: ${viewId}`);
             return this.restoreView(viewId);
         }
 
         if (this.nodeMap.has(viewId)) {
             const node = this.nodeMap.get(viewId)!;
-            LogHelper.debug(`界面已存在，提升到栈顶: ${viewId}`);
+            H.log.debug(`界面已存在，提升到栈顶: ${viewId}`);
             if (this.enableStack) this.pushToStack(viewId);
             node.active = true;
             return node;
@@ -62,7 +59,7 @@ export class UILayerNodeBase extends Node {
 
         if (this.maxNodes === 1 && this.nodeMap.size >= 1) {
             const oldKey = this.nodeMap.keys().next().value;
-            LogHelper.debug(`单例层：隐藏旧界面 ${oldKey}`);
+            H.log.debug(`单例层：隐藏旧界面 ${oldKey}`);
             this.hideView(oldKey);
         }
 
@@ -130,7 +127,7 @@ export class UILayerNodeBase extends Node {
 
         const viewCtor = UIRegistry.getInstance().getViewClass(uiInfo.viewId);
 
-        const node = await UIMgr.getInstance().loadView(
+        const node = await M.ui.loadView(
             uiInfo.config.prefabKey,
             uiInfo.config.bundle,
             viewCtor,
@@ -164,8 +161,8 @@ export class UILayerNodeBase extends Node {
     }
 
     private _releaseRes(uiInfo: UIViewState): void {
-        ResMgr.getInstance().releasePrefabByKey(uiInfo.config.prefabKey, uiInfo.config.bundle);
-        LogHelper.info(`【界面管理】释放【${uiInfo.config.prefabKey}】界面资源`);
+        M.res.release({ pathkey: uiInfo.config.prefabKey, bundle: uiInfo.config.bundle, type: Prefab });
+        H.log.info(`【界面管理】释放【${uiInfo.config.prefabKey}】界面资源`);
     }
 
     protected hideView(viewId: string): void {
@@ -187,13 +184,13 @@ export class UILayerNodeBase extends Node {
         node.active = false;
         if (uiInfo) uiInfo.valid = false;
 
-        LogHelper.debug(`界面已隐藏: ${viewId}`);
+        H.log.debug(`界面已隐藏: ${viewId}`);
     }
 
     protected restoreView(viewId: string): Node {
         const node = this.hiddenNodes.get(viewId);
         if (!node) {
-            LogHelper.warn(`恢复失败：界面不在隐藏池中: ${viewId}`);
+            H.log.warn(`恢复失败：界面不在隐藏池中: ${viewId}`);
             return null!;
         }
 
@@ -211,7 +208,7 @@ export class UILayerNodeBase extends Node {
         const uiInfo = this.ui_nodes.get(viewId);
         if (uiInfo) uiInfo.valid = true;
 
-        LogHelper.debug(`界面已恢复: ${viewId}`);
+        H.log.debug(`界面已恢复: ${viewId}`);
         return node;
     }
 
@@ -220,7 +217,7 @@ export class UILayerNodeBase extends Node {
         if (index > -1) this.uiStack.splice(index, 1);
         this.uiStack.push(viewId);
         this.updateZOrder();
-        LogHelper.debug(`[${this.name}] 界面栈: [${this.uiStack.join(' → ')}]`);
+        H.log.debug(`[${this.name}] 界面栈: [${this.uiStack.join(' → ')}]`);
     }
 
     protected popFromStack(viewId: string): void {
@@ -235,7 +232,7 @@ export class UILayerNodeBase extends Node {
         const node = this.nodeMap.get(topKey);
         if (node) {
             node.active = true;
-            LogHelper.debug(`恢复栈顶界面: ${topKey}`);
+            H.log.debug(`恢复栈顶界面: ${topKey}`);
         }
     }
 
@@ -260,11 +257,11 @@ export class UILayerNodeBase extends Node {
 
     public back(): boolean {
         if (!this.enableStack) {
-            LogHelper.warn(`${this.name} 层未启用栈管理`);
+            H.log.warn(`${this.name} 层未启用栈管理`);
             return false;
         }
         if (this.uiStack.length < 2) {
-            LogHelper.warn(`${this.name} 层没有可返回的界面`);
+            H.log.warn(`${this.name} 层没有可返回的界面`);
             return false;
         }
         const currentViewId = this.uiStack[this.uiStack.length - 1];

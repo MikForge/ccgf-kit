@@ -1,9 +1,7 @@
 import { _decorator, Component, Node, director, game, Game, AudioSource } from 'cc';
 const { ccclass } = _decorator;
 
-import { AudioMgr } from 'db://ccgf-kit/audio/AudioMgr';
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
-import { CountdownMgr, TimerDriver } from 'db://ccgf-kit/timer/CountdownMgr';
+import { TimerDriver } from 'db://ccgf-kit/timer/CountdownMgr';
 import { CoreHelper } from 'db://ccgf-kit/core/CoreHelper';
 
 @ccclass('GameBootstrap')
@@ -31,7 +29,7 @@ export abstract class GameBootstrap extends Component {
     }
 
     onLoad(): void {
-        LogHelper.info(`Framework init`);
+        H.log.info(`Framework init`);
         this.enabled = false;
 
         this.initFramework();
@@ -89,11 +87,11 @@ export abstract class GameBootstrap extends Component {
             this.registerEvents();
             this.enabled = true;
             this.onStartupComplete();
-            LogHelper.info("游戏启动完成");
+            H.log.info("游戏启动完成");
         } catch (error) {
             this._isInitialized = false;
             this.onStartupFailed(error);
-            LogHelper.error("游戏启动失败:", error);
+            H.log.error("游戏启动失败:", error);
         }
     }
 
@@ -102,13 +100,13 @@ export abstract class GameBootstrap extends Component {
 
     private beforFrameworkInit(): void {
 
-        AudioMgr.getInstance().init(
+        M.audio.init(
             this.persist.addComponent(AudioSource),   // BGM
             this.persist.addComponent(AudioSource),   // SFX
             this.persist.addComponent(AudioSource),   // Voice（v2 启用）
         );
 
-        CountdownMgr.getInstance().init(this.persist.addComponent(TimerDriver));
+        M.timer.init(this.persist.addComponent(TimerDriver));
     }
 
 

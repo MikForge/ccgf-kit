@@ -2,8 +2,6 @@ import { sys } from "cc";
 import type { ISdkPlatform } from "db://ccgf-kit/sdk/ISdkPlatform";
 import { SdkPlatformName, RewardAdStatus } from "db://ccgf-kit/sdk/Sdk.enum";
 import type { LoginResult, PayParams, RewardAdResult, TrackEventPayload } from "db://ccgf-kit/sdk/ISdk";
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
-import { NetMgr } from 'db://ccgf-kit/net/mgr/NetMgr';
 
 declare const WeixinJSBridge: any;  // 在微信 H5 里会有
 
@@ -17,7 +15,7 @@ export class WebSdkPlatform implements ISdkPlatform {
     async login(): Promise<LoginResult> {
         try {
             // ✅ 正确用法
-            const response = await NetMgr.getInstance().http.postAsync(
+            const response = await M.net.http.postAsync(
                 'Platform',
                 '/api/login',
                 {
@@ -31,9 +29,9 @@ export class WebSdkPlatform implements ISdkPlatform {
                 const data = response.data;
 
                 // ⭐ 保存 Token 到拦截器（自动携带到后续请求）
-                NetMgr.getInstance().setHttpToken(data.token);
+                M.net.setHttpToken(data.token);
 
-                LogHelper.info('[登录成功]', data);
+                H.log.info('[登录成功]', data);
 
                 return {
                     uid: data.uid,
@@ -45,7 +43,7 @@ export class WebSdkPlatform implements ISdkPlatform {
                 throw new Error(response.msg || '登录失败');
             }
         } catch (error) {
-            LogHelper.error('[登录异常]', error);
+            H.log.error('[登录异常]', error);
             throw error;
         }
     }

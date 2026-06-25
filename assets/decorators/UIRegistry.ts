@@ -1,5 +1,4 @@
 import { Singleton } from 'db://ccgf-kit/common/Singleton';
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 import type { UIConfigMap, UIViewConfig, ViewClassCtor, MediatorClassCtor } from 'db://ccgf-kit/gui/IUiStructs';
 
 /* ─────────------ 独立装饰器 ────── */
@@ -35,7 +34,7 @@ export class UIRegistry extends Singleton<UIRegistry> {
      */
     init(configMap: UIConfigMap): void {
         if (this.locked) {
-            LogHelper.warn("UIRegistry UI 配置已初始化，忽略重复调用");
+            H.log.warn("UIRegistry UI 配置已初始化，忽略重复调用");
             return;
         }
 

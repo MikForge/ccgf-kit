@@ -1,7 +1,5 @@
 import { _decorator, Node, Constructor, BlockInputEvents } from "cc";
 import { UIComptBase } from "db://ccgf-kit/gui/base/UIComptBase";
-import { UIMgr } from "db://ccgf-kit/gui/UIMgr";
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 import { UIRegistry } from 'db://ccgf-kit/decorators/UIRegistry';
 import type { UIViewConfig } from 'db://ccgf-kit/gui/IUiStructs';
 
@@ -59,16 +57,16 @@ export class BaseView extends UIComptBase {
         autoRelease: boolean = true
     ): Promise<T | null> {
         if (!container || !container.isValid) {
-            LogHelper.error(`[BaseView] mountSubComp: container 无效`);
+            H.log.error(`[BaseView] mountSubComp: container 无效`);
             return null;
         }
 
-        const node = await UIMgr.getInstance().loadSubComp(prefabKey, bundle, ItemCls, data);
+        const node = await M.ui.loadSubComp(prefabKey, bundle, ItemCls, data);
 
         if (!node) return null;
 
         if (!container.isValid) {
-            UIMgr.getInstance().releaseSubNode(prefabKey, bundle);
+            M.ui.releaseSubNode(prefabKey, bundle);
             return null;
         }
 
@@ -124,7 +122,7 @@ export class BaseView extends UIComptBase {
         this.onDestroy_();
         this._subViews.forEach(c => c.ui_on_destroy());
         this._subViews.clear();
-        this._autoReleaseKeys.forEach(({ prefabKey, bundle }) => UIMgr.getInstance().releaseSubNode(prefabKey, bundle));
+        this._autoReleaseKeys.forEach(({ prefabKey, bundle }) => M.ui.releaseSubNode(prefabKey, bundle));
         this._autoReleaseKeys.length = 0;
     }
 

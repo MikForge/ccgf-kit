@@ -1,6 +1,5 @@
 
 import { LocalStorageKey } from "db://ccgf-kit/localStorage/Ls.enum";
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 import { Singleton } from "db://ccgf-kit/common/Singleton";
 
 export class LocalStorageMgr extends Singleton<LocalStorageMgr> {
@@ -16,7 +15,7 @@ export class LocalStorageMgr extends Singleton<LocalStorageMgr> {
         try {
             this.storage.setItem(key, value);
         } catch (e) {
-            LogHelper.error(`LocalStorageMgr: Failed to set item with key "${key}". Error: ${e}`);
+            H.log.error(`LocalStorageMgr: Failed to set item with key "${key}". Error: ${e}`);
         }
     }
 
@@ -24,7 +23,7 @@ export class LocalStorageMgr extends Singleton<LocalStorageMgr> {
         try {
             return this.storage.getItem(key);
         } catch (e) {
-            LogHelper.error(`LocalStorageMgr: Failed to get item with key "${key}". Error: ${e}`);
+            H.log.error(`LocalStorageMgr: Failed to get item with key "${key}". Error: ${e}`);
             return null;
         }
     }

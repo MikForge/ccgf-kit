@@ -1,13 +1,9 @@
 
 import { Asset, game, native, sys } from "cc";
-import { EventMgr } from 'db://ccgf-kit/event/EventMgr';
 import { CoreEvents } from 'db://ccgf-kit/event/CoreEvents.enum';
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 import { utils } from 'db://ccgf-kit/utils/utils';
 import { HotUpdateState } from 'db://ccgf-kit/cchotupdate/hotupdate.enum';
-import { ResMgr } from "../res/ResMgr";
-import { NetMgr } from "../net/mgr/NetMgr";
-import { Singleton } from "../common/Singleton";
+import { Singleton } from 'db://ccgf-kit/common/Singleton';
 
 
 export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
@@ -45,19 +41,19 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
     public async init(): Promise<boolean> {
 
         if (!sys.isNative) {
-            LogHelper.warn("HotUpdateMgr: 当前平台不支持热更新");
+            H.log.warn("HotUpdateMgr: 当前平台不支持热更新");
             return false;
         }
 
         if (this.isInit) {
-            LogHelper.warn("HotUpdateMgr: 已经初始化过了");
+            H.log.warn("HotUpdateMgr: 已经初始化过了");
             return false;
         }
 
         const isInitRemote = await this.initRemoteInfo();
 
         if (!isInitRemote) {
-            LogHelper.error("HotUpdateMgr: 初始化远程信息失败");
+            H.log.error("HotUpdateMgr: 初始化远程信息失败");
             return false;
         }
 
@@ -72,16 +68,16 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
             this._storagePath += "/";
         }
 
-        const _asset = await ResMgr.getInstance().load({
+        const _asset = await M.res.load({
             paths: "project",
             type: Asset,
         }) as Asset;
 
         if (_asset) {
             this._localManifestUrl = _asset.nativeUrl;
-            LogHelper.info("本地 manifest 路径: " + this._localManifestUrl);
+            H.log.info("本地 manifest 路径: " + this._localManifestUrl);
         } else {
-            LogHelper.error("HotUpdateMgr: 加载本地 manifest 失败");
+            H.log.error("HotUpdateMgr: 加载本地 manifest 失败");
             return false;
         }
 
@@ -90,7 +86,7 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
 
         // 初始化成功
         this.isInit = true;
-        LogHelper.info("HotUpdateMgr 初始化完成！");
+        H.log.info("HotUpdateMgr 初始化完成！");
 
         return true;
     }
@@ -111,14 +107,14 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
     private refreshLocalManifest() {
 
         if (!this._nativeAssetManager) {
-            LogHelper.error("HotUpdateMgr: AssetsManager 实例不存在，无法刷新 manifest");
+            H.log.error("HotUpdateMgr: AssetsManager 实例不存在，无法刷新 manifest");
             return;
         }
 
         // 验证远程 URL 格式
         if (!this._remoteUrl || (!this._remoteUrl.startsWith('http://') && !this._remoteUrl.startsWith('https://'))) {
-            LogHelper.error("HotUpdateMgr: 远程 URL 格式错误: " + this._remoteUrl);
-            LogHelper.error("URL 必须以 http:// 或 https:// 开头");
+            H.log.error("HotUpdateMgr: 远程 URL 格式错误: " + this._remoteUrl);
+            H.log.error("URL 必须以 http:// 或 https:// 开头");
             return;
         }
 
@@ -126,14 +122,14 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
         let _remoteManifestUrl = utils.joinPath(this._remoteUrl, this._remoteVersion, "project.manifest");
         let _remoteVersionUrl = utils.joinPath(this._remoteUrl, this._remoteVersion, "version.manifest");
 
-        LogHelper.info("====== 准备更新 manifest URL ======");
-        LogHelper.info("远程根地址: " + this._remoteUrl);
-        LogHelper.info("远程版本号: " + this._remoteVersion);
-        LogHelper.info("Package URL: " + _packageUrl);
-        LogHelper.info("Manifest URL: " + _remoteManifestUrl);
-        LogHelper.info("Version URL: " + _remoteVersionUrl);
-        LogHelper.info("本地存储路径: " + this._storagePath);
-        LogHelper.info("===============================");
+        H.log.info("====== 准备更新 manifest URL ======");
+        H.log.info("远程根地址: " + this._remoteUrl);
+        H.log.info("远程版本号: " + this._remoteVersion);
+        H.log.info("Package URL: " + _packageUrl);
+        H.log.info("Manifest URL: " + _remoteManifestUrl);
+        H.log.info("Version URL: " + _remoteVersionUrl);
+        H.log.info("本地存储路径: " + this._storagePath);
+        H.log.info("===============================");
 
 
         let writablePath = this._storagePath;
@@ -142,22 +138,22 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
         let cacheManifestPath = writablePath + "project.manifest";
         if (native.fileUtils.isFileExist(cacheManifestPath)) {
             content = native.fileUtils.getStringFromFile(cacheManifestPath);
-            LogHelper.info("使用缓存的 manifest: " + cacheManifestPath);
+            H.log.info("使用缓存的 manifest: " + cacheManifestPath);
         } else {
             let manifestUrl = this._localManifestUrl;
             content = native.fileUtils.getStringFromFile(manifestUrl);
-            LogHelper.info("使用包内 manifest: " + manifestUrl);
+            H.log.info("使用包内 manifest: " + manifestUrl);
         }
 
         if (!content) {
-            LogHelper.error("HotUpdateMgr: 读取本地 manifest 内容失败");
+            H.log.error("HotUpdateMgr: 读取本地 manifest 内容失败");
             return;
         }
 
         const manifestObj = JSON.parse(content);
 
-        LogHelper.info("原始 manifest packageUrl: " + (manifestObj.packageUrl || "未设置"));
-        LogHelper.info("原始 manifest version: " + (manifestObj.version || "未设置"));
+        H.log.info("原始 manifest packageUrl: " + (manifestObj.packageUrl || "未设置"));
+        H.log.info("原始 manifest version: " + (manifestObj.version || "未设置"));
 
         // 修改 URL
         manifestObj.packageUrl = _packageUrl;
@@ -175,18 +171,18 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
             manifestRoot = manifestUrl.substring(0, found + 1);
         }
 
-        LogHelper.info("Manifest 根目录: " + manifestRoot);
+        H.log.info("Manifest 根目录: " + manifestRoot);
 
         this._nativeAssetManager.getLocalManifest().parseJSONString(JSON.stringify(manifestObj), manifestRoot);
 
-        LogHelper.info("====== 更新后的 manifest 信息 ======");
-        LogHelper.info("PackageUrl: " + this._nativeAssetManager.getLocalManifest().getPackageUrl());
-        LogHelper.info("Version: " + this._nativeAssetManager.getLocalManifest().getVersion());
-        LogHelper.info("VersionFileUrl: " + this._nativeAssetManager.getLocalManifest().getVersionFileUrl());
-        LogHelper.info("ManifestFileUrl: " + this._nativeAssetManager.getLocalManifest().getManifestFileUrl());
-        LogHelper.info("===============================");
+        H.log.info("====== 更新后的 manifest 信息 ======");
+        H.log.info("PackageUrl: " + this._nativeAssetManager.getLocalManifest().getPackageUrl());
+        H.log.info("Version: " + this._nativeAssetManager.getLocalManifest().getVersion());
+        H.log.info("VersionFileUrl: " + this._nativeAssetManager.getLocalManifest().getVersionFileUrl());
+        H.log.info("ManifestFileUrl: " + this._nativeAssetManager.getLocalManifest().getManifestFileUrl());
+        H.log.info("===============================");
 
-        LogHelper.info("本地 manifest 已更新为远程服务器地址");
+        H.log.info("本地 manifest 已更新为远程服务器地址");
 
     }
 
@@ -195,39 +191,39 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
      */
     public async initRemoteInfo(): Promise<boolean> {
 
-        LogHelper.info("开始获取远程服务器版本信息...");
+        H.log.info("开始获取远程服务器版本信息...");
 
-        const response = await NetMgr.getInstance().http.getAsync(
+        const response = await M.net.http.getAsync(
             'Platform',
             "/versions/latest"
         );
 
         if (!response.isSucc) {
-            LogHelper.error('HotUpdateMgr: 获取远程服务器地址失败', response.err);
+            H.log.error('HotUpdateMgr: 获取远程服务器地址失败', response.err);
             return false;
         }
 
         const data = response.data;
 
-        LogHelper.info("收到远程版本信息: " + JSON.stringify(data));
+        H.log.info("收到远程版本信息: " + JSON.stringify(data));
 
         if (!data || !data.download_url) {
-            LogHelper.error('HotUpdateMgr: 远程服务器地址数据异常', data);
+            H.log.error('HotUpdateMgr: 远程服务器地址数据异常', data);
             return false;
         }
 
         this._remoteUrl = data.download_url;
         this._remoteVersion = data.id;
 
-        LogHelper.info("====== 远程服务器信息 ======");
-        LogHelper.info("下载地址: " + this._remoteUrl);
-        LogHelper.info("版本 ID: " + this._remoteVersion);
-        LogHelper.info("=======================");
+        H.log.info("====== 远程服务器信息 ======");
+        H.log.info("下载地址: " + this._remoteUrl);
+        H.log.info("版本 ID: " + this._remoteVersion);
+        H.log.info("=======================");
 
         // URL 格式验证
         if (!this._remoteUrl.startsWith('http://') && !this._remoteUrl.startsWith('https://')) {
-            LogHelper.error("警告: 远程 URL 不是有效的 HTTP/HTTPS 地址!");
-            LogHelper.error("当前 URL: " + this._remoteUrl);
+            H.log.error("警告: 远程 URL 不是有效的 HTTP/HTTPS 地址!");
+            H.log.error("当前 URL: " + this._remoteUrl);
             return false;
         }
 
@@ -240,19 +236,19 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
     public getCurVersion(): string {
 
         if (!this.isInit) {
-            LogHelper.warn("HotUpdateMgr: 热更新管理器未初始化，正在初始化...");
+            H.log.warn("HotUpdateMgr: 热更新管理器未初始化，正在初始化...");
             return "code fail";
         }
 
         if (!this._nativeAssetManager) {
-            LogHelper.error("HotUpdateMgr: AssetsManager 实例不存在，无法获取版本信息");
+            H.log.error("HotUpdateMgr: AssetsManager 实例不存在，无法获取版本信息");
             return "code fail";
         }
 
         const localManifest = this._nativeAssetManager.getLocalManifest();
 
         if (!localManifest) {
-            LogHelper.error('HotUpdateMgr: 获取本地 manifest 失败');
+            H.log.error('HotUpdateMgr: 获取本地 manifest 失败');
             return "code fail";
         }
 
@@ -265,36 +261,36 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
 
         // 非原生平台：直接跳过热更新
         if (!sys.isNative) {
-            LogHelper.info("HotUpdateMgr: 非原生平台，跳过热更新");
-            EventMgr.getInstance().emit(CoreEvents.HOT_UPDATE_READY, { version: '' });
+            H.log.info("HotUpdateMgr: 非原生平台，跳过热更新");
+            M.event.emit(CoreEvents.HOT_UPDATE_READY, { version: '' });
             return;
         }
 
         // 初始化兜底
         if (!this.isInit) {
-            LogHelper.info("HotUpdateMgr: 尚未初始化，自动初始化...");
+            H.log.info("HotUpdateMgr: 尚未初始化，自动初始化...");
             const ok = await this.init();
             if (!ok) {
-                LogHelper.error("HotUpdateMgr: 自动初始化失败");
-                EventMgr.getInstance().emit(CoreEvents.HOT_UPDATE_FAILED, { error: '热更新初始化失败' });
+                H.log.error("HotUpdateMgr: 自动初始化失败");
+                M.event.emit(CoreEvents.HOT_UPDATE_FAILED, { error: '热更新初始化失败' });
                 return;
             }
         }
 
         // 并发保护：检查当前状态
         if (this.state === HotUpdateState.CHECKING) {
-            LogHelper.warn("HotUpdateMgr: 正在检查更新中，请勿重复操作");
+            H.log.warn("HotUpdateMgr: 正在检查更新中，请勿重复操作");
             return;
         }
 
         if (this.state === HotUpdateState.UPDATING) {
-            LogHelper.warn("HotUpdateMgr: 正在更新中，无法检查更新");
+            H.log.warn("HotUpdateMgr: 正在更新中，无法检查更新");
             return;
         }
 
         // 设置为检查状态
         this.state = HotUpdateState.CHECKING;
-        LogHelper.info("HotUpdateMgr: 检查更新... [状态: " + this.state + "]");
+        H.log.info("HotUpdateMgr: 检查更新... [状态: " + this.state + "]");
 
         try {
             await this.initRemoteInfo();
@@ -304,7 +300,7 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
             this._nativeAssetManager.checkUpdate();
 
         } catch (error) {
-            LogHelper.error("HotUpdateMgr: 检查更新失败", error);
+            H.log.error("HotUpdateMgr: 检查更新失败", error);
             // 失败时重置为空闲状态
             this.state = HotUpdateState.IDLE;
         }
@@ -314,41 +310,41 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
         const eventCode = event.getEventCode();
         const am = event.getAssetsManagerEx(); // 从事件对象获取 AssetsManager 实例
 
-        LogHelper.info("热更新事件代码: " + eventCode);
+        H.log.info("热更新事件代码: " + eventCode);
 
         let tips: string = "";
 
         switch (eventCode) {
             case native.EventAssetsManager.ERROR_NO_LOCAL_MANIFEST:
                 tips = "未找到本地 manifest 文件，跳过热更新";
-                LogHelper.error("HotUpdateMgr: " + tips);
+                H.log.error("HotUpdateMgr: " + tips);
                 this.state = HotUpdateState.IDLE; // 重置为空闲状态
-                EventMgr.getInstance().emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
+                M.event.emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
                 break;
 
             case native.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
                 tips = "下载远程 manifest 失败";
-                LogHelper.error("HotUpdateMgr: " + tips);
-                LogHelper.error("错误信息: " + event.getMessage());
-                LogHelper.error("CURL错误码: " + event.getCURLECode());
+                H.log.error("HotUpdateMgr: " + tips);
+                H.log.error("错误信息: " + event.getMessage());
+                H.log.error("CURL错误码: " + event.getCURLECode());
                 this.state = HotUpdateState.IDLE; // 重置为空闲状态
-                EventMgr.getInstance().emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
+                M.event.emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
                 break;
 
             case native.EventAssetsManager.ERROR_PARSE_MANIFEST:
                 tips = "解析 manifest 文件失败";
-                LogHelper.error("HotUpdateMgr: " + tips);
-                LogHelper.error("错误信息: " + event.getMessage());
+                H.log.error("HotUpdateMgr: " + tips);
+                H.log.error("错误信息: " + event.getMessage());
                 this.state = HotUpdateState.IDLE; // 重置为空闲状态
-                EventMgr.getInstance().emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
+                M.event.emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
                 break;
 
             case native.EventAssetsManager.ALREADY_UP_TO_DATE:
                 tips = "当前已是最新版本，无需更新";
-                LogHelper.info("HotUpdateMgr: " + tips);
-                LogHelper.info("当前版本: " + am.getLocalManifest().getVersion());
+                H.log.info("HotUpdateMgr: " + tips);
+                H.log.info("当前版本: " + am.getLocalManifest().getVersion());
                 this.state = HotUpdateState.IDLE; // 重置为空闲状态
-                EventMgr.getInstance().emit(CoreEvents.HOT_UPDATE_READY, { version: am.getLocalManifest().getVersion() });
+                M.event.emit(CoreEvents.HOT_UPDATE_READY, { version: am.getLocalManifest().getVersion() });
                 break;
 
             case native.EventAssetsManager.NEW_VERSION_FOUND:
@@ -358,19 +354,19 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
                 const sizeMB = (totalBytes / 1024 / 1024).toFixed(2);
 
                 tips = `发现新版本！需要下载 ${totalFiles} 个文件，共 ${sizeMB}MB`;
-                LogHelper.info("HotUpdateMgr: " + tips);
-                LogHelper.info("本地版本: " + am.getLocalManifest().getVersion());
-                LogHelper.info("远程版本: " + am.getRemoteManifest().getVersion());
-                LogHelper.info("总大小: " + sizeKB + " KB");
-                LogHelper.info("文件数量: " + totalFiles);
+                H.log.info("HotUpdateMgr: " + tips);
+                H.log.info("本地版本: " + am.getLocalManifest().getVersion());
+                H.log.info("远程版本: " + am.getRemoteManifest().getVersion());
+                H.log.info("总大小: " + sizeKB + " KB");
+                H.log.info("文件数量: " + totalFiles);
 
                 // 获取远程 manifest 详细信息
                 const remoteManifest = am.getRemoteManifest();
-                LogHelper.info("====== 远程 Manifest 原始信息 ======");
-                LogHelper.info("PackageUrl: " + remoteManifest.getPackageUrl());
-                LogHelper.info("ManifestUrl: " + remoteManifest.getManifestFileUrl());
-                LogHelper.info("VersionUrl: " + remoteManifest.getVersionFileUrl());
-                LogHelper.info("================================");
+                H.log.info("====== 远程 Manifest 原始信息 ======");
+                H.log.info("PackageUrl: " + remoteManifest.getPackageUrl());
+                H.log.info("ManifestUrl: " + remoteManifest.getManifestFileUrl());
+                H.log.info("VersionUrl: " + remoteManifest.getVersionFileUrl());
+                H.log.info("================================");
 
 
                 // 准备更新（可选，update() 会自动调用）
@@ -403,14 +399,14 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
                 tips = `更新进度: ${(percent * 100).toFixed(1)}%`;
 
                 // 详细进度信息
-                LogHelper.info("====== 更新进度 ======");
-                LogHelper.info("总体进度: " + (percent * 100).toFixed(2) + "%");
-                LogHelper.info("文件进度: " + (percentByFile * 100).toFixed(2) + "%");
-                LogHelper.info("已下载字节: " + (downloadedBytes / 1024 / 1024).toFixed(2) + " MB / " + (totalBytesExpected / 1024 / 1024).toFixed(2) + " MB");
-                LogHelper.info("已下载文件: " + downloadedFiles + " / " + totalFilesExpected);
-                LogHelper.info("当前文件: " + assetId);
-                LogHelper.info("是否续传: " + (isResuming ? "是" : "否"));
-                LogHelper.info("==================");
+                H.log.info("====== 更新进度 ======");
+                H.log.info("总体进度: " + (percent * 100).toFixed(2) + "%");
+                H.log.info("文件进度: " + (percentByFile * 100).toFixed(2) + "%");
+                H.log.info("已下载字节: " + (downloadedBytes / 1024 / 1024).toFixed(2) + " MB / " + (totalBytesExpected / 1024 / 1024).toFixed(2) + " MB");
+                H.log.info("已下载文件: " + downloadedFiles + " / " + totalFilesExpected);
+                H.log.info("当前文件: " + assetId);
+                H.log.info("是否续传: " + (isResuming ? "是" : "否"));
+                H.log.info("==================");
 
                 // 可以在这里更新 UI 进度条
                 this.progressCallback?.(percent, `正在下载: ${assetId} (${(percent * 100).toFixed(1)}%)`);
@@ -421,22 +417,22 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
             case native.EventAssetsManager.ASSET_UPDATED:
                 const updatedAssetId = event.getAssetId();
                 tips = "资源已更新: " + updatedAssetId;
-                LogHelper.info("HotUpdateMgr: " + tips);
+                H.log.info("HotUpdateMgr: " + tips);
                 this.emitCallback?.(eventCode, tips);
 
                 break;
 
             case native.EventAssetsManager.UPDATE_FINISHED:
                 tips = "热更新完成！";
-                LogHelper.info("HotUpdateMgr: " + tips);
-                LogHelper.info("最终下载: " + event.getDownloadedFiles() + " 个文件");
-                LogHelper.info("总计大小: " + (event.getDownloadedBytes() / 1024 / 1024).toFixed(2) + " MB");
-                LogHelper.info("新版本: " + am.getLocalManifest().getVersion());
+                H.log.info("HotUpdateMgr: " + tips);
+                H.log.info("最终下载: " + event.getDownloadedFiles() + " 个文件");
+                H.log.info("总计大小: " + (event.getDownloadedBytes() / 1024 / 1024).toFixed(2) + " MB");
+                H.log.info("新版本: " + am.getLocalManifest().getVersion());
 
                 // 更新完成，重置为空闲状态
                 this.state = HotUpdateState.IDLE;
 
-                EventMgr.getInstance().emit(CoreEvents.HOT_UPDATE_READY, { version: am.getLocalManifest().getVersion() });
+                M.event.emit(CoreEvents.HOT_UPDATE_READY, { version: am.getLocalManifest().getVersion() });
 
                 // 更新完成后，可以提示用户重启游戏
                 this.promptRestart();
@@ -444,16 +440,16 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
 
             case native.EventAssetsManager.UPDATE_FAILED:
                 tips = "热更新失败";
-                LogHelper.error("HotUpdateMgr: " + tips);
-                LogHelper.error("错误信息: " + event.getMessage());
-                LogHelper.error("资源ID: " + event.getAssetId());
-                LogHelper.error("CURL错误码: " + event.getCURLECode());
-                LogHelper.error("CURLM错误码: " + event.getCURLMCode());
+                H.log.error("HotUpdateMgr: " + tips);
+                H.log.error("错误信息: " + event.getMessage());
+                H.log.error("资源ID: " + event.getAssetId());
+                H.log.error("CURL错误码: " + event.getCURLECode());
+                H.log.error("CURLM错误码: " + event.getCURLMCode());
 
                 // 更新失败，重置为空闲状态
                 this.state = HotUpdateState.IDLE;
 
-                EventMgr.getInstance().emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
+                M.event.emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
 
                 // 可以在这里提供重试选项
                 // this.promptRetry();
@@ -461,23 +457,23 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
 
             case native.EventAssetsManager.ERROR_DECOMPRESS:
                 tips = "解压资源失败";
-                LogHelper.error("HotUpdateMgr: " + tips);
-                LogHelper.error("错误信息: " + event.getMessage());
-                LogHelper.error("资源ID: " + event.getAssetId());
+                H.log.error("HotUpdateMgr: " + tips);
+                H.log.error("错误信息: " + event.getMessage());
+                H.log.error("资源ID: " + event.getAssetId());
                 this.state = HotUpdateState.IDLE; // 重置为空闲状态
-                EventMgr.getInstance().emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
+                M.event.emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
                 break;
 
             case native.EventAssetsManager.ERROR_UPDATING:
                 tips = "更新资源时出错";
-                LogHelper.error("HotUpdateMgr: " + tips);
-                LogHelper.error("错误信息: " + event.getMessage());
-                LogHelper.error("资源ID: " + event.getAssetId());
-                LogHelper.error("CURL错误码: " + event.getCURLECode());
+                H.log.error("HotUpdateMgr: " + tips);
+                H.log.error("错误信息: " + event.getMessage());
+                H.log.error("资源ID: " + event.getAssetId());
+                H.log.error("CURL错误码: " + event.getCURLECode());
 
                 this.state = HotUpdateState.IDLE; // 重置为空闲状态
 
-                EventMgr.getInstance().emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
+                M.event.emit(CoreEvents.HOT_UPDATE_FAILED, { error: tips });
 
                 // 可以选择下载失败的资源
                 // am.downloadFailedAssets();
@@ -485,41 +481,41 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
 
             default:
                 tips = "未知事件: " + eventCode;
-                LogHelper.warn("HotUpdateMgr: " + tips);
+                H.log.warn("HotUpdateMgr: " + tips);
                 this.emitCallback?.(eventCode, tips);
 
                 break;
         }
 
-        LogHelper.info("热更新状态: " + tips);
+        H.log.info("热更新状态: " + tips);
     }
 
     public async hotUpdate() {
         if (!this.isInit) {
-            LogHelper.warn("HotUpdateMgr: 热更新管理器未初始化");
+            H.log.warn("HotUpdateMgr: 热更新管理器未初始化");
             return;
         }
 
         // 并发保护：检查当前状态
         if (this.state === HotUpdateState.CHECKING) {
-            LogHelper.warn("HotUpdateMgr: 正在检查更新中，请稍候");
+            H.log.warn("HotUpdateMgr: 正在检查更新中，请稍候");
             return;
         }
 
         if (this.state === HotUpdateState.UPDATING) {
-            LogHelper.warn("HotUpdateMgr: 已经在更新中，请勿重复操作");
+            H.log.warn("HotUpdateMgr: 已经在更新中，请勿重复操作");
             return;
         }
 
 
         // 设置为更新状态
         this.state = HotUpdateState.UPDATING;
-        LogHelper.info("开始热更新... [状态: " + this.state + "]");
+        H.log.info("开始热更新... [状态: " + this.state + "]");
 
         await this.initRemoteInfo();
 
         if (this._remoteVersion == this.getCurVersion()) {
-            LogHelper.info("当前版本已是最新版本，无需更新");
+            H.log.info("当前版本已是最新版本，无需更新");
             this.state = HotUpdateState.IDLE; // 重置为空闲状态
             return;
         }
@@ -528,7 +524,7 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
             this.refreshLocalManifest();
             this._nativeAssetManager.update();
         } catch (error) {
-            LogHelper.error("HotUpdateMgr: 启动更新失败", error);
+            H.log.error("HotUpdateMgr: 启动更新失败", error);
             // 失败时重置为空闲状态
             this.state = HotUpdateState.IDLE;
         }
@@ -540,14 +536,14 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
     }
 
     private promptRestart() {
-        LogHelper.info("提示用户重启游戏以应用更新");
+        H.log.info("提示用户重启游戏以应用更新");
         // Prepend the manifest's search path
 
         this._nativeAssetManager.setEventCallback(null!); // 清除事件回调，防止重启后重复触发
 
         var searchPaths = native.fileUtils.getSearchPaths();
         var newPaths = this._nativeAssetManager.getLocalManifest().getSearchPaths();
-        LogHelper.info("搜索路径" + JSON.stringify(newPaths));
+        H.log.info("搜索路径" + JSON.stringify(newPaths));
         Array.prototype.unshift.apply(searchPaths, newPaths);
         // This value will be retrieved and appended to the default search path during game startup,
         // please refer to samples/js-tests/main.js for detailed usage.
@@ -555,7 +551,7 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
         localStorage.setItem('HotUpdateSearchPaths', JSON.stringify(searchPaths));
         native.fileUtils.setSearchPaths(searchPaths);
 
-        LogHelper.info("1秒后重启游戏以应用更新...");
+        H.log.info("1秒后重启游戏以应用更新...");
         setTimeout(() => {
             game.restart();
         }, 1000)

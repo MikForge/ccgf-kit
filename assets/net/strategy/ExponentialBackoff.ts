@@ -1,10 +1,8 @@
 import type { IReconnectStrategy } from 'db://ccgf-kit/net/strategy/IReconnectStrategy';
 import type { ExponentialBackoffConfig } from 'db://ccgf-kit/net/strategy/IExponentialBackoff';
 
-export type { ExponentialBackoffConfig };
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
-import { TimerTaskMgr } from 'db://ccgf-kit/timer/TimerTaskMgr';
+export type { ExponentialBackoffConfig };
 
 /**
  * 指数退避重连策略
@@ -42,7 +40,7 @@ export class ExponentialBackoff implements IReconnectStrategy {
     public reconnect(): void {
         // 检查是否超过最大重连次数
         if (this.maxAttempts > 0 && this.attemptCount >= this.maxAttempts) {
-            LogHelper.warn(`ExponentialBackoff: 已达到最大重连次数 ${this.maxAttempts}，停止重连`);
+            H.log.warn(`ExponentialBackoff: 已达到最大重连次数 ${this.maxAttempts}，停止重连`);
             return;
         }
 
@@ -59,15 +57,15 @@ export class ExponentialBackoff implements IReconnectStrategy {
 
         delay = Math.min(delay, this.maxDelay);
 
-        LogHelper.info(`ExponentialBackoff: 第 ${this.attemptCount} 次重连，延迟 ${Math.round(delay)}ms`);
+        H.log.info(`ExponentialBackoff: 第 ${this.attemptCount} 次重连，延迟 ${Math.round(delay)}ms`);
 
         // 清除之前的定时器
         if (this.timerId) {
-            TimerTaskMgr.getInstance().clearTimeout(this.timerId);
+            M.timeOut.clearTimeout(this.timerId);
         }
 
         // 延迟后执行重连
-        this.timerId = TimerTaskMgr.getInstance().setTimeout(() => {
+        this.timerId = M.timeOut.setTimeout(() => {
             this.reconnectCallback?.();
             // 更新下次延迟时间（指数增长）
             this.currentDelay = Math.min(
@@ -86,11 +84,11 @@ export class ExponentialBackoff implements IReconnectStrategy {
         this.currentDelay = this.initialDelay;
 
         if (this.timerId) {
-            TimerTaskMgr.getInstance().clearTimeout(this.timerId);
+            M.timeOut.clearTimeout(this.timerId);
             this.timerId = null;
         }
 
-        LogHelper.info("ExponentialBackoff: 重置重连状态");
+        H.log.info("ExponentialBackoff: 重置重连状态");
     }
 
     /**

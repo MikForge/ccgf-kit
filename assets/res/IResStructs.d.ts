@@ -24,8 +24,8 @@ export interface LoadResRecord {
 export interface IResArgs<T extends Asset> {
     /** 资源包名 */
     bundle?: string;
-    /** 资源路径 */
-    paths: Paths;
+    /** 资源标识（先查 _resourceMap，命中用映射路径；未命中用原始值作为路径） */
+    pathkey: string;
     /** 资源类型 */
     type: AssetType<T>;
     /** 资源加载进度 */
@@ -40,34 +40,6 @@ export interface IResDirArgs<T extends Asset> {
     bundle?: string;
     /** 资源文件夹路径 */
     dir: string;
-    /** 资源类型 */
-    type: AssetType<T>;
-    /** 资源加载进度 */
-    onProgress?: ProgressCallback;
-    /** 资源加载完成 */
-    onComplete?: CompleteCallback;
-}
-
-/** key-based 加载资源参数（key 替代 paths） */
-export interface IResKeyArgs<T extends Asset> {
-    /** 资源包名 */
-    bundle?: string;
-    /** 资源名称（resource-map.json 第二层 key，即文件名无扩展名） */
-    key: string;
-    /** 资源类型 */
-    type: AssetType<T>;
-    /** 资源加载进度 */
-    onProgress?: ProgressCallback;
-    /** 资源加载完成 */
-    onComplete?: CompleteCallback;
-}
-
-/** key-based 加载目录资源参数（key 替代 dir） */
-export interface IResDirKeyArgs<T extends Asset> {
-    /** 资源包名 */
-    bundle?: string;
-    /** 目录名称（resource-map.json 第二层 key，指向目录路径） */
-    key: string;
     /** 资源类型 */
     type: AssetType<T>;
     /** 资源加载进度 */

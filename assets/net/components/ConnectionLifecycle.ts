@@ -3,7 +3,6 @@ import type { NetData } from 'db://ccgf-kit/net/defines/net-structs';
 import type { ISocket } from 'db://ccgf-kit/net/base/ISocket';
 import { SocketEvent } from 'db://ccgf-kit/net/base/ISocket.enum';
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 /**
  * 连接生命周期管理器
  * 职责：管理底层网络适配器的事件监听和回调转发
@@ -35,12 +34,12 @@ export class ConnectionLifecycle {
      */
     public init(): void {
         if (this.initialized) {
-            LogHelper.warn("ConnectionLifecycle: 已经初始化过了");
+            H.log.warn("ConnectionLifecycle: 已经初始化过了");
             return;
         }
 
         if (!this.net) {
-            LogHelper.error("ConnectionLifecycle: AppProtocolAdapter is null.");
+            H.log.error("ConnectionLifecycle: AppProtocolAdapter is null.");
             return;
         }
 

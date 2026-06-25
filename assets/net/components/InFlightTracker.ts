@@ -1,6 +1,5 @@
 import type { RequestObject } from 'db://ccgf-kit/net/defines/net-structs';
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 import type { InFlightRequest } from 'db://ccgf-kit/net/components/IInFlightTracker';
 
 /**
@@ -34,7 +33,7 @@ export class InFlightTracker {
         }
         if (!req.onError) {
             req.onError = (err: Error) => {
-                LogHelper.error("InFlightTracker: request error", err);
+                H.log.error("InFlightTracker: request error", err);
                 this.removeRequest(req.request.rspCmd);
             }
         }

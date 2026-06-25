@@ -1,4 +1,4 @@
-import { Node, Camera, Constructor, instantiate } from "cc";
+import { Node, Camera, Constructor, instantiate, Prefab } from "cc";
 // import { LayerContainerType, LayerType, UIType } from "db://ccgf-kit/types/ui-layer.enum";
 import type { UIConfigMap, UIViewConfig, UIOpenParams } from 'db://ccgf-kit/gui/IUiStructs';
 import { UIGameLayerNode } from 'db://ccgf-kit/gui/impl/UIGameLayerNode';
@@ -11,9 +11,7 @@ import { utils } from 'db://ccgf-kit/utils/utils';
 import { Singleton } from 'db://ccgf-kit/common/Singleton';
 import { UIRegistry } from "db://ccgf-kit/decorators/UIRegistry";
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 import { UIHelper } from 'db://ccgf-kit/gui/UIHelper';
-import { ResMgr } from 'db://ccgf-kit/res/ResMgr';
 
 
 
@@ -75,7 +73,7 @@ export class UIMgr extends Singleton<UIMgr> {
             }
 
             const containerTypeName = UIHelper.layerMap[layerType] || 'None';
-            LogHelper.debug(`[UIMgr] Created layer: ${layerName} (LayerType: ${LayerType[layerType]}, Container: ${containerTypeName})`);
+            H.log.debug(`[UIMgr] Created layer: ${layerName} (LayerType: ${LayerType[layerType]}, Container: ${containerTypeName})`);
         }
     }
 
@@ -93,7 +91,7 @@ export class UIMgr extends Singleton<UIMgr> {
         const uiConfig: UIViewConfig | null = UIRegistry.getInstance().getConfigByViewId(viewId);
 
         if (!uiConfig) {
-            LogHelper.error(`UI 配置未找到: ${viewId}`);
+            H.log.error(`UI 配置未找到: ${viewId}`);
             return null;
         }
 
@@ -103,7 +101,7 @@ export class UIMgr extends Singleton<UIMgr> {
         let layerNode = this.uiLayersMap.get(layerName);
 
         if (!layerNode) {
-            LogHelper.error(`UI 层未找到: ${layerName} for viewId: ${viewId}`);
+            H.log.error(`UI 层未找到: ${layerName} for viewId: ${viewId}`);
             return null;
         }
 
@@ -113,7 +111,7 @@ export class UIMgr extends Singleton<UIMgr> {
         let node = await layerNode.addView(uiInfo);
 
         if (!node) {
-            LogHelper.error(`UI 打开失败: ${viewId} on layer: ${layerName}`);
+            H.log.error(`UI 打开失败: ${viewId} on layer: ${layerName}`);
             return Promise.reject(`UI 打开失败: ${viewId} on layer: ${layerName}`);
         }
 
@@ -126,14 +124,14 @@ export class UIMgr extends Singleton<UIMgr> {
         const uiConfig: UIViewConfig | null = UIRegistry.getInstance().getConfigByViewId(viewId);
 
         if (!uiConfig) {
-            LogHelper.error(`UI 配置未找到: ${viewId}`);
+            H.log.error(`UI 配置未找到: ${viewId}`);
             return;
         }
 
         const layerName = LayerType[uiConfig.layer];
         let layerNode = this.uiLayersMap.get(layerName);
         if (!layerNode) {
-            LogHelper.error(`UI 层未找到: ${layerName} for viewId: ${viewId}`);
+            H.log.error(`UI 层未找到: ${layerName} for viewId: ${viewId}`);
             return;
         }
 
@@ -148,7 +146,7 @@ export class UIMgr extends Singleton<UIMgr> {
     public refresh(viewId: string, data: any): void {
         const uiConfig: UIViewConfig | null = UIRegistry.getInstance().getConfigByViewId(viewId);
         if (!uiConfig) {
-            LogHelper.warn(`UI 配置未找到（refresh）: ${viewId}`);
+            H.log.warn(`UI 配置未找到（refresh）: ${viewId}`);
             return;
         }
         const layerName = LayerType[uiConfig.layer];
@@ -164,12 +162,12 @@ export class UIMgr extends Singleton<UIMgr> {
         data?: any,
         viewId?: string,
     ): Promise<Node | null> {
-        const prefab = await ResMgr.getInstance().loadPrefab(key, bundle);
+        const prefab = await M.res.loadPrefab({ pathkey: key, bundle, type: Prefab });
         if (!prefab) return null;
 
         if (!viewCtor) {
-            LogHelper.error(`[UIMgr] loadView: viewCtor 为空，key: ${key}`);
-            ResMgr.getInstance().releasePrefabByKey(key, bundle);
+            H.log.error(`[UIMgr] loadView: viewCtor 为空，key: ${key}`);
+            M.res.release({ pathkey: key, bundle, type: Prefab });
             return null;
         }
 
@@ -183,7 +181,7 @@ export class UIMgr extends Singleton<UIMgr> {
 
         if (!ok) {
             node.destroy();
-            ResMgr.getInstance().releasePrefabByKey(key, bundle);
+            M.res.release({ pathkey: key, bundle, type: Prefab });
             return null;
         }
 
@@ -204,12 +202,12 @@ export class UIMgr extends Singleton<UIMgr> {
         compCls: Constructor<T>,
         data?: any
     ): Promise<Node | null> {
-        const prefab = await ResMgr.getInstance().loadPrefab(key, bundle);
+        const prefab = await M.res.loadPrefab({ pathkey: key, bundle, type: Prefab });
         if (!prefab) return null;
 
         if (!compCls) {
-            LogHelper.error(`[UIMgr] loadSubComp: compCls 为空，key: ${key}`);
-            ResMgr.getInstance().releasePrefabByKey(key, bundle);
+            H.log.error(`[UIMgr] loadSubComp: compCls 为空，key: ${key}`);
+            M.res.release({ pathkey: key, bundle, type: Prefab });
             return null;
         }
 
@@ -222,7 +220,7 @@ export class UIMgr extends Singleton<UIMgr> {
 
         if (!ok) {
             node.destroy();
-            ResMgr.getInstance().releasePrefabByKey(key, bundle);
+            M.res.release({ pathkey: key, bundle, type: Prefab });
             return null;
         }
 
@@ -235,6 +233,6 @@ export class UIMgr extends Singleton<UIMgr> {
      * @param bundle 资源包名
      */
     public releaseSubNode(key: string, bundle: string): void {
-        ResMgr.getInstance().releasePrefabByKey(key, bundle);
+        M.res.release({ pathkey: key, bundle, type: Prefab });
     }
 }

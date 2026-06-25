@@ -3,7 +3,6 @@ import type { NetConnectOptions, NetData } from 'db://ccgf-kit/net/defines/net-s
 import { BaseSocket } from 'db://ccgf-kit/net/base/BaseSocket';
 import { SocketEvent } from 'db://ccgf-kit/net/base/ISocket.enum';
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 /**
  * WebSocket协议适配器
  */
@@ -13,12 +12,12 @@ export class CocosWebSocketImpl extends BaseSocket {
 
     public connect(options: NetConnectOptions): boolean {
         if (this._ws && this._ws.readyState === WebSocket.CONNECTING) {
-            LogHelper.warn("CocosWebSocketImpl" + ": WebSocket is already connecting.");
+            H.log.warn("CocosWebSocketImpl" + ": WebSocket is already connecting.");
             return false;
         }
 
         if (this._ws && this._ws.readyState === WebSocket.OPEN) {
-            LogHelper.warn("CocosWebSocketImpl" + ": WebSocket is already open.");
+            H.log.warn("CocosWebSocketImpl" + ": WebSocket is already open.");
             return false;
         }
 
@@ -36,7 +35,7 @@ export class CocosWebSocketImpl extends BaseSocket {
             this._ws.onerror = (ev: Event) => { this.emit(SocketEvent.ERROR, ev); };
             this._ws.onmessage = (ev: MessageEvent) => { this.emit(SocketEvent.MESSAGE, ev.data); };
         } catch (error) {
-            LogHelper.error("CocosWebSocketImpl: connect failed, create WebSocket error.", handledUrl, error);
+            H.log.error("CocosWebSocketImpl: connect failed, create WebSocket error.", handledUrl, error);
             return false;
         }
 
@@ -46,7 +45,7 @@ export class CocosWebSocketImpl extends BaseSocket {
     public close(code?: number, reason?: string): void {
 
         if (!this._ws) {
-            LogHelper.warn("CocosWebSocketImpl: close called but WebSocket is not initialized.");
+            H.log.warn("CocosWebSocketImpl: close called but WebSocket is not initialized.");
             return;
         }
 
@@ -58,7 +57,7 @@ export class CocosWebSocketImpl extends BaseSocket {
 
     public send(data: NetData): boolean {
         if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
-            LogHelper.error("CocosWebSocketImpl: send failed, WebSocket is not open.");
+            H.log.error("CocosWebSocketImpl: send failed, WebSocket is not open.");
             return false;
         }
 
@@ -75,18 +74,18 @@ export class CocosWebSocketImpl extends BaseSocket {
         }
 
         if (!handledUrl) {
-            LogHelper.error("CocosWebSocketImpl: connect failed, invalid url.", handledUrl);
+            H.log.error("CocosWebSocketImpl: connect failed, invalid url.", handledUrl);
         }
 
         if (handledUrl.indexOf("ws://") !== 0 && handledUrl.indexOf("wss://") !== 0) {
-            LogHelper.error("CocosWebSocketImpl: connect failed, url must start with ws:// or wss://", handledUrl);
+            H.log.error("CocosWebSocketImpl: connect failed, url must start with ws:// or wss://", handledUrl);
             handledUrl = null;
         }
 
         try {
             new URL(handledUrl);
         } catch (error) {
-            LogHelper.error("CocosWebSocketImpl: connect failed, invalid url.", handledUrl, error);
+            H.log.error("CocosWebSocketImpl: connect failed, invalid url.", handledUrl, error);
             handledUrl = null;
         }
 

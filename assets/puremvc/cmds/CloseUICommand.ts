@@ -1,7 +1,5 @@
 import { SimpleCommand, INotification } from 'db://ccgf-kit/libs/puremvc/index';
-import { UIMgr } from 'db://ccgf-kit/gui/UIMgr';
 import { UIRegistry } from 'db://ccgf-kit/decorators/UIRegistry';
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 import { registerCmd } from 'db://ccgf-kit/decorators/RegisterCmd';
 import type { UIViewConfig } from 'db://ccgf-kit/gui/IUiStructs';
 import { CmdEnum } from 'db://ccgf-kit/puremvc/cmds/cmd.enum';
@@ -25,13 +23,13 @@ export default class CloseUICommand extends SimpleCommand {
             if (this.facade.hasMediator(mediatorName)) {
                 this.facade.removeMediator(mediatorName);
             } else {
-                LogHelper.warn(`尝试移除 Mediator ${mediatorName}，但它未注册。`);
+                H.log.warn(`尝试移除 Mediator ${mediatorName}，但它未注册。`);
             }
         } else {
-            LogHelper.warn(`UI 配置错误: 无法找到 ViewId ${uiName} 的配置或 meditorCls。`);
+            H.log.warn(`UI 配置错误: 无法找到 ViewId ${uiName} 的配置或 meditorCls。`);
         }
 
         // 再关闭 UI
-        UIMgr.getInstance().close(uiName);
+        M.ui.close(uiName);
     }
 }

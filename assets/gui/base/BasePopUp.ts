@@ -1,7 +1,5 @@
 import { _decorator, Prefab, Node, isValid } from 'cc';
 import { BaseView } from 'db://ccgf-kit/gui/base/BaseView';
-import { UIMgr } from 'db://ccgf-kit/gui/UIMgr';
-import { ResMgr } from 'db://ccgf-kit/res/ResMgr';
 import { UIHelper } from 'db://ccgf-kit/gui/UIHelper';
 import { CoreHelper } from '../../core/CoreHelper';
 
@@ -21,7 +19,7 @@ export class BasePopUp extends BaseView {
 
         if (this._maskNode && isValid(this._maskNode)) {
             this.bindButton(this._maskNode, () => {
-                UIMgr.getInstance().close(this.viewId);
+                M.ui.close(this.viewId);
             });
         }
 
@@ -33,7 +31,7 @@ export class BasePopUp extends BaseView {
 
         let maskPrefab: Prefab | null = null;
         try {
-            maskPrefab = await ResMgr.getInstance().loadPrefab('ComMask', 'resources');
+            maskPrefab = await M.res.loadPrefab('ComMask', 'resources');
         } catch {
             maskPrefab = null;
         }

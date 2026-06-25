@@ -3,8 +3,6 @@ import { HttpEvent, HttpMethod, HttpReadyState, HttpServer, HttpStatus } from 'd
 import type { HttpRequestCfg, HttpCallback, RetryConfig, HttpRequestInterceptor, HttpResponseInterceptor } from 'db://ccgf-kit/net-http/defines/IHttpStructs';
 import { HttpReturn } from 'db://ccgf-kit/net-http/defines/http-structs';
 
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
-
 /**
  * HTTP客户端
  * TODO:
@@ -92,7 +90,7 @@ export class HttpClient extends Singleton<HttpClient> {
             if (interceptor.onRequest) {
                 modifiedCfg = interceptor.onRequest(modifiedCfg);
                 if (!modifiedCfg) {
-                    LogHelper.error("请求拦截器返回了无效的请求配置，已中止请求");
+                    H.log.error("请求拦截器返回了无效的请求配置，已中止请求");
                     return null;
                 }
             }

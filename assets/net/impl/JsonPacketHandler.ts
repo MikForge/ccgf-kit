@@ -1,6 +1,5 @@
 import type { NetData } from 'db://ccgf-kit/net/defines/net-structs';
 import type { IPacketHandler, IRequestPacket, IResponsePacket } from 'db://ccgf-kit/net/base/IPacketHandler';
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 
 /**
  * JSON协议包处理器
@@ -54,7 +53,7 @@ export class JsonPacketHandler implements IPacketHandler {
      */
     private parseHeader(data: NetData): PacketHeader | null {
         if (typeof data === 'string') {
-            LogHelper.error("JsonPacketHandler", "parseHeader: Data should not be string type.");
+            H.log.error("JsonPacketHandler", "parseHeader: Data should not be string type.");
             return null;
         }
 
@@ -66,12 +65,12 @@ export class JsonPacketHandler implements IPacketHandler {
         } else if (ArrayBuffer.isView(data)) {
             uint8Data = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
         } else {
-            LogHelper.error("JsonPacketHandler", "parseHeader: Unsupported data type.");
+            H.log.error("JsonPacketHandler", "parseHeader: Unsupported data type.");
             return null;
         }
 
         if (uint8Data.length < this.getHeadlen()) {
-            LogHelper.error("JsonPacketHandler", "parseHeader: Data length is less than header length.");
+            H.log.error("JsonPacketHandler", "parseHeader: Data length is less than header length.");
             return null;
         }
 
@@ -135,13 +134,13 @@ export class JsonPacketHandler implements IPacketHandler {
 
         // 验证魔数
         if (header.magicNumber !== this.MAGIC_NUMBER) {
-            LogHelper.error("JsonPacketHandler", "checkPackage: Invalid magic number.");
+            H.log.error("JsonPacketHandler", "checkPackage: Invalid magic number.");
             return false;
         }
 
         // 验证版本号
         if (header.version !== this.VERSION) {
-            LogHelper.error("JsonPacketHandler", "checkPackage: Unsupported version.");
+            H.log.error("JsonPacketHandler", "checkPackage: Unsupported version.");
             return false;
         }
 
@@ -169,7 +168,7 @@ export class JsonPacketHandler implements IPacketHandler {
             try {
                 jsonString = JSON.stringify(packet.data);
             } catch (error) {
-                LogHelper.error("JsonPacketHandler", "encodeRequest: Failed to stringify data:", error);
+                H.log.error("JsonPacketHandler", "encodeRequest: Failed to stringify data:", error);
                 return null;
             }
         } else {
@@ -217,19 +216,19 @@ export class JsonPacketHandler implements IPacketHandler {
         // 1. 解析包头
         const header = this.parseHeader(data);
         if (!header) {
-            LogHelper.error("JsonPacketHandler", "decodeResponse: Failed to parse header.");
+            H.log.error("JsonPacketHandler", "decodeResponse: Failed to parse header.");
             return null;
         }
 
         // 2. 验证魔数
         if (header.magicNumber !== this.MAGIC_NUMBER) {
-            LogHelper.error("JsonPacketHandler", "decodeResponse: Invalid magic number.");
+            H.log.error("JsonPacketHandler", "decodeResponse: Invalid magic number.");
             return null;
         }
 
         // 3. 验证版本号
         if (header.version !== this.VERSION) {
-            LogHelper.error("JsonPacketHandler", "decodeResponse: Unsupported version.");
+            H.log.error("JsonPacketHandler", "decodeResponse: Unsupported version.");
             return null;
         }
 
@@ -242,14 +241,14 @@ export class JsonPacketHandler implements IPacketHandler {
         } else if (ArrayBuffer.isView(data)) {
             uint8Data = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
         } else {
-            LogHelper.error("JsonPacketHandler", "decodeResponse: Unsupported data type.");
+            H.log.error("JsonPacketHandler", "decodeResponse: Unsupported data type.");
             return null;
         }
 
         const bodyOffset = this.getHeadlen();
 
         if (uint8Data.length < bodyOffset + header.messageLength) {
-            LogHelper.error("JsonPacketHandler", "decodeResponse: Incomplete message body.");
+            H.log.error("JsonPacketHandler", "decodeResponse: Incomplete message body.");
             return null;
         }
 
@@ -264,7 +263,7 @@ export class JsonPacketHandler implements IPacketHandler {
             try {
                 messageData = JSON.parse(jsonString);
             } catch (error) {
-                LogHelper.error("JsonPacketHandler", "decodeResponse: Failed to parse JSON:", error);
+                H.log.error("JsonPacketHandler", "decodeResponse: Failed to parse JSON:", error);
                 return null;
             }
         }

@@ -6,10 +6,7 @@ import { WxMiniSdkPlatform } from 'db://ccgf-kit/sdk/impl/WxMiniSdkPlatform';
 import { NativeSdkPlatform } from 'db://ccgf-kit/sdk/impl/NativeSdkPlatform';
 import { WebSdkPlatform } from 'db://ccgf-kit/sdk/impl/WebSdkPlatform';
 import { Singleton } from 'db://ccgf-kit/common/Singleton';
-import { EventMgr } from 'db://ccgf-kit/event/EventMgr';
 import { CoreEvents } from 'db://ccgf-kit/event/CoreEvents.enum';
-
-import { LogHelper } from 'db://ccgf-kit/helper/LogHelper';
 export class SdkMgr extends Singleton<SdkMgr> {
 
     private _platform!: ISdkPlatform;
@@ -18,19 +15,19 @@ export class SdkMgr extends Singleton<SdkMgr> {
     /** 初始化：选平台 + 调平台 init */
     async init(): Promise<void> {
         if (this._inited) {
-            EventMgr.getInstance().emit(CoreEvents.SDK_INIT_READY);
+            M.event.emit(CoreEvents.SDK_INIT_READY);
             return;
         }
 
         try {
             this._platform = this.detectPlatform();
-            LogHelper.info('[SDK] use platform:' + this._platform.name);
+            H.log.info('[SDK] use platform:' + this._platform.name);
             await this._platform.init();
             this._inited = true;
-            EventMgr.getInstance().emit(CoreEvents.SDK_INIT_READY);
+            M.event.emit(CoreEvents.SDK_INIT_READY);
         } catch (e) {
-            LogHelper.error('[SDK] init failed:', e);
-            EventMgr.getInstance().emit(CoreEvents.SDK_INIT_FAILED, { error: String(e) });
+            H.log.error('[SDK] init failed:', e);
+            M.event.emit(CoreEvents.SDK_INIT_FAILED, { error: String(e) });
         }
     }
 
@@ -51,11 +48,11 @@ export class SdkMgr extends Singleton<SdkMgr> {
         if (!this._inited) await this.init();
         try {
             const credential = await this._platform.login();
-            EventMgr.getInstance().emit(CoreEvents.SDK_LOGIN_SUCCESS, { credential });
+            M.event.emit(CoreEvents.SDK_LOGIN_SUCCESS, { credential });
             return credential;
         } catch (e: any) {
             const canceled = e?.canceled === true || e?.code === 'USER_CANCEL';
-            EventMgr.getInstance().emit(CoreEvents.SDK_LOGIN_FAILED, {
+            M.event.emit(CoreEvents.SDK_LOGIN_FAILED, {
                 error: canceled ? '用户取消授权' : String(e),
                 canceled,
             });
@@ -76,7 +73,7 @@ export class SdkMgr extends Singleton<SdkMgr> {
     trackEvent(data: TrackEventPayload) {
         if (!this._inited) {
             // 简单做法：没初始化就先丢日志，或者缓存起来
-            LogHelper.warn(`[SDK] trackEvent before init: ${data.event}` + JSON.stringify(data));
+            H.log.warn(`[SDK] trackEvent before init: ${data.event}` + JSON.stringify(data));
             return;
         }
         this._platform.trackEvent(data);
