@@ -130,6 +130,35 @@ export class UIComptBase extends Component implements IUILifecycle {
     }
 
     /**
+     * 按名称绑定按钮 — 先查 UIContainer 绑定表，查不到则递归搜索子节点（嵌套预制体降级）
+     */
+    public bindButtonByName(
+        nodeName: string,
+        callback: (event?: EventTouch) => void,
+        thisArg?: any,
+        opts?: { sound?: boolean | string; cooldown?: number },
+    ): void {
+        let node = this._v_nodes[nodeName];
+        if (!node) {
+            node = UIComptBase._findNodeByName(this.node, nodeName)
+                ?? UIComptBase._findNodeByName(this.node, '$' + nodeName);
+        }
+        if (node) {
+            this.bindButton(node, callback, opts, thisArg);
+        }
+    }
+
+    /** DFS 按名称查找子节点 */
+    private static _findNodeByName(root: Node, name: string): Node | null {
+        for (const child of root.children) {
+            if (child.name === name) return child;
+            const found = UIComptBase._findNodeByName(child, name);
+            if (found) return found;
+        }
+        return null;
+    }
+
+    /**
      * 清理所有事件监听
      */
     private _clearAllEventListeners(): void {
