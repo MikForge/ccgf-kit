@@ -1,5 +1,5 @@
-import { HttpRequestCfg, HttpRequestInterceptor, HttpResponseInterceptor } from "../defines/IHttpStructs";
-import { HttpReturn } from "../defines/http-structs";
+import { HttpRequestCfg, HttpRequestInterceptor, HttpResponseInterceptor } from 'db://ccgf-kit/net-http/defines/IHttpStructs';
+import { HttpReturn } from 'db://ccgf-kit/net-http/defines/http-structs';
 
 
 

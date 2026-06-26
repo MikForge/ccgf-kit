@@ -1,5 +1,5 @@
 
-import { Asset, game, native, sys } from "cc";
+import { Asset, game, JsonAsset, native, sys } from "cc";
 import { CoreEvents } from 'db://ccgf-kit/event/CoreEvents.enum';
 import { utils } from 'db://ccgf-kit/utils/utils';
 import { HotUpdateState } from 'db://ccgf-kit/cchotupdate/hotupdate.enum';
@@ -69,9 +69,9 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
         }
 
         const _asset = await M.res.load({
-            paths: "project",
-            type: Asset,
-        }) as Asset;
+            pathkey: "project",
+            type: JsonAsset,
+        });
 
         if (_asset) {
             this._localManifestUrl = _asset.nativeUrl;
