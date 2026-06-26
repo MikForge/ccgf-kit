@@ -24,6 +24,7 @@ type UINodesOf<T> =
 export class UIComptBase extends Component implements IUILifecycle {
 
     private _v_uiContainer: UIContainer | null = null;
+    
     private _v_nodes: Record<string, Node> = Object.create(null);
     private _v_compts: Record<string, Component> = Object.create(null);
 
@@ -46,12 +47,17 @@ export class UIComptBase extends Component implements IUILifecycle {
     /** 按钮连击冷却记录 */
     private _lastClickTime: Map<Node, number> = new Map();
 
+    /** 摊平的子节点映射（递归所有子孙），用于 O(1) 按名查找 */
+    private _nodeMap: Map<string, Node> = new Map();
+
     // ── IUILifecycle 默认空实现 ──
 
     ui_on_preload(): void {}
 
     async ui_on_init(data: any): Promise<boolean> {
         this._bindUIContainer();
+        this._nodeMap = new Map();
+        this._buildNodeMap(this.node);
         return true;
     }
 
@@ -64,7 +70,6 @@ export class UIComptBase extends Component implements IUILifecycle {
     ui_before_destroy(): void {}
 
     ui_on_destroy(): void {
-        this._clearAllEventListeners();
     }
 
     // ── 事件绑定 ──
@@ -128,7 +133,7 @@ export class UIComptBase extends Component implements IUILifecycle {
     }
 
     /**
-     * 按名称绑定按钮 — 先查 UIContainer 绑定表，查不到则递归搜索子节点（嵌套预制体降级）
+     * 按名称绑定按钮 — 从摊平的 _nodeMap 中按名查找节点
      */
     public bindButtonByName(
         nodeName: string,
@@ -136,24 +141,11 @@ export class UIComptBase extends Component implements IUILifecycle {
         thisArg?: any,
         opts?: { sound?: boolean | string; cooldown?: number },
     ): void {
-        let node = this._v_nodes[nodeName];
-        if (!node) {
-            node = UIComptBase._findNodeByName(this.node, nodeName)
-                ?? UIComptBase._findNodeByName(this.node, '$' + nodeName);
-        }
+        let node = this._nodeMap.get(nodeName)
+            ?? this._nodeMap.get('$' + nodeName);
         if (node) {
             this.bindButton(node, callback, opts, thisArg);
         }
-    }
-
-    /** DFS 按名称查找子节点 */
-    private static _findNodeByName(root: Node, name: string): Node | null {
-        for (const child of root.children) {
-            if (child.name === name) return child;
-            const found = UIComptBase._findNodeByName(child, name);
-            if (found) return found;
-        }
-        return null;
     }
 
     /**
@@ -168,6 +160,19 @@ export class UIComptBase extends Component implements IUILifecycle {
         this._eventListeners = [];
     }
 
+    /** 递归摊平所有子节点到 _nodeMap，重复名报警 */
+    private _buildNodeMap(root: Node): void {
+        for (const child of root.children) {
+            if (child.name) {
+                if (this._nodeMap.has(child.name)) {
+                    H.log.warn(`[UIComptBase] 重复节点名: ${child.name}`);
+                }
+                this._nodeMap.set(child.name, child);
+            }
+            this._buildNodeMap(child);
+        }
+    }
+
     // ── 内部绑定 ──
 
     private _bindUIContainer(): void {
@@ -178,5 +183,12 @@ export class UIComptBase extends Component implements IUILifecycle {
         this._v_uiContainer.parse_compt();
         this._v_nodes = this._v_uiContainer.nodeDict;
         this._v_compts = this._v_uiContainer.comptDict;
+    }
+
+
+    protected onDestroy(): void {
+        this._nodeMap.clear();
+        this._clearAllEventListeners();
+
     }
 }
