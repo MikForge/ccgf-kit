@@ -1,5 +1,6 @@
 import { _decorator, Component, Node, EventTouch } from 'cc';
-import type { IUILifecycle, UIOpenParams } from 'db://ccgf-kit/gui/IUiStructs';
+import { CCGFComponent } from 'db://ccgf-kit/core/CCGFComponent';
+import type { UIOpenParams } from 'db://ccgf-kit/gui/IUiStructs';
 import { UIContainer } from 'db://ccgf-kit/gui/impl/UIContainer';
 
 const { ccclass } = _decorator;
@@ -17,14 +18,19 @@ type UINodesOf<T> =
 /**
  * UI 子视图基类
  * - 提供 UIContainer 节点/组件绑定（v_nodes / v_compts）
- * - 实现 IUILifecycle，所有钩子默认空实现，子类按需重写
- * - 不提供 registerSubView，子视图注册由 BaseView 统一管理
+ * - 提供 ui_on_* 生命周期钩子默认空实现，子类按需重写
  */
 @ccclass('UIComptBase')
-export class UIComptBase extends Component implements IUILifecycle {
+export class UIComptBase extends CCGFComponent {
+
+
+    protected onLoad(): void {
+        super.onLoad()
+        this._bindUIContainer()
+    }
 
     private _v_uiContainer: UIContainer | null = null;
-    
+
     private _v_nodes: Record<string, Node> = Object.create(null);
     private _v_compts: Record<string, Component> = Object.create(null);
 
@@ -47,30 +53,6 @@ export class UIComptBase extends Component implements IUILifecycle {
     /** 按钮连击冷却记录 */
     private _lastClickTime: Map<Node, number> = new Map();
 
-    /** 摊平的子节点映射（递归所有子孙），用于 O(1) 按名查找 */
-    private _nodeMap: Map<string, Node> = new Map();
-
-    // ── IUILifecycle 默认空实现 ──
-
-    ui_on_preload(): void {}
-
-    async ui_on_init(data: any): Promise<boolean> {
-        this._bindUIContainer();
-        this._nodeMap = new Map();
-        this._buildNodeMap(this.node);
-        return true;
-    }
-
-    ui_on_show(data?: any): void {}
-
-    ui_on_hide(): void {}
-
-    ui_on_refresh(data: any): void {}
-
-    ui_before_destroy(): void {}
-
-    ui_on_destroy(): void {
-    }
 
     // ── 事件绑定 ──
 
@@ -91,7 +73,6 @@ export class UIComptBase extends Component implements IUILifecycle {
             H.log.warn(`[UIComptBase] bindEvent: target is null`);
             return;
         }
-
         target.on(eventType, callback, thisArg);
         this._eventListeners.push({ target, eventType, callback, thisArg });
     }
@@ -107,8 +88,8 @@ export class UIComptBase extends Component implements IUILifecycle {
     public bindButton(
         node: Node,
         callback: (event?: EventTouch) => void,
-        opts?: { sound?: boolean | string; cooldown?: number },
         thisArg?: any,
+        opts?: { sound?: boolean | string; cooldown?: number },
     ): void {
         const cooldown = opts?.cooldown ?? 500;
 
@@ -160,19 +141,6 @@ export class UIComptBase extends Component implements IUILifecycle {
         this._eventListeners = [];
     }
 
-    /** 递归摊平所有子节点到 _nodeMap，重复名报警 */
-    private _buildNodeMap(root: Node): void {
-        for (const child of root.children) {
-            if (child.name) {
-                if (this._nodeMap.has(child.name)) {
-                    H.log.warn(`[UIComptBase] 重复节点名: ${child.name}`);
-                }
-                this._nodeMap.set(child.name, child);
-            }
-            this._buildNodeMap(child);
-        }
-    }
-
     // ── 内部绑定 ──
 
     private _bindUIContainer(): void {
@@ -187,8 +155,9 @@ export class UIComptBase extends Component implements IUILifecycle {
 
 
     protected onDestroy(): void {
-        this._nodeMap.clear();
+        super.onDestroy();
         this._clearAllEventListeners();
-
+        this._v_compts = null!;
+        this._v_nodes = null!;
     }
 }

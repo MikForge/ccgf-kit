@@ -1,16 +1,7 @@
 import { Layers, Node, Widget, Prefab, instantiate } from "cc";
-import { LayerContainerType, LayerType } from 'db://ccgf-kit/gui/UILayer.enum';
 
 /** 界面层辅助工具 */
 export class UIHelper {
-
-    public static layerMap: Partial<Record<LayerType, LayerContainerType>> = {
-        [LayerType.UIScene]: LayerContainerType.Multi,
-        [LayerType.PopUp]: LayerContainerType.Multi,
-        [LayerType.Notify]: LayerContainerType.Single,
-        [LayerType.Guide]: LayerContainerType.Single,
-        [LayerType.Top]: LayerContainerType.Single,
-    }
 
     /**
      * 实例化 prefab 并作为 parent 第一个子节点插入
@@ -33,7 +24,7 @@ export class UIHelper {
         const widget: Widget = node.addComponent(Widget);
         widget.isAlignLeft = widget.isAlignRight = widget.isAlignTop = widget.isAlignBottom = true;
         widget.left = widget.right = widget.top = widget.bottom = 0;
-        widget.alignMode = 2;
+        widget.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE;
         widget.enabled = true;
 
         node.layer = Layers.Enum.UI_2D;

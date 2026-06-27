@@ -1,10 +1,11 @@
-import { Node, Prefab } from "cc";
+import { instantiate, Node, Prefab } from "cc";
 import { UIHelper } from "db://ccgf-kit/gui/UIHelper";
+import { Stack } from "db://ccgf-kit/utils/struct/Stack";
 import { BaseView } from "db://ccgf-kit/gui/base/BaseView";
 import { UIViewState } from "db://ccgf-kit/gui/base/UIViewState";
-import { LayerContainerType } from "db://ccgf-kit/gui/UILayer.enum";
 
 import { UIRegistry } from 'db://ccgf-kit/decorators/UIRegistry';
+
 export class UILayerNodeBase extends Node {
 
     onOpenFailure: Function = null!;
@@ -12,21 +13,12 @@ export class UILayerNodeBase extends Node {
     protected ui_nodes = new Map<string, UIViewState>();
     protected nodeMap = new Map<string, Node>();
     protected hiddenNodes = new Map<string, Node>();
-    protected uiStack: string[] = [];
-    protected maxNodes: number = -1;
-    protected containerType: LayerContainerType;
-    protected enableStack: boolean = false;
-    private _pendingSet: Set<string> = new Set();
+    protected uiStack: Stack<string> = new Stack<string>();
 
     constructor(
-        name: string,
-        containerType: LayerContainerType = LayerContainerType.Multi,
-        enableStack: boolean = false
+        name: string
     ) {
         super(name);
-        this.containerType = containerType;
-        this.maxNodes = containerType === LayerContainerType.Single ? 1 : -1;
-        this.enableStack = enableStack;
         UIHelper.setFullScreen(this);
         this.on(Node.EventType.CHILD_ADDED, this.onChildAdded, this);
         this.on(Node.EventType.CHILD_REMOVED, this.onChildRemoved, this);
@@ -38,12 +30,6 @@ export class UILayerNodeBase extends Node {
     public async addView(uiInfo: UIViewState): Promise<Node> {
         const viewId = uiInfo.viewId;
 
-        // B1: 竞态防护——prefab 加载期间拦截重复请求
-        if (this._pendingSet.has(viewId)) {
-            H.log.debug(`界面正在加载中，忽略重复请求: ${viewId}`);
-            return null!;
-        }
-
         if (this.hiddenNodes.has(viewId)) {
             H.log.debug(`从隐藏池恢复界面: ${viewId}`);
             return this.restoreView(viewId);
@@ -52,27 +38,12 @@ export class UILayerNodeBase extends Node {
         if (this.nodeMap.has(viewId)) {
             const node = this.nodeMap.get(viewId)!;
             H.log.debug(`界面已存在，提升到栈顶: ${viewId}`);
-            if (this.enableStack) this.pushToStack(viewId);
+            this.pushToStack(viewId);
             node.active = true;
             return node;
         }
 
-        if (this.maxNodes === 1 && this.nodeMap.size >= 1) {
-            const oldKey = this.nodeMap.keys().next().value;
-            H.log.debug(`单例层：隐藏旧界面 ${oldKey}`);
-            this.hideView(oldKey);
-        }
-
-        // B1: 标记加载中；finally 确保无论成功/失败都清除
-        this._pendingSet.add(viewId);
-
-        let node: Node;
-
-        try {
-            node = await this.load(uiInfo);
-        } finally {
-            this._pendingSet.delete(viewId);
-        }
+        const node = await this.load(uiInfo);
 
         // B3: load 失败时 node 为 null，不写入 Map
         if (!node) return null!;
@@ -81,7 +52,7 @@ export class UILayerNodeBase extends Node {
 
         this.nodeMap.set(viewId, node);
 
-        if (this.enableStack) this.pushToStack(viewId);
+        this.pushToStack(viewId);
 
         return node;
     }
@@ -92,14 +63,12 @@ export class UILayerNodeBase extends Node {
         const node = this.nodeMap.get(viewId) ?? this.hiddenNodes.get(viewId);
         if (!uiInfo || !node) return;
 
-        if (this.enableStack) this.popFromStack(viewId);
+        this.popFromStack(viewId);
 
         let needRelease: boolean = !uiInfo.config.destroy
         needRelease = needRelease || isHidden;
 
         const view = node.getComponent(BaseView);
-
-        view?.ui_before_destroy();
 
         if (needRelease) {
             view?.ui_on_destroy();
@@ -112,7 +81,7 @@ export class UILayerNodeBase extends Node {
             this.hideView(viewId);
         }
 
-        if (this.enableStack) this.restoreTopView();
+        this.restoreTopView();
     }
 
     /** 向已显示的界面推送新数据（不关闭重开） */
@@ -123,23 +92,33 @@ export class UILayerNodeBase extends Node {
     }
 
     protected async load(uiInfo: UIViewState): Promise<Node> {
+        const { prefabKey: key, bundle } = uiInfo.config;
+
         let timerId = setTimeout(this.onLoadingTimeoutGui, 1000);
 
-        const viewCtor = UIRegistry.getInstance().getViewClass(uiInfo.viewId);
-
-        const node = await M.ui.loadView(
-            uiInfo.config.prefabKey,
-            uiInfo.config.bundle,
-            viewCtor,
-            uiInfo.params.data,
-            uiInfo.viewId,
-        );
-
-        if (!node) {
+        const prefab = await M.res.loadPrefab({ pathkey: key, bundle, type: Prefab });
+        if (!prefab) {
             this.failure(uiInfo);
             clearTimeout(timerId);
             return null!;
         }
+
+        const viewCtor = UIRegistry.getInstance().getViewClass(uiInfo.viewId);
+        if (!viewCtor) {
+            H.log.error(`[UIMgr] load: viewCtor 为空，key: ${key}`);
+            M.res.release({ pathkey: key, bundle, type: Prefab });
+            this.failure(uiInfo);
+            clearTimeout(timerId);
+            return null!;
+        }
+
+        const node = instantiate(prefab);
+        let item = node.getComponent(viewCtor) as BaseView | null;
+        if (!item) item = node.addComponent(viewCtor);
+
+        item.viewId = uiInfo.viewId ?? key;
+        
+        item.ui_on_init(uiInfo.params.data);
 
         clearTimeout(timerId);
         uiInfo.valid = true;
@@ -147,7 +126,7 @@ export class UILayerNodeBase extends Node {
         if (!uiInfo.params.preload) {
             node.parent = this;
             const view = node.getComponent(BaseView);
-            view?.ui_on_show(uiInfo.params.data);
+            view?.ui_on_show();
         }
 
         return node;
@@ -176,10 +155,7 @@ export class UILayerNodeBase extends Node {
         this.nodeMap.delete(viewId);
         this.hiddenNodes.set(viewId, node);
 
-        if (this.enableStack) {
-            const index = this.uiStack.indexOf(viewId);
-            if (index > -1) this.uiStack.splice(index, 1);
-        }
+        this.uiStack.remove(viewId);
 
         node.active = false;
         if (uiInfo) uiInfo.valid = false;
@@ -197,7 +173,7 @@ export class UILayerNodeBase extends Node {
         this.hiddenNodes.delete(viewId);
         this.nodeMap.set(viewId, node);
 
-        if (this.enableStack) this.pushToStack(viewId);
+        this.pushToStack(viewId);
 
         node.parent = this;
         node.active = true;
@@ -213,22 +189,23 @@ export class UILayerNodeBase extends Node {
     }
 
     protected pushToStack(viewId: string): void {
-        const index = this.uiStack.indexOf(viewId);
-        if (index > -1) this.uiStack.splice(index, 1);
+        this.uiStack.remove(viewId);
         this.uiStack.push(viewId);
         this.updateZOrder();
-        H.log.debug(`[${this.name}] 界面栈: [${this.uiStack.join(' → ')}]`);
+        const members: string[] = [];
+        this.uiStack.forEach(v => members.push(v));
+        H.log.debug(`[${this.name}] 界面栈: [${members.join(' → ')}]`);
     }
 
     protected popFromStack(viewId: string): void {
-        const index = this.uiStack.indexOf(viewId);
-        if (index > -1) this.uiStack.splice(index, 1);
+        this.uiStack.remove(viewId);
         this.updateZOrder();
     }
 
     protected restoreTopView(): void {
-        if (this.uiStack.length === 0) return;
-        const topKey = this.uiStack[this.uiStack.length - 1];
+        if (this.uiStack.isEmpty()) return;
+        const topKey = this.uiStack.peek();
+        if (!topKey) return;
         const node = this.nodeMap.get(topKey);
         if (node) {
             node.active = true;
@@ -244,38 +221,34 @@ export class UILayerNodeBase extends Node {
     }
 
     public getTopView(): Node | null {
-        if (!this.enableStack || this.uiStack.length === 0) return null;
-        const topKey = this.uiStack[this.uiStack.length - 1];
+        if (this.uiStack.isEmpty()) return null;
+        const topKey = this.uiStack.peek();
+        if (!topKey) return null;
         return this.nodeMap.get(topKey) || null;
     }
 
     public getTopViewState(): UIViewState | null {
-        if (!this.enableStack || this.uiStack.length === 0) return null;
-        const topKey = this.uiStack[this.uiStack.length - 1];
+        if (this.uiStack.isEmpty()) return null;
+        const topKey = this.uiStack.peek();
+        if (!topKey) return null;
         return this.ui_nodes.get(topKey) || null;
     }
 
     public back(): boolean {
-        if (!this.enableStack) {
-            H.log.warn(`${this.name} 层未启用栈管理`);
-            return false;
-        }
-        if (this.uiStack.length < 2) {
+        if (this.uiStack.size() < 2) {
             H.log.warn(`${this.name} 层没有可返回的界面`);
             return false;
         }
-        const currentViewId = this.uiStack[this.uiStack.length - 1];
+        const currentViewId = this.uiStack.peek();
+        if (!currentViewId) return false;
         this.removeView(currentViewId);
         return true;
     }
 
     public closeAll(): void {
-        if (!this.enableStack) {
-            const viewIds = Array.from(this.nodeMap.keys());
-            viewIds.forEach(viewId => this.removeView(viewId));
-            return;
-        }
-        const toClose = [...this.uiStack].reverse();
+        const toClose: string[] = [];
+        this.uiStack.forEach(v => toClose.push(v));
+        toClose.reverse();
         toClose.forEach(viewId => this.removeView(viewId));
     }
 
@@ -283,12 +256,11 @@ export class UILayerNodeBase extends Node {
         this.off(Node.EventType.CHILD_ADDED, this.onChildAdded, this);
         this.off(Node.EventType.CHILD_REMOVED, this.onChildRemoved, this);
 
-        this.uiStack = [];
+        this.uiStack.clear();
 
         this.hiddenNodes.forEach((node) => {
             if (node) {
                 const view = node.getComponent(BaseView);
-                view?.ui_before_destroy();
                 view?.ui_on_destroy();
                 node.destroy();
             }
@@ -298,7 +270,6 @@ export class UILayerNodeBase extends Node {
         this.nodeMap.forEach((node) => {
             if (node) {
                 const view = node.getComponent(BaseView);
-                view?.ui_before_destroy();
                 view?.ui_on_destroy();
                 node.destroy();
             }
@@ -306,4 +277,5 @@ export class UILayerNodeBase extends Node {
         this.nodeMap.clear();
         this.ui_nodes.clear();
     }
+
 }

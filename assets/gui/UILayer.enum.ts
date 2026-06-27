@@ -27,18 +27,6 @@ export enum UIType {
     PopUp = 'PopUp',
 }
 
-
-/**
- * 层级容器类型
- */
-export enum LayerContainerType {
-    /** 单实例层 */
-    Single = "Single",
-
-    /** 多实例层 */
-    Multi = "Multi"
-}
-
 export enum BIND_COMPT_TYPE {
     /** 节点基础 UI 变换组件，对应 UITransform。 */
     TRANSFORM,

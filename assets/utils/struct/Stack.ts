@@ -57,4 +57,43 @@ export class Stack<T> {
     public clear(): void {
         this._stack = [];
     }
+
+    /**
+     * 查看栈顶元素，不移除
+     */
+    public peek(): T | null {
+        if (this.isEmpty()) {
+            return null;
+        }
+        return this._stack[this._stack.length - 1];
+    }
+
+    /**
+     * 按值移除（任意位置）
+     * @param item
+     * @returns 找到并移除返回 true，否则 false
+     */
+    public remove(item: T): boolean {
+        const index = this._stack.indexOf(item);
+        if (index === -1) return false;
+        this._stack.splice(index, 1);
+        return true;
+    }
+
+    /**
+     * 检查项目是否在栈中
+     */
+    public contains(item: T): boolean {
+        return this._stack.indexOf(item) !== -1;
+    }
+
+    /**
+     * 从底到顶遍历栈
+     * @param cb 回调（item, index）
+     */
+    public forEach(cb: (item: T, index: number) => void): void {
+        for (let i = 0; i < this._stack.length; i++) {
+            cb(this._stack[i], i);
+        }
+    }
 }

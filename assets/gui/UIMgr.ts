@@ -3,15 +3,11 @@ import { Node, Camera, Constructor, instantiate, Prefab } from "cc";
 import type { UIConfigMap, UIViewConfig, UIOpenParams } from 'db://ccgf-kit/gui/IUiStructs';
 import { UIGameLayerNode } from 'db://ccgf-kit/gui/impl/UIGameLayerNode';
 import { UILayerNodeBase } from 'db://ccgf-kit/gui/base/UILayerNodeBase';
-import { BaseView } from 'db://ccgf-kit/gui/base/BaseView';
-import { UIComptBase } from 'db://ccgf-kit/gui/base/UIComptBase';
-import { LayerType, LayerContainerType } from 'db://ccgf-kit/gui/UILayer.enum';
+import { LayerType } from 'db://ccgf-kit/gui/UILayer.enum';
 import { UIViewState } from 'db://ccgf-kit/gui/base/UIViewState';
 import { utils } from 'db://ccgf-kit/utils/utils';
 import { Singleton } from 'db://ccgf-kit/common/Singleton';
 import { UIRegistry } from "db://ccgf-kit/decorators/UIRegistry";
-
-import { UIHelper } from 'db://ccgf-kit/gui/UIHelper';
 
 
 
@@ -54,16 +50,7 @@ export class UIMgr extends Singleton<UIMgr> {
                 this.uiGameLayerNode = n;
                 layerNode = n;
             } else {
-                // 从 layerMap 获取容器类型
-                const containerType = UIHelper.layerMap[layerType];
-
-                // 根据容器类型创建对应的层节点
-                if (containerType) {
-                    layerNode = new UILayerNodeBase(layerName, containerType);
-                } else {
-                    // 未配置则默认创建普通节点
-                    layerNode = new Node(layerName);
-                }
+                layerNode = new UILayerNodeBase(layerName);
             }
 
             // 将创建的节点加入 uiRoot 并记录
@@ -71,20 +58,9 @@ export class UIMgr extends Singleton<UIMgr> {
             if (layerNode instanceof UILayerNodeBase) {
                 this.uiLayersMap.set(layerName, layerNode);
             }
-
-            const containerTypeName = UIHelper.layerMap[layerType] || 'None';
-            H.log.debug(`[UIMgr] Created layer: ${layerName} (LayerType: ${LayerType[layerType]}, Container: ${containerTypeName})`);
         }
     }
 
-
-    /** 
-     * 注册 UI 组件
-     * @param configMap UI 组件配置映射表
-     */
-    public registerUIComponents(configMap: UIConfigMap): void {
-        UIRegistry.getInstance().init(configMap);
-    }
 
 
     public async open(viewId: string, params?: UIOpenParams): Promise<Node | null> {
@@ -155,84 +131,6 @@ export class UIMgr extends Singleton<UIMgr> {
         layerNode.refreshView(viewId, data);
     }
 
-    public async loadView<T extends UIComptBase & BaseView>(
-        key: string,
-        bundle: string,
-        viewCtor: Constructor<T>,
-        data?: any,
-        viewId?: string,
-    ): Promise<Node | null> {
-        const prefab = await M.res.loadPrefab({ pathkey: key, bundle, type: Prefab });
-        if (!prefab) return null;
+  
 
-        if (!viewCtor) {
-            H.log.error(`[UIMgr] loadView: viewCtor 为空，key: ${key}`);
-            M.res.release({ pathkey: key, bundle, type: Prefab });
-            return null;
-        }
-
-        const node = instantiate(prefab);
-        let item = node.getComponent(viewCtor) as T | null;
-        if (!item) item = node.addComponent(viewCtor);
-
-        item.ui_on_preload();
-        item.viewId = viewId ?? key;
-        const ok = await item.ui_on_init(data);
-
-        if (!ok) {
-            node.destroy();
-            M.res.release({ pathkey: key, bundle, type: Prefab });
-            return null;
-        }
-
-        return node;
-    }
-
-    /**
-     * 加载子组件节点（内置 instantiate + lifecycle）
-     * @param key     resource-map.json 中的 prefab key
-     * @param bundle  资源包名
-     * @param compCls 组件类
-     * @param data    初始数据
-     * @returns       节点实例，失败返回 null
-     */
-    public async loadSubComp<T extends UIComptBase>(
-        key: string,
-        bundle: string,
-        compCls: Constructor<T>,
-        data?: any
-    ): Promise<Node | null> {
-        const prefab = await M.res.loadPrefab({ pathkey: key, bundle, type: Prefab });
-        if (!prefab) return null;
-
-        if (!compCls) {
-            H.log.error(`[UIMgr] loadSubComp: compCls 为空，key: ${key}`);
-            M.res.release({ pathkey: key, bundle, type: Prefab });
-            return null;
-        }
-
-        const node = instantiate(prefab);
-        let item = node.getComponent(compCls) as T | null;
-        if (!item) item = node.addComponent(compCls);
-
-        item.ui_on_preload();
-        const ok = await item.ui_on_init(data);
-
-        if (!ok) {
-            node.destroy();
-            M.res.release({ pathkey: key, bundle, type: Prefab });
-            return null;
-        }
-
-        return node;
-    }
-
-    /**
-     * 释放子组件缓存
-     * @param paths  prefab 路径
-     * @param bundle 资源包名
-     */
-    public releaseSubNode(key: string, bundle: string): void {
-        M.res.release({ pathkey: key, bundle, type: Prefab });
-    }
 }

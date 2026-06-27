@@ -22,19 +22,15 @@ export type MediatorClassCtor = new (name: string, viewComponent: any, param?: a
  * UI 生命周期接口（工业级，对齐 Android Activity / React 模式）
  */
 export interface IUILifecycle {
-    /** addComponent 后、ui_on_init 前调用；节点存在但 UIContainer 未绑定 */
-    ui_on_preload(): void;
-    /** UIContainer 绑定完成，仅调用一次；返回 false 中断显示流程 */
-    ui_on_init(data: any): Promise<boolean>;
-    /** 每次节点变为可见（首次 + 从隐藏池恢复） */
-    ui_on_show(data?: any): void;
-    /** 节点进入隐藏池（active=false，未销毁） */
+    /** 创建时调用一次，接收初始数据 */
+    ui_on_init(data: any): void;
+    /** 每次变为可见（首次 + 从隐藏池恢复） */
+    ui_on_show(): void;
+    /** 进入隐藏池（active=false，未销毁） */
     ui_on_hide(): void;
-    /** UI 已显示时数据更新，不关闭重开 */
+    /** 已显示状态下推送新数据 */
     ui_on_refresh(data: any): void;
-    /** 节点即将销毁前 */
-    ui_before_destroy(): void;
-    /** 节点销毁完成后 */
+    /** 永久移除前调用一次 */
     ui_on_destroy(): void;
 }
 
@@ -42,7 +38,6 @@ export interface UIViewConfig {
 
     /** 窗口层级 */
     layer: LayerType;
-
     /** resource-map.json 中的 prefab key（对应 PrefabNames 枚举值） */
     prefabKey: string;
     /** 远程包名 */
