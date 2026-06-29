@@ -60,11 +60,16 @@ declare global {
 }
 
 
-// 开发环境挂载全局 API
+// 运行时挂载全局 API（兼容 ES2015）
 /**
  * TODO: 增加paramMgr 后 根据 parm 去 处理
  */
-if (typeof globalThis !== 'undefined') {
-    (globalThis as any).M = M;
-    (globalThis as any).H = H;
+function getGlobal(): any {
+    if (typeof globalThis !== 'undefined') return globalThis;
+    if (typeof window !== 'undefined') return window;
+    if (typeof self !== 'undefined') return self;
+    return {} as any;
 }
+const _g = getGlobal();
+_g.M = M;
+_g.H = H;
