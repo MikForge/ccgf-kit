@@ -1,3 +1,5 @@
+import { AudioCategory } from 'db://ccgf-kit/audio/audio.enum';
+
 /**
  * 单个音频条目的输入定义
  */
@@ -10,14 +12,14 @@ export interface IAudioEntry {
  * 音频清单 — 应用层按此结构声明数据
  */
 export interface IAudioManifest {
-    readonly bgm:   readonly IAudioEntry[];
-    readonly sfx:   readonly IAudioEntry[];
-    readonly voice: readonly IAudioEntry[];
+    readonly [AudioCategory.BGM]:   readonly IAudioEntry[];
+    readonly [AudioCategory.SFX]:   readonly IAudioEntry[];
+    readonly [AudioCategory.Voice]: readonly IAudioEntry[];
 }
 
 /**
  * 注册后存储的完整音频定义
  */
 export interface AudioDefinition extends IAudioEntry {
-    readonly category: keyof IAudioManifest;
+    readonly category: AudioCategory;
 }

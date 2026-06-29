@@ -36,8 +36,6 @@ export class HotUpdateMgr extends Singleton<HotUpdateMgr> {
     private emitCallback: ((eventCode: number, message: string) => void) | null = null;
 
 
-
-
     public async init(): Promise<boolean> {
 
         if (!sys.isNative) {

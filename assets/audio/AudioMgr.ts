@@ -1,17 +1,19 @@
 import { AudioSource, AudioClip } from 'cc';
 import { Singleton } from 'db://ccgf-kit/common/Singleton';
+import { AudioDefinition, IAudioManifest } from 'db://ccgf-kit/audio/IAudioRegistry';
+import { AudioCategory } from 'db://ccgf-kit/audio/audio.enum';
 
 /**
  * 音频管理器（Singleton）
  *
  * 消费端，通过 AudioRegistry 查找音频定义后驱动 AudioSource 播放。
  *
- * BGM: 独占播放（自动切歌），默认循环，使用托管通道（clip + play/pause/stop + loop）
- * SFX: 可叠加播放，不循环，使用 playOneShot（一次性通道）
- * Voice: 预留扩展（v2 启用）
+ * BGM:  独占播放（自动切歌），默认循环，使用托管通道（clip + play/pause/stop + loop）
+ * SFX:  可叠加播放，不循环，使用 playOneShot（一次性通道）
+ * Voice: 独占播放，不循环，使用托管通道（clip + play/stop）
  *
- * 使用前必须调用 init(bgm, sfx, voice?) 注入 AudioSource 组件。
- * 
+ * 使用前必须调用 init(sources: Record<AudioCategory, AudioSource>) 注入 AudioSource 组件。
+ *
  * 缓存 由 ResMgr（Cocos assetManager）统一管理。
  */
 export class AudioMgr extends Singleton<AudioMgr> {
@@ -19,10 +21,12 @@ export class AudioMgr extends Singleton<AudioMgr> {
     private _registry = AudioRegistry.getInstance();
     private _initialized: boolean = false;
 
-    // AudioSource 通道（由外部注入）
-    private _bgmSource: AudioSource | null = null;
-    private _sfxSource: AudioSource | null = null;
-    private _voiceSource: AudioSource | null = null;
+    // AudioSource 通道（由外部注入），按 AudioCategory 索引
+    private _sources: Record<AudioCategory, AudioSource | null> = {
+        [AudioCategory.BGM]: null,
+        [AudioCategory.SFX]: null,
+        [AudioCategory.Voice]: null,
+    };
 
     private _currentBGM: string | null = null;
 
@@ -41,14 +45,10 @@ export class AudioMgr extends Singleton<AudioMgr> {
      * 初始化音频管理器。
      * 必须在首次播放前调用，由 GameBootstrap 在启动阶段注入 AudioSource。
      *
-     * @param bgm  BGM 通道 AudioSource 组件
-     * @param sfx  SFX 通道 AudioSource 组件
-     * @param voice Voice 通道 AudioSource 组件（可选，v2 启用）
+     * @param sources 按 AudioCategory 索引的 AudioSource 映射
      */
-    init(bgm: AudioSource, sfx: AudioSource, voice?: AudioSource): void {
-        this._bgmSource = bgm;
-        this._sfxSource = sfx;
-        this._voiceSource = voice ?? null;
+    init(sources: Record<AudioCategory, AudioSource>): void {
+        this._sources = { ...sources };
         this._initialized = true;
     }
 
@@ -64,20 +64,26 @@ export class AudioMgr extends Singleton<AudioMgr> {
     // ── 资源加载 ──
 
     /**
-     * 按名称加载 AudioClip。
+     * 按 category + name 查找并加载 AudioClip。
      * 通过 ResMgr 异步加载，缓存由 ResMgr（Cocos assetManager）统一管理。
+     * 类型校验：def.category 与传入 category 不匹配时 warn 并返回 null。
      */
-    private async _loadClip(name: string): Promise<AudioClip | null> {
+    private async _loadClip(category: AudioCategory, name: string): Promise<AudioClip | null> {
         const def = this._registry.get(name);
         if (!def) {
             H.log.warn(`AudioMgr: "${name}" 未注册`);
             return null;
         }
+        if (def.category !== category) {
+            H.log.warn(`AudioMgr: "${name}" 不属于 ${AudioCategory[category]}（实际: ${AudioCategory[def.category]}）`);
+            return null;
+        }
 
         try {
             const clip = await M.res.load<AudioClip>({
-                paths: def.path,
+                pathkey: name,
                 type: AudioClip,
+                bundle: "audios"
             });
             return clip as AudioClip;
         } catch (err) {
@@ -96,16 +102,10 @@ export class AudioMgr extends Singleton<AudioMgr> {
     async playBGM(name: string, loop: boolean = true, volume: number = 1): Promise<void> {
         if (!this._checkInit()) return;
 
-        const def = this._registry.get(name);
-        if (!def) {
-            H.log.warn(`AudioMgr: BGM "${name}" 未注册`);
-            return;
-        }
-
-        const clip = await this._loadClip(name);
+        const clip = await this._loadClip(AudioCategory.BGM, name);
         if (!clip) return;
 
-        const source = this._bgmSource!;
+        const source = this._sources[AudioCategory.BGM]!;
         source.stop();
         source.clip = clip;
         source.loop = loop;
@@ -117,20 +117,20 @@ export class AudioMgr extends Singleton<AudioMgr> {
     /** 停止当前 BGM */
     stopBGM(): void {
         if (!this._checkInit()) return;
-        this._bgmSource?.stop();
+        this._sources[AudioCategory.BGM]?.stop();
         this._currentBGM = null;
     }
 
     /** 暂停当前 BGM */
     pauseBGM(): void {
         if (!this._checkInit()) return;
-        this._bgmSource?.pause();
+        this._sources[AudioCategory.BGM]?.pause();
     }
 
     /** 恢复已暂停的 BGM */
     resumeBGM(): void {
         if (!this._checkInit()) return;
-        this._bgmSource?.play();
+        this._sources[AudioCategory.BGM]?.play();
     }
 
     /** 当前 BGM 名称（只读） */
@@ -148,18 +148,38 @@ export class AudioMgr extends Singleton<AudioMgr> {
     playSFX(name: string, volume: number = 1): void {
         if (!this._checkInit()) return;
 
-        const def = this._registry.get(name);
-        if (!def) {
-            H.log.warn(`AudioMgr: SFX "${name}" 未注册`);
-            return;
-        }
-
         // fire-and-forget：异步加载完成后播放
-        void this._loadClip(name).then(clip => {
+        void this._loadClip(AudioCategory.SFX, name).then(clip => {
             if (clip) {
-                this._sfxSource?.playOneShot(clip, volume);
+                this._sources[AudioCategory.SFX]?.playOneShot(clip, volume);
             }
         });
+    }
+
+    // ── Voice ──
+
+    /**
+     * 播放语音，默认不循环。
+     * 独占 Voice 通道 — 新语音自动中断当前语音。
+     */
+    async playVoice(name: string, volume: number = 1): Promise<void> {
+        if (!this._checkInit()) return;
+
+        const clip = await this._loadClip(AudioCategory.Voice, name);
+        if (!clip) return;
+
+        const source = this._sources[AudioCategory.Voice]!;
+        source.stop();
+        source.clip = clip;
+        source.loop = false;
+        source.volume = volume;
+        source.play();
+    }
+
+    /** 停止当前语音 */
+    stopVoice(): void {
+        if (!this._checkInit()) return;
+        this._sources[AudioCategory.Voice]?.stop();
     }
 
     // ── 通用 ──
@@ -170,14 +190,14 @@ export class AudioMgr extends Singleton<AudioMgr> {
      */
     stopAll(): void {
         if (!this._checkInit()) return;
-        this._bgmSource?.stop();
-        this._voiceSource?.stop();
+        this._sources[AudioCategory.BGM]?.stop();
+        this._sources[AudioCategory.Voice]?.stop();
         this._currentBGM = null;
     }
 }
 
 
-import type { IAudioEntry, IAudioManifest, AudioDefinition } from 'db://ccgf-kit/audio/IAudioRegistry';
+
 
 /**
  * 音频注册容器（Singleton）
@@ -191,11 +211,11 @@ class AudioRegistry extends Singleton<AudioRegistry> {
 
     /**
      * 注册音频清单
-     * 遍历 bgm / sfx / voice 三个分类，将每条 IAudioEntry 注入 category 后存入 _defs。
+     * 遍历 AudioCategory 枚举所有分类，将每条 IAudioEntry 注入 category 后存入 _defs。
      * 同名重复注册：覆盖旧值 + 输出 warn。
      */
     registerManifest(manifest: IAudioManifest): void {
-        const categories = ['bgm', 'sfx', 'voice'] as const;
+        const categories = [AudioCategory.BGM, AudioCategory.SFX, AudioCategory.Voice];
         for (const category of categories) {
             for (const entry of manifest[category]) {
                 if (this._defs.has(entry.name)) {

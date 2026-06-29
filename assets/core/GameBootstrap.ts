@@ -3,6 +3,7 @@ const { ccclass } = _decorator;
 
 import { TimerDriver } from 'db://ccgf-kit/timer/CountdownMgr';
 import { CoreHelper } from 'db://ccgf-kit/core/CoreHelper';
+import { AudioCategory } from 'db://ccgf-kit/audio/audio.enum';
 
 @ccclass('GameBootstrap')
 export abstract class GameBootstrap extends Component {
@@ -100,11 +101,11 @@ export abstract class GameBootstrap extends Component {
 
     private beforFrameworkInit(): void {
 
-        M.audio.init(
-            this.persist.addComponent(AudioSource),   // BGM
-            this.persist.addComponent(AudioSource),   // SFX
-            this.persist.addComponent(AudioSource),   // Voice（v2 启用）
-        );
+        M.audio.init({
+            [AudioCategory.BGM]:   this.persist.addComponent(AudioSource),
+            [AudioCategory.SFX]:   this.persist.addComponent(AudioSource),
+            [AudioCategory.Voice]: this.persist.addComponent(AudioSource),
+        });
 
         M.timer.init(this.persist.addComponent(TimerDriver));
     }
