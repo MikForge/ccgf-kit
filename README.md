@@ -1,6 +1,6 @@
 # ccgf-kit
 
-Cocos Creator 3.8+ 游戏框架扩展，为 ccgf 生态项目提供核心运行时能力。
+Cocos Creator 3.8+ 游戏框架扩展。
 
 ## GUI 视图管理
 
