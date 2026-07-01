@@ -81,6 +81,7 @@ export abstract class GameBootstrap extends Component {
     private async startup(): Promise<void> {
         try {
             this.initUISystem();
+            await M.res.init();
             await this.onBeforeStartupAsync();
             this.onBeforeStartup();
             this.onStartup();
@@ -102,8 +103,8 @@ export abstract class GameBootstrap extends Component {
     private beforFrameworkInit(): void {
 
         M.audio.init({
-            [AudioCategory.BGM]:   this.persist.addComponent(AudioSource),
-            [AudioCategory.SFX]:   this.persist.addComponent(AudioSource),
+            [AudioCategory.BGM]: this.persist.addComponent(AudioSource),
+            [AudioCategory.SFX]: this.persist.addComponent(AudioSource),
             [AudioCategory.Voice]: this.persist.addComponent(AudioSource),
         });
 

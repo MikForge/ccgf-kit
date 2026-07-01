@@ -27,7 +27,8 @@ export class CCGFComponent extends Component {
         for (const child of root.children) {
             if (child.name) {
                 if (this._nodeMap.has(child.name)) {
-                    H.log.warn(`[CCGFComponent] 重复节点名: ${child.name}`);
+                    H.log.debug(`[CCGFComponent] 重复节点名: ${child.name}`);
+                    continue
                 }
                 this._nodeMap.set(child.name, child);
             }
