@@ -130,7 +130,7 @@ function generateResourceMap(scanResult, options) {
 // 3. 校验器：CI 一致性校验，检查 JSON 中的路径在磁盘上是否存在
 // ============================================================
 /**
- * CI 一致性校验：解析 resource-map.json 所有路径，逐个检查磁盘文件是否存在。
+ * CI 一致性校验：解析统一的 resource-map.json，按 bundle 分目录检查磁盘文件是否存在。
  * 不同步时返回 false。
  */
 function verifyResourceMap(resourcesDir) {
@@ -148,24 +148,29 @@ function verifyResourceMap(resourcesDir) {
         console.error(`[verify-resource-map] resource-map.json 解析失败: ${e.message}`);
         return false;
     }
+    // resourcesDir = assets/resources/ → assetsDir = assets/
+    const assetsDir = path.dirname(resourcesDir);
     let allOk = true;
     let checked = 0;
-    for (const [category, entries] of Object.entries(map)) {
-        for (const [key, relPath] of Object.entries(entries)) {
-            checked++;
-            // 检查对应文件（不带扩展名，尝试常见扩展名）
-            const basePath = path.resolve(resourcesDir, relPath);
-            const exts = ['.prefab', '.png', '.jpg', '.mp3', '.wav', '.skel', '.json', '.atlas', ''];
-            let found = false;
-            for (const ext of exts) {
-                if (fs.existsSync(basePath + ext)) {
-                    found = true;
-                    break;
+    for (const [bundleName, categories] of Object.entries(map)) {
+        const bundleDir = path.join(assetsDir, bundleName);
+        for (const [category, entries] of Object.entries(categories)) {
+            for (const [key, relPath] of Object.entries(entries)) {
+                checked++;
+                // 检查对应文件（不带扩展名，尝试常见扩展名）
+                const basePath = path.resolve(bundleDir, relPath);
+                const exts = ['.prefab', '.png', '.jpg', '.mp3', '.wav', '.skel', '.json', '.atlas', ''];
+                let found = false;
+                for (const ext of exts) {
+                    if (fs.existsSync(basePath + ext)) {
+                        found = true;
+                        break;
+                    }
                 }
-            }
-            if (!found) {
-                console.error(`[verify-resource-map] 缺失: [${category}] key="${key}" → 路径 "${relPath}" 在磁盘上不存在`);
-                allOk = false;
+                if (!found) {
+                    console.error(`[verify-resource-map] 缺失: [${bundleName}][${category}] key="${key}" → 路径 "${relPath}" 在磁盘上不存在`);
+                    allOk = false;
+                }
             }
         }
     }
@@ -178,7 +183,10 @@ function verifyResourceMap(resourcesDir) {
 /** 项目根目录（ccgf-kit extension src/ 的上一级是 ccgf-kit/，上两级是项目根） */
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..', '..');
 /**
- * 构建脚本入口：自动发现所有 Cocos Creator bundle，为每个独立生成 resource-map.json。
+ * 构建脚本入口：自动发现所有 Cocos Creator bundle，合并为统一的 resource-map.json 写入 resources/。
+ *
+ * 输出格式: { [bundleName]: { [category]: { [key]: path } } }
+ *
  * @param assetsDir - 可选，assets 目录绝对路径（默认从 PROJECT_ROOT 推导），用于测试注入
  */
 function generateResourceMapAll(assetsDir) {
@@ -213,17 +221,22 @@ function generateResourceMapAll(assetsDir) {
         console.warn('[resource-map-gen] 未发现任何 bundle，未生成 resource-map.json');
         return;
     }
-    // 2. 对每个 bundle 执行扫描 + 生成
+    // 2. 扫描所有 bundle，合并到统一映射表
+    const unifiedMap = {};
+    let totalEntries = 0;
+    let totalDuplicates = 0;
     for (const bundleDir of bundleDirs) {
-        const outputPath = path.resolve(bundleDir, 'resource-map.json');
-        console.log(`\n[resource-map-gen] 扫描 bundle: ${path.basename(bundleDir)} (${bundleDir})`);
+        const bundleName = path.basename(bundleDir);
+        console.log(`\n[resource-map-gen] 扫描 bundle: ${bundleName} (${bundleDir})`);
         const scanResult = scanResources(bundleDir);
         console.log('[resource-map-gen] 扫描完成，分类统计:');
         for (const [cat, count] of Object.entries(scanResult.summary)) {
             console.log(`  ${cat}: ${count} 个资源`);
         }
+        totalEntries += Object.values(scanResult.summary).reduce((a, b) => a + b, 0);
         // 重复 key 告警（非阻断，跳过冲突条目继续生成）
         if (scanResult.hasDuplicates) {
+            totalDuplicates += scanResult.duplicates.length;
             console.warn(`\n[resource-map-gen] ⚠️  检测到 ${scanResult.duplicates.length} 个重复 key（已跳过，保留首次遇到的文件）:\n`);
             for (const d of scanResult.duplicates) {
                 console.warn(`  [${d.category}] key="${d.key}"`);
@@ -232,14 +245,22 @@ function generateResourceMapAll(assetsDir) {
             }
             console.warn('请重命名冲突的资源文件后重新生成以消除告警。\n');
         }
-        // 生成 JSON
-        const merged = generateResourceMap(scanResult, {
-            resourcesDir: bundleDir,
-            outputPath,
-        });
-        console.log(`[resource-map-gen] ${path.basename(bundleDir)}/resource-map.json 已生成 (${Object.keys(merged).length} 个类型)`);
+        unifiedMap[bundleName] = scanResult.categories;
     }
-    console.log('\n[resource-map-gen] 全部完成');
+    // 3. 写入统一 JSON 到 resources bundle
+    const outputPath = path.join(assetsRoot, 'resources', 'resource-map.json');
+    const outputDir = path.dirname(outputPath);
+    if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+    }
+    fs.writeFileSync(outputPath, JSON.stringify(unifiedMap, null, 2), 'utf-8');
+    const bundleCount = Object.keys(unifiedMap).length;
+    console.log(`\n[resource-map-gen] ✅ 统一 resource-map.json 已生成: ${outputPath}`);
+    console.log(`[resource-map-gen]    ${bundleCount} 个 bundle, ${totalEntries} 个资源条目`);
+    if (totalDuplicates > 0) {
+        console.warn(`[resource-map-gen]    ⚠️  ${totalDuplicates} 个重复 key（已跳过）`);
+    }
+    console.log('[resource-map-gen] 全部完成');
 }
 // CLI 入口：直接执行时运行校验
 if (require.main === module) {

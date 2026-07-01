@@ -5,6 +5,7 @@ import type { LoginResult, PayParams, RewardAdResult, TrackEventPayload } from "
 declare const wx: any;
 
 export class WxMiniSdkPlatform implements ISdkPlatform {
+    
     readonly name = SdkPlatformName.WX_MINI;
 
     async init(): Promise<void> {

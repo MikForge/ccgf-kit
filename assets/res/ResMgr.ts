@@ -23,14 +23,13 @@ export class ResMgr extends Singleton<ResMgr> {
     private _resourceMap: Record<string, Record<string, Record<string, string>>> = {};
 
     /**
-     * 初始化资源管理器，预加载指定 bundle 的 resource-map.json
-     * @param bundles 要预热的 bundle 名列表，默认 ["resources"]
-     * @returns true 全部成功，false 至少一个 bundle 加载失败
+     * 初始化资源管理器：从 resources bundle 加载统一的 resource-map.json。
+     * 统一 JSON 格式: { [bundleName]: { [category]: { [key]: path } } }
+     * @returns true 加载成功，false 加载失败
      */
-    public async init(bundles: string[] = ["resources"]): Promise<boolean> {
-        if (bundles.length === 0) return true;
+    public async init(): Promise<boolean> {
         try {
-            await Promise.all(bundles.map(b => this.initResourceMap(b)));
+            await this.initResourceMap();
             return true;
         } catch (err) {
             H.log.error(`ResMgr.init: ${(err as Error).message}`);
@@ -39,20 +38,18 @@ export class ResMgr extends Singleton<ResMgr> {
     }
 
     /**
-     * 加载 resource-map.json 并缓存到 _resourceMap
-     * 直接调 bundle.load 加载原始文件，不经过 this.load（避免循环依赖）
+     * 从 resources bundle 加载统一的 resource-map.json 并缓存全部 bundle 映射。
+     * 直接调 bundle.load 加载原始文件，不经过 this.load（避免循环依赖）。
      */
-    public async initResourceMap(bundle?: string): Promise<void> {
-        const bundleName = bundle || this.defaultBundleName;
-        if (this._resourceMap[bundleName]) return;
-
-        const b = await this.ensureBundle(bundleName);
+    public async initResourceMap(): Promise<void> {
+        const b = await this.ensureBundle(this.defaultBundleName);
         return new Promise<void>((resolve, reject) => {
             b.load("resource-map", JsonAsset, null, (err: Error | null, asset: JsonAsset) => {
                 if (err) {
                     reject(err);
                 } else {
-                    this._resourceMap[bundleName] = asset.json as Record<string, Record<string, string>>;
+                    // 统一格式: { bundleName: { category: { key: path } } }
+                    this._resourceMap = asset.json as Record<string, Record<string, Record<string, string>>>;
                     resolve();
                 }
             });
