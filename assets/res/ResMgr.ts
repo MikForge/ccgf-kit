@@ -57,6 +57,16 @@ export class ResMgr extends Singleton<ResMgr> {
     }
 
     /**
+     * 从 _resourceMap 获取指定 bundle 的完整映射数据。
+     * 纯数据查询，不感知业务类型。
+     * @param bundleName bundle 名称
+     * @returns { category → { key → path } } 或 null（bundle 不在缓存中）
+     */
+    public getResMapManifest(bundleName: string): Record<string, Record<string, string>> | null {
+        return this._resourceMap[bundleName] ?? null;
+    }
+
+    /**
      * 从 type 推导 category 并在 _resourceMap 中查表，返回资源路径
      * @returns 资源路径；未命中返回 null
      */

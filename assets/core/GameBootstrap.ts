@@ -82,6 +82,7 @@ export abstract class GameBootstrap extends Component {
         try {
             this.initUISystem();
             await M.res.init();
+            H.audioHelper.registerFromRes("audios");
             await this.onBeforeStartupAsync();
             this.onBeforeStartup();
             this.onStartup();

@@ -31,6 +31,17 @@ export class AudioMgr extends Singleton<AudioMgr> {
 
     private _currentBGM: string | null = null;
 
+    // 播放列表管理
+    private _playlist: string[] = [];
+    private _playlistIndex: number = 0;
+
+    // 音量缓存
+    private _volumeCache: Record<AudioCategory, number> = {
+        [AudioCategory.BGM]: 1,
+        [AudioCategory.SFX]: 1,
+        [AudioCategory.Voice]: 1,
+    };
+
 
     public constructor() {
         super();
@@ -118,8 +129,10 @@ export class AudioMgr extends Singleton<AudioMgr> {
     /** 停止当前 BGM */
     stopBGM(): void {
         if (!this._checkInit()) return;
-        this._sources[AudioCategory.BGM]?.stop();
         this._currentBGM = null;
+        this._sources[AudioCategory.BGM]?.stop();
+        this._playlist = [];
+        this._playlistIndex = 0;
     }
 
     /** 暂停当前 BGM */
@@ -139,6 +152,57 @@ export class AudioMgr extends Singleton<AudioMgr> {
         return this._currentBGM;
     }
 
+    // ── 播放列表 ──
+
+    /**
+     * 播放 BGM 列表，自动切歌 + 列表循环
+     */
+    playBGMList(list: string[]): void {
+        if (!this._checkInit()) return;
+        if (list.length === 0) {
+            H.log.warn('AudioMgr: BGM 列表为空');
+            return;
+        }
+        this._playlist = [...list];
+        this._playlistIndex = 0;
+        this._playNextInList();
+    }
+
+    /** 播放列表中当前索引的曲目 */
+    private async _playNextInList(): Promise<void> {
+        if (this._playlist.length === 0) return;
+        const name = this._playlist[this._playlistIndex];
+        const clip = await this._loadClip(AudioCategory.BGM, name);
+        if (!clip) {
+            this._advancePlaylist();
+            return;
+        }
+        const source = this._sources[AudioCategory.BGM]!;
+        source.stop();
+        source.clip = clip;
+        source.loop = false;
+        source.volume = this._volumeCache[AudioCategory.BGM];
+        source.play();
+        this._currentBGM = name;
+
+        // 监听播放完毕事件 → 自动切歌
+        source.node.once(AudioSource.EventType.ENDED, () => {
+            if (this._currentBGM !== null) {
+                this._advancePlaylist();
+            }
+        });
+    }
+
+    /** 推进到列表下一首（列表循环） */
+    private _advancePlaylist(): void {
+        if (this._playlist.length === 0) return;
+        this._playlistIndex++;
+        if (this._playlistIndex >= this._playlist.length) {
+            this._playlistIndex = 0;
+        }
+        this._playNextInList();
+    }
+
     // ── SFX ──
 
     /**
@@ -146,7 +210,7 @@ export class AudioMgr extends Singleton<AudioMgr> {
      * 内部异步加载 AudioClip，加载后通过 playOneShot 播放。
      * 多次调用可叠加，互不干扰（fire-and-forget）。
      */
-    playSFX(name: string, volume: number = 1): void {
+    playSFX(name: string, volume: number = this._volumeCache[AudioCategory.SFX]): void {
         if (!this._checkInit()) return;
 
         // fire-and-forget：异步加载完成后播放
@@ -163,7 +227,7 @@ export class AudioMgr extends Singleton<AudioMgr> {
      * 播放语音，默认不循环。
      * 独占 Voice 通道 — 新语音自动中断当前语音。
      */
-    async playVoice(name: string, volume: number = 1): Promise<void> {
+    async playVoice(name: string, volume: number = this._volumeCache[AudioCategory.Voice]): Promise<void> {
         if (!this._checkInit()) return;
 
         const clip = await this._loadClip(AudioCategory.Voice, name);
@@ -183,6 +247,24 @@ export class AudioMgr extends Singleton<AudioMgr> {
         this._sources[AudioCategory.Voice]?.stop();
     }
 
+    // ── 音量 ──
+
+    /**
+     * 设置音量（0-1），立即更新缓存和 AudioSource
+     */
+    setVolume(category: AudioCategory, vol: number): void {
+        this._volumeCache[category] = Math.max(0, Math.min(1, vol));
+        const source = this._sources[category];
+        if (source) source.volume = this._volumeCache[category];
+    }
+
+    /**
+     * 读取缓存中的音量
+     */
+    getVolume(category: AudioCategory): number {
+        return this._volumeCache[category];
+    }
+
     // ── 通用 ──
 
     /**
@@ -191,9 +273,11 @@ export class AudioMgr extends Singleton<AudioMgr> {
      */
     stopAll(): void {
         if (!this._checkInit()) return;
+        this._currentBGM = null;
+        this._playlist = [];
+        this._playlistIndex = 0;
         this._sources[AudioCategory.BGM]?.stop();
         this._sources[AudioCategory.Voice]?.stop();
-        this._currentBGM = null;
     }
 }
 

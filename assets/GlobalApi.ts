@@ -18,6 +18,7 @@ import { utils } from 'db://ccgf-kit/utils/utils';
 import { EventMgr } from 'db://ccgf-kit/event/EventMgr';
 import { HotUpdateMgr } from 'db://ccgf-kit/cchotupdate/HotUpdateMgr';
 import { AudioMgr } from 'db://ccgf-kit/audio/AudioMgr';
+import { AudioHelper } from 'db://ccgf-kit/audio/AudioHelper';
 import { CoreHelper } from "db://ccgf-kit/core/CoreHelper";
 
 /** Framework version 框架版本号 */
@@ -47,6 +48,7 @@ export class H {
     static readonly sort = SortHelper;
     static readonly ut = utils;
     static readonly core = CoreHelper;
+    static readonly audioHelper = AudioHelper;
 }
 
 type _GlobalM = typeof M;
