@@ -19,6 +19,7 @@ import { AudioCategory } from 'db://ccgf-kit/audio/audio.enum';
 export class AudioMgr extends Singleton<AudioMgr> {
 
     private _registry = AudioRegistry.getInstance();
+    
     private _initialized: boolean = false;
 
     // AudioSource 通道（由外部注入），按 AudioCategory 索引
