@@ -1,4 +1,4 @@
-import type { RequestObject } from 'db://ccgf-kit/net/defines/net-structs';
+import type { RequestObject } from 'db://ccgf-kit/net/defines/INetStructs';
 
 export interface InFlightRequest {
     request: RequestObject;

@@ -1,5 +1,6 @@
-import type { NetConnectOptions, NetData } from 'db://ccgf-kit/net/defines/net-structs';
+
 import { SocketEvent } from 'db://ccgf-kit/net/base/ISocket.enum';
+import { NetConnectOptions, NetData } from 'db://ccgf-kit/net/defines/INetStructs';
 
 export interface SocketEventMap {
     [SocketEvent.CONNECT]: Event;

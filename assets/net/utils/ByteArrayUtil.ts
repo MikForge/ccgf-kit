@@ -1,4 +1,4 @@
-import type { NetData } from 'db://ccgf-kit/net/defines/net-structs';
+import type { NetData } from 'db://ccgf-kit/net/defines/INetStructs';
 
 
 export class ByteArrayUtil {

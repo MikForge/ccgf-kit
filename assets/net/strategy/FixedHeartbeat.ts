@@ -1,5 +1,5 @@
 import type { IHeartbeatStrategy } from 'db://ccgf-kit/net/strategy/IHeartbeatStrategy';
-import type { NetData } from 'db://ccgf-kit/net/defines/net-structs';
+import type { NetData } from 'db://ccgf-kit/net/defines/INetStructs';
 
 /**
  * 固定间隔心跳策略

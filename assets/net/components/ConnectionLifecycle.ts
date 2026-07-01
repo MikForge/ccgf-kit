@@ -1,5 +1,5 @@
 
-import type { NetData } from 'db://ccgf-kit/net/defines/net-structs';
+import type { NetData } from 'db://ccgf-kit/net/defines/INetStructs';
 import type { ISocket } from 'db://ccgf-kit/net/base/ISocket';
 import { SocketEvent } from 'db://ccgf-kit/net/base/ISocket.enum';
 

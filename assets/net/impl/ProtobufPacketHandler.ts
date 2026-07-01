@@ -2,7 +2,7 @@
 //import { ByteArrayUtil } from "db://ccgf-kit/net/utils/ByteArrayUtil.ts";
 //import { CompressionUtil } from "db://ccgf-kit/net/utils/CompressionUtil.ts";
 //import { EncryptionUtil } from "db://ccgf-kit/net/utils/EncryptionUtil.ts";
-//import { NetData } from "db://ccgf-kit/net/defines/net-structs.ts";
+//import { NetData } from "db://ccgf-kit/net/defines/INetStructs.ts";
 //import { IPacketHandler, IRequestPacket, IResponsePacket } from "db://ccgf-kit/net/base/IPacketHandler.ts";
 
 //import * as root from 'db://assets/scripts/net/proto/bundle.js.ts';

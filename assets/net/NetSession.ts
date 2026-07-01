@@ -1,4 +1,4 @@
-import type { INetworkTips, NetConnectOptions, NetData, NetSateCfg, RequestObject } from 'db://ccgf-kit/net/defines/net-structs';
+import type { INetworkTips, NetConnectOptions, NetData, NetSateCfg, RequestObject } from 'db://ccgf-kit/net/defines/INetStructs';
 import type { IPacketHandler, IRequestPacket, IResponsePacket } from 'db://ccgf-kit/net/base/IPacketHandler';
 import { error } from "cc";
 import { FrameEventDispatcher } from "db://ccgf-kit/utils/dispatcher/FrameEventDispatcher";

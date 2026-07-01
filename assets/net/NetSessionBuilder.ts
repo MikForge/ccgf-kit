@@ -1,7 +1,7 @@
 import type { FrameEventOptions } from 'db://ccgf-kit/utils/dispatcher/IFrameEventDispatcher';
 
 import { InFlightTracker } from 'db://ccgf-kit/net/components/InFlightTracker';
-import type { INetworkTips } from 'db://ccgf-kit/net/defines/net-structs';
+import type { INetworkTips } from 'db://ccgf-kit/net/defines/INetStructs';
 import { NetSession } from 'db://ccgf-kit/net/NetSession';
 import type { IPacketHandler, IResponsePacket } from 'db://ccgf-kit/net/base/IPacketHandler';
 import type { ISocket } from 'db://ccgf-kit/net/base/ISocket';

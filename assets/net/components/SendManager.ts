@@ -1,4 +1,4 @@
-import type { NetData, RequestObject } from 'db://ccgf-kit/net/defines/net-structs';
+import type { NetData, RequestObject } from 'db://ccgf-kit/net/defines/INetStructs';
 import { InFlightTracker } from 'db://ccgf-kit/net/components/InFlightTracker';
 import { BoundedQueue } from 'db://ccgf-kit/utils/queue/BoundedQueue';
 import { overflowStrategy } from 'db://ccgf-kit/utils/queue/BoundedQueue.enum';

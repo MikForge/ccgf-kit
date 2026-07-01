@@ -2,7 +2,7 @@ import { Singleton } from 'db://ccgf-kit/common/Singleton';
 import { CoreEvents } from 'db://ccgf-kit/event/CoreEvents.enum';
 import { ErrorHandlerInterceptor, HttpLogInterceptor, HttpTokenInterceptor } from 'db://ccgf-kit/net-http/base/http-interceptors';
 import { HttpClient } from 'db://ccgf-kit/net-http/impl/HttpClient';
-import type { NetConnectOptions, NetData, RequestObject } from 'db://ccgf-kit/net/defines/net-structs';
+import type { NetConnectOptions, NetData, RequestObject } from 'db://ccgf-kit/net/defines/INetStructs';
 import { NetSession } from 'db://ccgf-kit/net/NetSession';
 import { NetChannelType } from 'db://ccgf-kit/net/defines/net.enum';
 

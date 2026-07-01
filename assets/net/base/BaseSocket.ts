@@ -1,6 +1,6 @@
 
-import type { NetConnectOptions, NetData } from 'db://ccgf-kit/net/defines/net-structs';
 import type { ISocket, SocketEventHandler, SocketEventMap } from 'db://ccgf-kit/net/base/ISocket';
+import { NetConnectOptions, NetData } from 'db://ccgf-kit/net/defines/INetStructs';
 
 
 export abstract class BaseSocket implements ISocket {

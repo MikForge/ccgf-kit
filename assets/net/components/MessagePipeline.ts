@@ -1,4 +1,4 @@
-import type { NetData } from 'db://ccgf-kit/net/defines/net-structs';
+import type { NetData } from 'db://ccgf-kit/net/defines/INetStructs';
 import type { IPacketHandler, IResponsePacket } from 'db://ccgf-kit/net/base/IPacketHandler';
 import { InFlightTracker } from 'db://ccgf-kit/net/components/InFlightTracker';
 import { FrameEventDispatcher } from 'db://ccgf-kit/utils/dispatcher/FrameEventDispatcher';

@@ -1,5 +1,5 @@
 
-import type { NetConnectOptions, NetData } from 'db://ccgf-kit/net/defines/net-structs';
+import type { NetConnectOptions, NetData } from 'db://ccgf-kit/net/defines/INetStructs';
 import { BaseSocket } from 'db://ccgf-kit/net/base/BaseSocket';
 
 /**
