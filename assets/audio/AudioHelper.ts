@@ -16,7 +16,6 @@ import { ResMgr } from 'db://ccgf-kit/res/ResMgr';
  * ```
  */
 export class AudioHelper {
-
     /**
      * 一站式注册：从 ResMgr 查表 → 按 path 前缀分桶 → 组装 IAudioManifest → 注册到 AudioMgr
      * @param bundleName  bundle 名称，默认 "audios"

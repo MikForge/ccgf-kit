@@ -174,7 +174,7 @@ export class AudioMgr extends Singleton<AudioMgr> {
         const name = this._playlist[this._playlistIndex];
         const clip = await this._loadClip(AudioCategory.BGM, name);
         if (!clip) {
-            this._advancePlaylist();
+            H.log.error(`AudioMgr: ${name} can not get`)
             return;
         }
         const source = this._sources[AudioCategory.BGM]!;

@@ -104,7 +104,7 @@ export class UIComptBase extends CCGFComponent {
             // 音效
             const sound = opts?.sound;
             if (sound !== false) {
-                const sfxName = typeof sound === 'string' ? sound : 'ui_button';
+                const sfxName = typeof sound === 'string' ? sound : 'click1';
                 M.audio.playSFX(sfxName);
             }
             callback.call(thisArg, event);

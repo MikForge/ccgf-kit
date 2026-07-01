@@ -4,6 +4,9 @@ const { ccclass } = _decorator;
 import { TimerDriver } from 'db://ccgf-kit/timer/CountdownMgr';
 import { CoreHelper } from 'db://ccgf-kit/core/CoreHelper';
 import { AudioCategory } from 'db://ccgf-kit/audio/audio.enum';
+import { AudioHelper } from 'db://ccgf-kit/audio/AudioHelper';
+import { LocalStorageKey } from 'db://ccgf-kit/localStorage/Ls.enum';
+import { LogLevel } from 'db://ccgf-kit/helper/LogLevel.enum';
 
 @ccclass('GameBootstrap')
 export abstract class GameBootstrap extends Component {
@@ -109,7 +112,10 @@ export abstract class GameBootstrap extends Component {
             [AudioCategory.Voice]: this.persist.addComponent(AudioSource),
         });
 
+
         M.timer.init(this.persist.addComponent(TimerDriver));
+
+        H.log.setLevel(LogLevel.DEBUG)
     }
 
 
