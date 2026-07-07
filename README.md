@@ -57,7 +57,6 @@ export class Main extends GameBootstrap {
 | `M.timer` | 倒计时 | 对象级注册 / 注销 / 回调 |
 | `M.timeOut` | 定时任务 | 延时和周期性任务 |
 | `M.ls` | 本地存储 | 键值对持久化读写 |
-| `M.sdk` | 平台 SDK | 多平台统一接入 |
 | `M.hotupdate` | 热更新 | Cocos Creator 热更新管理 |
 
 ---
