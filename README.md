@@ -61,18 +61,6 @@ export class Main extends GameBootstrap {
 
 ---
 
-## 🏗️ 组件继承链
-
-```
-Component
- └─ CCGFComponent      ← _nodeMap 子节点查找 + load/loadDir 资源自动追踪
-     └─ UIComptBase    ← v_nodes / v_compts + bindButton + createTween
-         ├─ BaseView       ← 根视图，子视图级联注册
-         └─ BaseViewItem   ← 子视图，IUILifecycle 生命周期
-```
-
----
-
 ## 🔧 更多能力
 
 | 能力 | 说明 |
