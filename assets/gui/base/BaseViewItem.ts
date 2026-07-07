@@ -20,26 +20,26 @@ const { ccclass } = _decorator;
 @ccclass('BaseViewItem')
 export class BaseViewItem extends UIComptBase implements IUILifecycle {
 
-    public ui_on_preload(): void {
+    ui_on_preload(): void {
 
     }
 
-    public ui_on_init(): void {
+    ui_on_init(): void {
     }
 
-    public ui_on_show(): void {
+    ui_on_show(): void {
     }
 
-    public ui_on_hide(): void {
+    ui_on_hide(): void {
     }
 
-    public ui_on_refresh(data: any): void {
+    ui_on_refresh(data: any): void {
     }
 
-    public ui_before_destroy(): void {
+    ui_before_destroy(): void {
     }
 
-    public ui_on_destroy(): void {
+    ui_on_destroy(): void {
     }
 
 

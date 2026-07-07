@@ -13,6 +13,8 @@ export interface LoadResRecord {
     bundle: string,
     /** 资源路径 */
     path: string,
+    /** 资源类型 */
+    type: AssetType,
     /** 引用计数 */
     refCount: number,
     /** 资源编号 */

@@ -2,6 +2,7 @@ import { _decorator, Node, BlockInputEvents } from "cc";
 import { UIComptBase } from "db://ccgf-kit/gui/base/UIComptBase";
 import { UIRegistry } from 'db://ccgf-kit/decorators/UIRegistry';
 import type { IUILifecycle, UIViewConfig } from 'db://ccgf-kit/gui/IUiStructs';
+import { BaseViewItem } from 'db://ccgf-kit/gui/base/BaseViewItem';
 
 /**
  * 根视图基类（Template Method 模式）
@@ -27,13 +28,13 @@ export class BaseView extends UIComptBase implements IUILifecycle {
     }
 
     /** Node → UIComptBase 映射；保证去重，O(1) 注销 */
-    private _subViews: Map<Node, UIComptBase> = new Map();
+    private _subViews: Map<Node, BaseViewItem> = new Map();
 
 
     // ── 子视图注册（仅 BaseView 子类可调用）──
 
-    protected registerSubView(node: Node, uiCompt?: UIComptBase): void {
-        const child = uiCompt || node.getComponent(UIComptBase);
+    protected registerSubView(node: Node, uiCompt?: BaseViewItem): void {
+        const child = uiCompt || node.getComponent(BaseViewItem);
         if (child) this._subViews.set(node, child);
     }
 

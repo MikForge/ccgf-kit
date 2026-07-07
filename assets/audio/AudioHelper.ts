@@ -34,7 +34,7 @@ export class AudioHelper {
         }
 
         const manifest = this._buildManifest(rawMap);
-        
+
         AudioMgr.getInstance().registerManifest(manifest);
     }
 
@@ -66,4 +66,5 @@ export class AudioHelper {
 
         return manifest;
     }
+
 }

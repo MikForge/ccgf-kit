@@ -150,21 +150,26 @@ export class UILayerNodeBase extends Node {
         if (!node) return;
 
         const view = node.getComponent(BaseView);
+
         view?.ui_on_hide();
 
         this.nodeMap.delete(viewId);
+
         this.hiddenNodes.set(viewId, node);
 
         this.uiStack.remove(viewId);
 
         node.active = false;
+
         if (uiInfo) uiInfo.valid = false;
 
         H.log.debug(`界面已隐藏: ${viewId}`);
     }
 
     protected restoreView(viewId: string): Node {
+        
         const node = this.hiddenNodes.get(viewId);
+
         if (!node) {
             H.log.warn(`恢复失败：界面不在隐藏池中: ${viewId}`);
             return null!;

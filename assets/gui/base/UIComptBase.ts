@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, EventTouch } from 'cc';
+import { _decorator, Component, Node, EventTouch, tween, Tween } from 'cc';
 import { CCGFComponent } from 'db://ccgf-kit/core/CCGFComponent';
 import type { UIOpenParams } from 'db://ccgf-kit/gui/IUiStructs';
 import { UIContainer } from 'db://ccgf-kit/gui/impl/UIContainer';
@@ -22,6 +22,8 @@ type UINodesOf<T> =
  */
 @ccclass('UIComptBase')
 export class UIComptBase extends CCGFComponent {
+
+    private DEFAULT_BUTTON_ADUIO = 'click1'
 
 
     protected onLoad(): void {
@@ -53,11 +55,14 @@ export class UIComptBase extends CCGFComponent {
     /** 按钮连击冷却记录 */
     private _lastClickTime: Map<Node, number> = new Map();
 
+    /** 活跃 Tween 的 target 节点集合（按节点追踪，销毁时统一 stop） */
+    private _tweenTargets: Set<Node> = new Set();
+
 
     // ── 事件绑定 ──
 
     /**
-     * 绑定事件到目标节点（自动管理生命周期，ui_on_destroy 时清理）
+     * 绑定事件到目标节点（自动管理生命周期时清理）
      * @param target 目标节点
      * @param eventType 事件类型
      * @param callback 回调函数
@@ -104,7 +109,7 @@ export class UIComptBase extends CCGFComponent {
             // 音效
             const sound = opts?.sound;
             if (sound !== false) {
-                const sfxName = typeof sound === 'string' ? sound : 'click1';
+                const sfxName = typeof sound === 'string' ? sound : this.DEFAULT_BUTTON_ADUIO;
                 M.audio.playSFX(sfxName);
             }
             callback.call(thisArg, event);
@@ -141,6 +146,38 @@ export class UIComptBase extends CCGFComponent {
         this._eventListeners = [];
     }
 
+    // ── Tween 管理 ──
+
+    /**
+     * 创建 Tween（自动追踪，组件 onDestroy 时统一停止）
+     *
+     * @example
+     *   this.createTween(this.node).to(0.3, { scale: v3(1,1,1) }).start();
+     *   this.createTween(someChild).delay(0.5).to(0.2, { opacity: 0 }).start();
+     */
+    protected createTween(target: Node): Tween<Node> {
+        this._tweenTargets.add(target);
+        return tween(target);
+    }
+
+    /**
+     * 手动停止并移除指定 target 上的所有 Tween
+     */
+    protected removeTween(target: Node): void {
+        Tween.stopAllByTarget(target);
+        this._tweenTargets.delete(target);
+    }
+
+    /**
+     * 停止当前组件追踪的全部 Tween（onDestroy 时自动调用）
+     */
+    protected stopAllTweens(): void {
+        for (const target of this._tweenTargets) {
+            Tween.stopAllByTarget(target);
+        }
+        this._tweenTargets.clear();
+    }
+
     // ── 内部绑定 ──
 
     private _bindUIContainer(): void {
@@ -155,6 +192,7 @@ export class UIComptBase extends CCGFComponent {
 
 
     protected onDestroy(): void {
+        this.stopAllTweens();
         super.onDestroy();
         this._clearAllEventListeners();
         this._v_compts = null!;

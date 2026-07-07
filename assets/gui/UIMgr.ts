@@ -40,6 +40,7 @@ export class UIMgr extends Singleton<UIMgr> {
         const layerEntries = utils.enumEntries(LayerType).sort((a, b) => Number(a[1]) - Number(b[1]));
 
         for (const [layerName, layerTypeValue] of layerEntries) {
+            
             const layerType = Number(layerTypeValue) as LayerType;
 
             let layerNode: Node;

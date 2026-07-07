@@ -81,7 +81,9 @@ export class AudioMgr extends Singleton<AudioMgr> {
      * 类型校验：def.category 与传入 category 不匹配时 warn 并返回 null。
      */
     private async _loadClip(category: AudioCategory, name: string): Promise<AudioClip | null> {
+
         const def = this._registry.get(name);
+
         if (!def) {
             H.log.warn(`AudioMgr: "${name}" 未注册`);
             return null;
@@ -102,6 +104,7 @@ export class AudioMgr extends Singleton<AudioMgr> {
             H.log.warn(`AudioMgr: "${name}" 加载失败`, err);
             return null;
         }
+        
     }
 
     // ── BGM ──
