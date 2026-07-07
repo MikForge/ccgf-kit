@@ -1,44 +1,102 @@
-# ccgf-kit
+<div align="center">
+  <h1>ccgf-kit</h1>
+  <p>Cocos Creator 3.8+ 游戏框架扩展</p>
+  <p>
+    <img src="https://img.shields.io/badge/cocos-3.8%2B-blue" alt="Cocos Creator 3.8+" />
+    <img src="https://img.shields.io/badge/license-MIT-green" alt="License MIT" />
+  </p>
+</div>
 
-Cocos Creator 3.8+ 游戏框架扩展。
+---
 
-## GUI 视图管理
+## ✨ 特性
 
-`M.ui` 提供ui分层管理能力，支持界面打开、关闭、切换，子视图自动级联。
+- 🖼️ **GUI 视图管理** — `M.ui` 分层管理，支持打开 / 关闭 / 切换，子视图自动级联
+- 🔊 **音频** — `M.audio` 支持 BGM / SFX / Voice 三通道独立播放控制
+- 🌐 **网络与 HTTP** — `M.net` 基于 WebSocket 的通信层；`net-http/` 提供 HTTP 请求封装
+- 📦 **资源管理** — `M.res` 负责 Prefab 和 Asset 的加载、缓存与释放
+- 📡 **事件系统** — `M.event` 模块间解耦通信：`on` / `off` / `emit`
+- ⏱️ **定时器** — `M.timeOut` 延时 / 周期任务；`M.timer` 对象级倒计时
+- 💾 **本地存储** — `M.ls` 键值对持久化读写
 
-## 事件系统
+---
 
-`M.event` 提供模块间解耦通信：`on`/`off`/`emit`。
+## 🚀 快速开始
 
-## 定时器
+```bash
+git submodule add https://github.com/MikForge/ccgf-kit.git extensions/ccgf-kit
+```
 
-`M.timeOut` 处理延时和周期性任务，`M.timer` 提供对象级倒计时（注册、注销、回调）。
+继承 `GameBootstrap`，实现启动入口：
 
-## 资源管理
+```typescript
+import { GameBootstrap } from 'db://ccgf-kit/core/GameBootstrap';
 
-`M.res` 负责 Prefab 和 Asset 的加载、缓存与释放。
+@ccclass('Main')
+export class Main extends GameBootstrap {
+    protected onStartupComplete(): void {
+        M.audio.playBGM("bgm_main");
+        H.core.pmvcOpenView("MainUI");
+    }
+}
+```
 
-## 本地存储
+挂到场景根节点 → 运行。搞定。
 
-`M.ls` 提供键值对持久化读写。
+---
 
-## 音频
+## 🧭 模块
 
-`M.audio` 支持 BGM / SFX / Voice 三通道独立播放控制。
+| 入口 | 模块 | 说明 |
+|------|------|------|
+| `M.ui` | GUI 视图管理 | 打开 / 关闭 / 切换界面，子视图自动级联 |
+| `M.audio` | 音频 | BGM / SFX / Voice 三通道独立播放控制 |
+| `M.net` | 网络 | WebSocket 通信，支持 Protobuf、重连、心跳 |
+| `M.res` | 资源管理 | Prefab / Asset 加载、缓存与释放 |
+| `M.event` | 事件系统 | `on` / `off` / `emit` 模块间解耦通信 |
+| `M.timer` | 倒计时 | 对象级注册 / 注销 / 回调 |
+| `M.timeOut` | 定时任务 | 延时和周期性任务 |
+| `M.ls` | 本地存储 | 键值对持久化读写 |
+| `M.sdk` | 平台 SDK | 多平台统一接入 |
+| `M.hotupdate` | 热更新 | Cocos Creator 热更新管理 |
 
-## 网络与 HTTP
+---
 
-`M.net` 基于 WebSocket 的网络通信层，`net-http/` 提供 HTTP 请求封装。
+## 🏗️ 组件继承链
 
-## 其他模块
+```
+Component
+ └─ CCGFComponent      ← _nodeMap 子节点查找 + load/loadDir 资源自动追踪
+     └─ UIComptBase    ← v_nodes / v_compts + bindButton + createTween
+         ├─ BaseView       ← 根视图，子视图级联注册
+         └─ BaseViewItem   ← 子视图，IUILifecycle 生命周期
+```
 
-- **热更新** — `M.hotupdate` Cocos Creator 热更新
-- **PureMVC** — `puremvc/` MVC 架构适配
-- **装饰器** — `@registerView` 视图配置注册
-- **工具库** — `FSM` / `Stack` / `AsyncQueue` / 字符串工具
-- **启动场景生成** — 编辑器菜单一键生成 root/game/gui/UICamera 节点树
-- **全局 API** — `M`（管理器）/ `H`（辅助类），无需 import 直接调用
+---
+
+## 🔧 更多能力
+
+| 能力 | 说明 |
+|------|------|
+| 按钮系统 | `bindButton(node, callback, { sound, cooldown })` — 音效 + 防连击一行搞定 |
+| Tween 管理 | `this.createTween(target).to(0.3, { scale }).start()` — 组件销毁自动 stop |
+| 事件绑定 | `this.bindEvent(node, type, callback)` — 自动清理，无需手动 off |
+| PureMVC | `@registerView` / `@registerProxy` / `@registerCmd` 装饰器注册 |
+| 启动场景 | 编辑器菜单一键生成 root / game / gui / UICamera 节点树 |
+| 工具库 | FSM / AsyncQueue / Stack / BoundedQueue / StringUtil |
+
+---
+
+## 🔗 全局入口
+
+```typescript
+// 无需 import，直接调用
+M.ui.open("ShopUI");           // 管理器：ui / audio / net / res / event / timer ...
+H.log.info("hello");           // 辅助类：log / core / sort / audioHelper / ut
+```
+
+---
 
 ## 环境
 
-Cocos Creator 3.8+ · Node.js 18+
+Cocos Creator 3.8+ · TypeScript · Node.js 18+
