@@ -32,7 +32,6 @@ Cocos Creator 3.8+ 游戏框架扩展。
 
 ## 其他模块
 
-- **SDK** — `M.sdk` 第三方集成
 - **热更新** — `M.hotupdate` Cocos Creator 热更新
 - **PureMVC** — `puremvc/` MVC 架构适配
 - **装饰器** — `@registerView` 视图配置注册
